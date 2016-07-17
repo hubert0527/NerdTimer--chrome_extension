@@ -1,3 +1,5 @@
+
+
 function addToBlackList(){
     getCurrentTabUrl(function(url){
 
@@ -33,6 +35,8 @@ function saveFile(){
         }
     }
     chrome.storage.local.set({'blackListData': str});
+
+    chrome.storage.local.set({'needReload': true});
 }
 
 function loadFile(callBack){
@@ -62,18 +66,16 @@ function loadFile(callBack){
 
 
             // purify just read lists
-            if(purifiedBlack==undefined) {
-                purifiedBlack = [];
-                for (i = 0; i < blackList.length; i++) {
-                    purifiedBlack.push(purifyUrl(blackList[i]));
-                }
+            purifiedBlack = [];
+            for (i = 0; i < blackList.length; i++) {
+                purifiedBlack.push(purifyUrl(blackList[i]));
             }
-            if(purifiedWhite==undefined) {
-                purifiedWhite = [];
-                for (i = 0; i < whiteList.length; i++) {
-                    purifiedWhite.push(purifyUrl(whiteList[i]));
-                }
+            
+            purifiedWhite = [];
+            for (i = 0; i < whiteList.length; i++) {
+                purifiedWhite.push(purifyUrl(whiteList[i]));
             }
+
             if(callBack!=undefined) callBack();
 
         });

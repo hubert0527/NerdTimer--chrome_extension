@@ -12,6 +12,8 @@ if (!chrome.runtime) {
 
 var hasBlocked = false;
 var currentTab = undefined;
+var isCheckingReload = false;
+var needInit = true;
 
 function getCurrentTabUrl(callback) {
   var queryInfo = {
@@ -22,7 +24,7 @@ function getCurrentTabUrl(callback) {
   chrome.tabs.query(queryInfo, function(tabs) {
     var tab = tabs[0];
     var url = tab.url;
-    console.assert(typeof url == 'string', 'tab.url should be a string');
+    //console.assert(typeof url == 'string', 'tab.url should be a string');
 
     currentTab = tab;
 
@@ -207,12 +209,15 @@ function purifyUrl(url){
         }
     }
 
-    console.log("purified = " + purified);
+    //console.log("purified = " + purified);
 
     return purified;
 }
 
-
+/**
+ * get current url, purify it
+ *  and check in black and white list to judge whether need process
+ */
 function dealingUrl(){
     getCurrentTabUrl(function(url) {
 
@@ -223,6 +228,7 @@ function dealingUrl(){
         var isBad = checkBlock(purified);
 
         console.log("black? " + isBad);
+        console.log("blacks: " + blackList.toString());
 
         if(isBad){
 
@@ -247,19 +253,44 @@ function dealingUrl(){
     });
 }
 
+/**
+ * check if after last reload, whether the list has been saved and need another reload
+ * @param callBack
+ */
+function checkIfReload(callBack){
+
+    var needReload;
+
+    chrome.storage.local.get("needReload",function(data) {
+        var needReload = data.needReload;
+
+        chrome.storage.local.set({'needReload': false},function(){
+            isCheckingReload = false;
+        });
+
+        callBack(needReload);
+    });
+
+}
 
 chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
   if (changeInfo.status == 'complete') {
-      //if (changeInfo.status == 'complete') {
-      //document.getElementById("saveButton").addEventListener("click", saveFile);
 
-      //document.getElementById("test").addEventListener("click", test);
-      //document.getElementById("add").addEventListener("click", addToBlackList);
+      // check if has new setting?
+      if(isCheckingReload) return;
+      isCheckingReload = true;
+      checkIfReload(function(needReload){
+          if(needInit){
+              loadFile(dealingUrl);
+              needInit = false;
+          }
+          else if(needReload){
+              loadFile(dealingUrl);
+          }
+          else{
+              dealingUrl();
+          }
+      });
 
-      loadFile(dealingUrl);
-
-      //sendResponse({taskDone: "taskDone!"});
-
-      //sendResponse({taskDone: "not Yet!"});
   }
 });

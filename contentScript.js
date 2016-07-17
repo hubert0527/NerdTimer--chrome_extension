@@ -18,6 +18,7 @@ if (!chrome.runtime) {
 //
 // });
 
+
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
     if (msg.black=="true") {
@@ -37,10 +38,28 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             + '");',
             'document.body.appendChild(d);'
         ].join("\n");
-        while (currentTab == undefined) {
-        }
-        chrome.tabs.executeScript(currentTab.id, {code: mDiv});
 
-        sendResponse({re: "done"});
+        getCurrentTabUrl(function () {
+            chrome.tabs.executeScript(currentTab.id, {code: mDiv});
+        });
+
     }
 },false);
+
+function getCurrentTabUrl(callback) {
+  var queryInfo = {
+    active: true,
+    currentWindow: true
+  };
+
+  chrome.tabs.query(queryInfo, function(tabs) {
+    var tab = tabs[0];
+    var url = tab.url;
+    //console.assert(typeof url == 'string', 'tab.url should be a string');
+
+    currentTab = tab;
+
+    callback(url);
+  });
+
+}
