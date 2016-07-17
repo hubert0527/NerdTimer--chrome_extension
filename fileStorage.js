@@ -1,19 +1,4 @@
-
-
-function addToBlackList(){
-    getCurrentTabUrl(function(url){
-
-        // check if already exist
-        for(var i=0; i<blackList.length;i++){
-            if(blackList[i]==url) return;
-        }
-
-        blackList.push(url);
-        saveFile();
-    });
-}
-
-function saveFile(){
+function saveFile(callBack){
     // save lists
     var i,j;
     var str;
@@ -25,18 +10,22 @@ function saveFile(){
             str+= ("::"+whiteList[j]);
         }
     }
-    chrome.storage.local.set({'whiteListData': str});
-
-    str = "";
-    for(j=0;j<blackList.length;j++) {
-        if(str=="") str = blackList[j];
-        else{
-            str+= ("::"+blackList[j]);
+    chrome.storage.local.set({'whiteListData': str},function(){
+        str = "";
+        for(j=0;j<blackList.length;j++) {
+            if(str=="") str = blackList[j];
+            else{
+                str+= ("::"+blackList[j]);
+            }
         }
-    }
-    chrome.storage.local.set({'blackListData': str});
+        chrome.storage.local.set({'blackListData': str},function(){
+            chrome.storage.local.set({'needReload': true},function(){
+                if(callBack!=undefined) callBack();
+            });
+        });
 
-    chrome.storage.local.set({'needReload': true});
+    });
+
 }
 
 function loadFile(callBack){
@@ -48,8 +37,8 @@ function loadFile(callBack){
 
         if(str!=undefined) {
             var spw = str.split("::");
-            for (i = 0; i < spw,length; i++) {
-                whiteList[i] = spw[i];
+            for (i = 0; i < spw.length; i++) {
+                whiteList.push(spw[i]);
             }
         }
 
@@ -60,7 +49,7 @@ function loadFile(callBack){
             if(str!=undefined) {
                 var spb = str.split("::");
                 for (i = 0; i < spb.length; i++) {
-                    blackList[i] = spb[i];
+                    blackList.push(spb[i]);
                 }
             }
 
@@ -70,7 +59,7 @@ function loadFile(callBack){
             for (i = 0; i < blackList.length; i++) {
                 purifiedBlack.push(purifyUrl(blackList[i]));
             }
-            
+
             purifiedWhite = [];
             for (i = 0; i < whiteList.length; i++) {
                 purifiedWhite.push(purifyUrl(whiteList[i]));
@@ -89,7 +78,7 @@ function test(){
     var i;
     chrome.storage.local.get("whiteListData",function(data){
         var str = data.whiteListData;
-        console.log("load: " + str);
+        console.log("load white: " + str);
         //whiteList = [];
 
         if(str!=undefined) {
@@ -102,7 +91,7 @@ function test(){
         // load black
         chrome.storage.local.get("blackListData",function(data){
             var str = data.blackListData;
-            console.log("load: " + str);
+            console.log("load black: " + str);
             //blackList = [];
             if(str!=undefined) {
                 var spb = str.split("::");
@@ -110,6 +99,11 @@ function test(){
                     blackList[i] = spb[i];
                 }
             }
+
+            chrome.storage.local.get("needReload",function(data){
+                var str = data.needReload;
+                console.log("load needReload: " + str.toString());
+            });
 
         });
 

@@ -10,28 +10,9 @@ if (!chrome.runtime) {
     chrome.runtime.connect = chrome.extension.connect;
 }
 
-var hasBlocked = false;
 var currentTab = undefined;
 var isCheckingReload = false;
 var needInit = true;
-
-function getCurrentTabUrl(callback) {
-  var queryInfo = {
-    active: true,
-    currentWindow: true
-  };
-
-  chrome.tabs.query(queryInfo, function(tabs) {
-    var tab = tabs[0];
-    var url = tab.url;
-    //console.assert(typeof url == 'string', 'tab.url should be a string');
-
-    currentTab = tab;
-
-    callback(url);
-  });
-
-}
 
 var ignore = [
     "www",
@@ -54,6 +35,7 @@ var whiteList = [
 
 var purifiedBlack;
 var purifiedWhite;
+
 
 function purifyBlackAndWhite(){
     var i;
@@ -127,6 +109,13 @@ function isInList(mstr, lstr){
     return false;
 }
 
+/**
+ * cut current searching URL and compare to each stored list item
+ * TODO: remove comparable object from list each time case not match
+ * @param str
+ * @returns {boolean}
+ */
+
 function checkBlock(str){
     var temp = str;
     var i;
@@ -145,75 +134,6 @@ function checkBlock(str){
     return false;
 }
 
-function clearLast(str){
-    var i, pivot=-1;
-    for(i=str.length-1;i>=0;i--){
-        if(str[i]=='/') {
-            pivot=i;
-            break;
-        }
-    }
-
-    if(pivot==-1) return "";
-    else{
-        return str.substring(0,pivot);
-    }
-
-}
-
-function purifyUrl(url){
-
-    // eliminate prefix http:// or https://
-    var i,j,k;
-    var pure='', prev, cur, start_pos=-1;
-    for(i=1;i<url.length;i++){
-        prev = url[i-1];
-        cur = url[i];
-        if(prev=='/' && cur=='/'){
-            start_pos = i+1;
-            continue;
-        }
-        if(start_pos!=-1){
-            pure += url[i];
-        }
-    }
-
-    var spSlash = pure.split("/");
-    var purified = "";
-    for(i=0;i<spSlash.length;i++){
-        var spDot = spSlash[i].split(".");
-        var temp = "";
-        for(j=0;j<spDot.length;j++){
-            var valid = true;
-            for(k=0;k<ignore.length;k++){
-                var ignoreStr = ignore[k];
-                if(spDot[j]==ignoreStr) {
-                    valid = false;
-                    break;
-                }
-            }
-            if(valid == true) {
-                if (temp == "") temp += spDot[j];
-                else{
-                    temp += ("."+spDot[j]);
-                }
-            }
-        }
-        if(temp!="") {
-            if (purified == "") {
-                purified += temp;
-            }
-            else {
-                purified += ("/" + temp);
-            }
-        }
-    }
-
-    //console.log("purified = " + purified);
-
-    return purified;
-}
-
 /**
  * get current url, purify it
  *  and check in black and white list to judge whether need process
@@ -229,6 +149,7 @@ function dealingUrl(){
 
         console.log("black? " + isBad);
         console.log("blacks: " + blackList.toString());
+        console.log("whites: " + whiteList.toString());
 
         if(isBad){
 

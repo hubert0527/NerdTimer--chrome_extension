@@ -1,4 +1,3 @@
-
 var blackList = [
     "www.facebook.com",
     "m.facebook.com"
@@ -20,84 +19,112 @@ var ignore = [
 
 var purifiedBlack;
 var purifiedWhite;
+//
+// $(window).load(function(){
+//     loadFile();
+//     console.log("blacks: " + blackList.toString());
+//     console.log("whites: " + whiteList.toString());
+//     $(window).load(function(){
+//         $(document.getElementsByTagName("BODY")).css("background-color","red");
+//     });
+// });
 
 window.addEventListener("DOMContentLoaded", function() {
 
     loadFile();
     document.getElementById("test").addEventListener("click", test);
-    document.getElementById("add").addEventListener("click", addToBlackList);
+    document.getElementById("addToBlackList").addEventListener("click", addOnlyThisPageToBlackList);
+    document.getElementById("addToWhiteList").addEventListener("click", addToWhiteList);
 
     console.log("blacks: " + blackList.toString());
+    console.log("whites: " + whiteList.toString());
 
 });
 
-function getCurrentTabUrl(callback) {
-  var queryInfo = {
-    active: true,
-    currentWindow: true
-  };
+var refreshTab = "";
 
-  chrome.tabs.query(queryInfo, function(tabs) {
-    var tab = tabs[0];
-    var url = tab.url;
-    //console.assert(typeof url == 'string', 'tab.url should be a string');
+/**
+ * four modes
+ * 1. lock this domain
+ * 2. lock only this page
+ * 3. lock partly domain (multiple choice)
+ */
+function addBaseDomainToBlackList(){
+    getCurrentTabUrl(function(url){
 
-    currentTab = tab;
+        // check if already exist
+        for(var i=0; i<blackList.length;i++){
+            if(blackList[i]==url) return;
+        }
+        for(var i=0; i<whiteList.length;i++){
+            if(whiteList[i]==url) return;
+        }
 
-    callback(url);
-  });
+        blackList.push(url);
+        saveFile(function(){
+            getCurrentTab(function(tab){
+                chrome.tabs.reload(tab.id);
+                console.log("add to black and refresh");
+            });
+        });
 
+
+    });
 }
 
-function purifyUrl(url){
+function addOnlyThisPageToBlackList(){
+    getCurrentTabUrl(function(url){
 
-    // eliminate prefix http:// or https://
-    var i,j,k;
-    var pure='', prev, cur, start_pos=-1;
-    for(i=1;i<url.length;i++){
-        prev = url[i-1];
-        cur = url[i];
-        if(prev=='/' && cur=='/'){
-            start_pos = i+1;
-            continue;
+        // check if already exist
+        for(var i=0; i<blackList.length;i++){
+            if(blackList[i]==url) return;
         }
-        if(start_pos!=-1){
-            pure += url[i];
+        for(var i=0; i<whiteList.length;i++){
+            if(whiteList[i]==url) return;
         }
-    }
 
-    var spSlash = pure.split("/");
-    var purified = "";
-    for(i=0;i<spSlash.length;i++){
-        var spDot = spSlash[i].split(".");
-        var temp = "";
-        for(j=0;j<spDot.length;j++){
-            var valid = true;
-            for(k=0;k<ignore.length;k++){
-                var ignoreStr = ignore[k];
-                if(spDot[j]==ignoreStr) {
-                    valid = false;
-                    break;
-                }
-            }
-            if(valid == true) {
-                if (temp == "") temp += spDot[j];
-                else{
-                    temp += ("."+spDot[j]);
-                }
-            }
-        }
-        if(temp!="") {
-            if (purified == "") {
-                purified += temp;
-            }
-            else {
-                purified += ("/" + temp);
-            }
-        }
-    }
+        blackList.push(url);
+        saveFile(function(){
+            getCurrentTab(function(tab){
+                chrome.tabs.reload(tab.id);
+                console.log("add to black and refresh");
+            });
+        });
 
-    //console.log("purified = " + purified);
 
-    return purified;
+    });
+}
+
+function addToWhiteList(){
+    getCurrentTabUrl(function(url){
+
+        // check if already exist
+        for(var i=0; i<whiteList.length;i++){
+            if(whiteList[i]==url) return;
+        }
+        for(var i=0; i<blackList.length;i++){
+            if(blackList[i]==url) return;
+        }
+
+        whiteList.push(url);
+        saveFile(function(){
+            getCurrentTab(function(tab){
+                chrome.tabs.reload(tab.id);
+                console.log("add to white and refresh");
+            });
+        });
+    });
+}
+
+function getCurrentTab(callback) {
+    var queryInfo = {
+        active: true,
+        currentWindow: true
+    };
+
+    chrome.tabs.query(queryInfo, function(tabs) {
+        var tab = tabs[0];
+
+        callback(tab);
+    });
 }

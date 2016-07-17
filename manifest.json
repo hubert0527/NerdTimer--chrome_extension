@@ -1,14 +1,14 @@
 {
   "manifest_version": 2,
 
-  "name": "Getting started example",
-  "description": "This extension shows a Google Image search result for the current page",
+  "name": "廢宅計時器",
+  "description": "控制一下自己別再耍廢了",
   "version": "1.0",
 
   "browser_action": {
     "default_icon": "icon.png",
     "default_popup": "popup.html",
-    "default_title": "Click here!"
+    "default_title": "點就對了!"
   },
   "permissions": [
     "activeTab",
@@ -19,13 +19,13 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["contentScript.js","jquery-1.11.3.min.js"],
+      "js": ["contentScript.js","jquery-1.11.3.min.js","utility.js"],
       "run_at": "document_end"
     }
   ],
   "background": {
     "scripts": [
-      "backgroundScript.js", "jquery-1.11.3.min.js", "fileStorage.js"
+      "backgroundScript.js", "jquery-1.11.3.min.js", "fileStorage.js", "utility.js"
     ]
   }
 }
