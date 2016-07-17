@@ -1,13 +1,14 @@
-function purifyUrl(url){
 
-    // eliminate prefix http:// or https://
-    var i,j,k;
+function cutOffHeadAndTail(url){
+    var i;
     var pure='', prev, cur, start_pos=-1;
+    var alreadyPure = true;
     for(i=1;i<url.length-1;i++){
         prev = url[i-1];
         cur = url[i];
         if(prev=='/' && cur=='/'){
             start_pos = i+1;
+            alreadyPure = false;
             continue;
         }
         if(start_pos!=-1){
@@ -15,6 +16,26 @@ function purifyUrl(url){
         }
     }
     if(url[i]!='/') pure+=url[i];
+
+    if(alreadyPure){
+        // still need to cut off tail
+        if(url[url.length-1]=='/') {
+            return url.substring(0, url.length-1);
+        }
+        else{
+            return url;
+        }
+    }
+
+    return pure;
+}
+
+function purifyUrl(url){
+
+    // eliminate prefix http:// or https://
+    var i,j,k;
+
+    var pure = cutOffHeadAndTail(url);
 
     var spSlash = pure.split("/");
     var purified = "";

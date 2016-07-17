@@ -33,8 +33,10 @@ window.addEventListener("DOMContentLoaded", function() {
 
     loadFile();
     document.getElementById("test").addEventListener("click", test);
-    document.getElementById("addToBlackList").addEventListener("click", addOnlyThisPageToBlackList);
-    document.getElementById("addToWhiteList").addEventListener("click", addToWhiteList);
+    document.getElementById("addCurrentPageToBlackList").addEventListener("click", addOnlyThisPageToBlackList);
+    document.getElementById("addBaseDomainToBlackList").addEventListener("click", addBaseDomainToBlackList);
+    document.getElementById("addCurrentPageToWhiteList").addEventListener("click", addOnlyThisPageToWhiteList);
+    document.getElementById("addBaseDomainToWhiteList").addEventListener("click", addBaseDomainToWhiteList);
 
     console.log("blacks: " + blackList.toString());
     console.log("whites: " + whiteList.toString());
@@ -49,8 +51,16 @@ var refreshTab = "";
  * 2. lock only this page
  * 3. lock partly domain (multiple choice)
  */
+
 function addBaseDomainToBlackList(){
-    getCurrentTabUrl(function(url){
+    getCurrentTabUrl(function(rawUrl){
+
+        var url = cutOffHeadAndTail(rawUrl);
+
+        var temp;
+        while( (temp = clearLast(url))!=""){
+            url = temp;
+        }
 
         // check if already exist
         for(var i=0; i<blackList.length;i++){
@@ -64,7 +74,7 @@ function addBaseDomainToBlackList(){
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.reload(tab.id);
-                console.log("add to black and refresh");
+                console.log("add " + url + " to black and refresh");
             });
         });
 
@@ -73,7 +83,9 @@ function addBaseDomainToBlackList(){
 }
 
 function addOnlyThisPageToBlackList(){
-    getCurrentTabUrl(function(url){
+    getCurrentTabUrl(function(rawUrl){
+
+        var url = cutOffHeadAndTail(rawUrl);
 
         // check if already exist
         for(var i=0; i<blackList.length;i++){
@@ -87,7 +99,7 @@ function addOnlyThisPageToBlackList(){
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.reload(tab.id);
-                console.log("add to black and refresh");
+                console.log("add " + url + " to black and refresh");
             });
         });
 
@@ -95,8 +107,40 @@ function addOnlyThisPageToBlackList(){
     });
 }
 
-function addToWhiteList(){
-    getCurrentTabUrl(function(url){
+function addBaseDomainToWhiteList(){
+    getCurrentTabUrl(function(rawUrl){
+
+        var url = cutOffHeadAndTail(rawUrl);
+
+        var temp;
+        while( (temp = clearLast(url))!=""){
+            url = temp;
+        }
+
+        // check if already exist
+        for(var i=0; i<blackList.length;i++){
+            if(blackList[i]==url) return;
+        }
+        for(var i=0; i<whiteList.length;i++){
+            if(whiteList[i]==url) return;
+        }
+
+        whiteList.push(url);
+        saveFile(function(){
+            getCurrentTab(function(tab){
+                chrome.tabs.reload(tab.id);
+                console.log("add " + url + " to white and refresh");
+            });
+        });
+
+
+    });
+}
+
+function addOnlyThisPageToWhiteList(){
+    getCurrentTabUrl(function(rawUrl){
+
+        var url = cutOffHeadAndTail(rawUrl);
 
         // check if already exist
         for(var i=0; i<whiteList.length;i++){
@@ -110,7 +154,7 @@ function addToWhiteList(){
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.reload(tab.id);
-                console.log("add to white and refresh");
+                console.log("add " + url + " to white and refresh");
             });
         });
     });
