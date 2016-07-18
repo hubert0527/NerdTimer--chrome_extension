@@ -12,6 +12,7 @@ if (!chrome.runtime) {
 
 function init(){
     loadBlocker();
+    loadFile();
 }
 init();
 
@@ -258,11 +259,7 @@ chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
 
         // check if has new setting?
         checkIfReload(function(needReload){
-            if(needInit){
-                loadFile(dealingUrl,tab);
-                needInit = false;
-            }
-            else if(needReload){
+            if(needReload){
                 loadFile(dealingUrl,tab);
             }
             else{
