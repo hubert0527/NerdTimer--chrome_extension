@@ -24,6 +24,9 @@ var ignore = [
     "jp"
 ];
 
+var singleBlack = [];
+var singleWhite = [];
+
 var blackList = [
     "www.facebook.com",
     "m.facebook.com"
@@ -39,7 +42,14 @@ var purifiedWhite;
 
 function purifyBlackAndWhite(){
     var i;
-    // purify white and black first
+
+    for(i=0;i<singleBlack.length;i++){
+        singleBlack[i] = purifyUrl(singleBlack[i]);
+    }
+    for(i=0;i<singleWhite.length;i++){
+        singleWhite[i] = purifyUrl(singleWhite[i]);
+    }
+
     purifiedBlack = new Array(blackList.length);
     for(i=0;i<blackList.length;i++){
         purifiedBlack[i] = purifyUrl(blackList[i]);
@@ -120,6 +130,15 @@ function checkBlock(str){
     var temp = str;
     var i;
 
+    // search single page first
+    for(i=0;i<singleWhite.length;i++){
+        if(str==singleWhite[i]) return false;
+    }
+    for(i=0;i<singleBlack.length;i++){
+        if(str == singleBlack[i]) return true;
+    }
+
+    // search in domain
     do{
         // search white first
         for(i=0;i<purifiedWhite.length;i++){
@@ -138,8 +157,10 @@ function checkBlock(str){
  * get current url, purify it
  *  and check in black and white list to judge whether need process
  */
-function dealingUrl(){
-    getCurrentTabUrl(function(url) {
+function dealingUrl(tab){
+    //getCurrentTabUrl(function(url) {
+
+        var url = tab.url;
 
         purifyBlackAndWhite();
 
@@ -153,25 +174,40 @@ function dealingUrl(){
 
         if(isBad){
 
-            var queryInfo = {
-                active: true,
-                currentWindow: true
-            };
-
-            // chrome.tabs.sendMessage(currentTab.id, {
-            //             black: "true"
+            // var queryInfo = {
+            //     active: true,
+            //     currentWindow: true
+            // };
+            // chrome.tabs.query(queryInfo, function(tabs) {
+            //     var tab = tabs[0].id;
+            //     chrome.tabs.sendMessage(tabs[0].id, {black: "true"}, function(response) {
+            //         //console.log("response: " + response.re);
+            //     });
             // });
 
-            chrome.tabs.query(queryInfo, function(tabs) {
-                var tab = tabs[0].id;
-                chrome.tabs.sendMessage(tabs[0].id, {black: "true"}, function(response) {
-                    //console.log("response: " + response.re);
-                });
+            chrome.tabs.sendMessage(tab.id, {black: "true"}, function(response) {
+                console.log("send message to " + tab.url + " id = " + tab.id);
             });
 
         }
+        else{
+            // some pages not fully reload while refresh, so force unload
+            // var queryInfo = {
+            //     active: true,
+            //     currentWindow: true
+            // };
+            // chrome.tabs.query(queryInfo, function(tabs) {
+            //     var tab = tabs[0].id;
+            //     chrome.tabs.sendMessage(tabs[0].id, {black: "false"}, function(response) {
+            //         //console.log("response: " + response.re);
+            //     });
+            // });
+            chrome.tabs.sendMessage(tab.id, {black: "false"}, function(response) {
+                console.log("send message to " + tab.url + " id = " + tab.id);
+            });
+        }
 
-    });
+    //});
 }
 
 /**
@@ -194,24 +230,30 @@ function checkIfReload(callBack){
 
 }
 
+var queue = [];
+
 chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
-  if (changeInfo.status == 'complete') {
+    if (changeInfo.status == 'complete') {
 
-      // check if has new setting?
-      if(isCheckingReload) return;
-      isCheckingReload = true;
-      checkIfReload(function(needReload){
-          if(needInit){
-              loadFile(dealingUrl);
-              needInit = false;
-          }
-          else if(needReload){
-              loadFile(dealingUrl);
-          }
-          else{
-              dealingUrl();
-          }
-      });
+        // check if has new setting?
+        // if(isCheckingReload){
+        //     queue.push(tab);
+        //     return;
+        // }
+        // isCheckingReload = true;
+        checkIfReload(function(needReload){
+            if(needInit){
+                loadFile(dealingUrl,tab);
+                needInit = false;
+            }
+            else if(needReload){
+                loadFile(dealingUrl,tab);
+            }
+            else{
+                dealingUrl(tab);
+            }
+        });
 
-  }
+    }
+
 });

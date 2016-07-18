@@ -19,16 +19,41 @@ function saveFile(callBack){
             }
         }
         chrome.storage.local.set({'blackListData': str},function(){
-            chrome.storage.local.set({'needReload': true},function(){
-                if(callBack!=undefined) callBack();
+
+            str = "";
+            for(j=0;j<singleWhite.length;j++) {
+                if(str=="") str = singleWhite[j];
+                else{
+                    str+= ("::"+singleWhite[j]);
+                }
+            }
+            chrome.storage.local.set({'singleWhiteData': str},function(){
+
+                str = "";
+                for(j=0;j<singleBlack.length;j++) {
+                    if(str=="") str = singleBlack[j];
+                    else{
+                        str+= ("::"+singleBlack[j]);
+                    }
+                }
+                chrome.storage.local.set({'singleBlackData': str},function(){
+
+                    chrome.storage.local.set({'needReload': true},function(){
+                        if(callBack!=undefined) callBack();
+                    });
+
+                });
+
             });
+
         });
 
     });
 
 }
 
-function loadFile(callBack){
+
+function loadFile(callBack,tab){
     // get list
     var i;
     chrome.storage.local.get("whiteListData",function(data){
@@ -65,7 +90,29 @@ function loadFile(callBack){
                 purifiedWhite.push(purifyUrl(whiteList[i]));
             }
 
-            if(callBack!=undefined) callBack();
+            chrome.storage.local.get("singleBlackData",function(data) {
+                var str = data.singleBlackData;
+                singleBlack = [];
+                if (str != undefined) {
+                    var spsb = str.split("::");
+                    for (i = 0; i < spsb.length; i++) {
+                        singleBlack.push(spsb[i]);
+                    }
+                }
+                chrome.storage.local.get("singleWhiteData",function(data) {
+                    var str = data.singleWhiteData;
+                    singleWhite = [];
+                    if (str != undefined) {
+                        var spsw = str.split("::");
+                        for (i = 0; i < spsw.length; i++) {
+                            singleWhite.push(spsw[i]);
+                        }
+                    }
+
+                    if(callBack!=undefined) callBack(tab);
+
+                });
+            });
 
         });
 
@@ -100,9 +147,29 @@ function test(){
                 }
             }
 
-            chrome.storage.local.get("needReload",function(data){
-                var str = data.needReload;
-                console.log("load needReload: " + str.toString());
+            chrome.storage.local.get("singleBlackData",function(data) {
+                var str = data.singleBlackData;
+                console.log("load single black: " + str);
+                singleBlack = [];
+                if (str != undefined) {
+                    var spsb = str.split("::");
+                    for (i = 0; i < spsb.length; i++) {
+                        singleBlack.push(spsb[i]);
+                    }
+                }
+                chrome.storage.local.get("singleWhiteData",function(data) {
+                    var str = data.singleWhiteData;
+                    console.log("load single white: " + str);
+                    singleWhite = [];
+                    if (str != undefined) {
+                        var spsw = str.split("::");
+                        for (i = 0; i < spsw.length; i++) {
+                            singleWhite.push(spsw[i]);
+                        }
+                    }
+
+
+                });
             });
 
         });

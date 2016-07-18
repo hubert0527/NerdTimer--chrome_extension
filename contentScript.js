@@ -10,11 +10,34 @@ if (!chrome.runtime) {
     chrome.runtime.connect = chrome.extension.connect;
 }
 
+chrome.runtime.sendMessage({newPageLoad: "hello"}, function(response) {
+});
+
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
     if (msg.black=="true") {
+        var tar = document.getElementById("nerdDiv");
+        if(tar!=undefined){
+            return;
+        }
 
-        $(document.body).css("background-color", "red");
+        var iDiv = document.createElement('div');
+        iDiv.id = "nerdDiv";
+        $(iDiv).css("background-color","red");
+        $(iDiv).css("position","fixed");
+        $(iDiv).css("width","100%");
+        $(iDiv).css("height","100%");
+        $(iDiv).css("opacity","0.5");
+        $(iDiv).css("z-index","2147483647");
+        $(iDiv).css("top","0");
+        $(iDiv).css("left","0");
 
+        document.getElementsByTagName("BODY")[0].appendChild(iDiv);
+    }
+    else if(msg.black=="false"){
+        var tar = document.getElementById("nerdDiv");
+        if(tar!=undefined){
+            document.getElementsByTagName("BODY")[0].removeChild(tar);
+        }
     }
 },false);
