@@ -33,6 +33,9 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         $(iDiv).css("left","0");
 
         document.getElementsByTagName("BODY")[0].appendChild(iDiv);
+
+        var path = chrome.extension.getURL("./popup.html");
+        $('#nerdDiv').load(path);
     }
     else if(msg.black=="false"){
         var tar = document.getElementById("nerdDiv");
