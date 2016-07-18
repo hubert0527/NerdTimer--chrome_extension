@@ -24,13 +24,13 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["contentScript.js","jquery-1.11.3.min.js","utility.js"],
+      "js": ["jquery-1.11.3.min.js","utility.js","contentScript.js"],
       "run_at": "document_end"
     }
   ],
   "background": {
     "scripts": [
-      "backgroundScript.js", "jquery-1.11.3.min.js", "fileStorage.js", "utility.js"
+      "jquery-1.11.3.min.js", "fileStorage.js", "utility.js","backgroundScript.js"
     ]
   }
 }

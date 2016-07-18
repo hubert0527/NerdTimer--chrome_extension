@@ -10,6 +10,11 @@ if (!chrome.runtime) {
     chrome.runtime.connect = chrome.extension.connect;
 }
 
+function init(){
+    loadBlocker();
+}
+init();
+
 // content of blocker
 var mainMessage="Better stop now!";
 
