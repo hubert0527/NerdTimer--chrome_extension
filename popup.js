@@ -39,13 +39,27 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("addBaseDomainToBlackList").addEventListener("click", addBaseDomainToBlackList);
     document.getElementById("addCurrentPageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
     document.getElementById("addBaseDomainToWhiteList").addEventListener("click", addBaseDomainToWhiteList);
+    document.getElementById("submitMainMessage").addEventListener("click", submitMainMessage);
 
     console.log("blacks: " + blackList.toString());
     console.log("whites: " + whiteList.toString());
 
 });
 
-var refreshTab = "";
+
+var mainMessage="Better stop now!";
+
+function submitMainMessage(){
+    var newMessage = document.getElementById("mainMessageModifyInput").value;
+    if(newMessage=="") return;
+    loadBlocker(function(){
+        if(newMessage!=mainMessage) {
+            chrome.runtime.sendMessage({modifyMainMessage: newMessage}, function (response) {
+                console.log("modifyMainMessage");
+            });
+        }
+    });
+}
 
 /**
  * four modes
@@ -204,19 +218,6 @@ function addSubDomainToWhiteList(rawUrl){
             chrome.tabs.reload(tab.id);
             console.log("add " + url + " to white and refresh");
         });
-    });
-}
-
-function getCurrentTab(callback) {
-    var queryInfo = {
-        active: true,
-        currentWindow: true
-    };
-
-    chrome.tabs.query(queryInfo, function(tabs) {
-        var tab = tabs[0];
-
-        callback(tab);
     });
 }
 

@@ -89,3 +89,16 @@ function clearLast(str){
 
 }
 
+function getCurrentTab(callback) {
+    var queryInfo = {
+        active: true,
+        currentWindow: true
+    };
+
+    chrome.tabs.query(queryInfo, function(tabs) {
+        var tab = tabs[0];
+
+        callback(tab);
+    });
+}
+

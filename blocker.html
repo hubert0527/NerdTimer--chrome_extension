@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Block you!</title>
+
+</head>
+<body>
+    <div style="height: 100%;width: 100%;">
+        <div id="central_container" style="width:80%;margin-left:10%;margin-top:20vh;text-align: center; padding-bottom: 20%;">
+            <div id="central_message">
+                <h1 id="main_message" style="font-size:15vh"></h1>
+            </div>
+        </div>
+        <span style="height: 100%;display: inline-block"></span>
+
+    </div>
+    <script>
+        console.log("none");
+// DONT KNOW THY THIS SCRIPT JUST DON'T WORK QAQ
+        $("#central_container").ready(function(){
+            var target = document.getElementById("main_message");
+
+            chrome.runtime.sendMessage({blockerLoadRequest: "giveMeData"}, function(response) {
+                console.log(response.mainMessage);
+                $(target).text(response.mainMessage);
+            });
+
+        });
+//        chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
+//            var target = document.getElementById("main_message");
+//            $(target).text("done!");
+//            console.log("haha");
+//        });
+
+    </script>
+</body>
+</html>

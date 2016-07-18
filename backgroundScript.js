@@ -10,6 +10,9 @@ if (!chrome.runtime) {
     chrome.runtime.connect = chrome.extension.connect;
 }
 
+// content of blocker
+var mainMessage="Better stop now!";
+
 var currentTab = undefined;
 var isCheckingReload = false;
 var needInit = true;
@@ -230,17 +233,25 @@ function checkIfReload(callBack){
 
 }
 
-var queue = [];
+chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
+    if (msg && msg.blockerLoadRequest == "giveMeData") {
+        loadBlocker();
+        sendResponse({"mainMessage":mainMessage.toString()});
+    }
+    else if(msg && msg.modifyMainMessage){
+        mainMessage = msg.modifyMainMessage;
+        saveBlocker(function(){
+            getCurrentTab(function(tab){
+                chrome.tabs.reload(tab.id);
+            });
+        });
+    }
+});
 
 chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
     if (changeInfo.status == 'complete') {
 
         // check if has new setting?
-        // if(isCheckingReload){
-        //     queue.push(tab);
-        //     return;
-        // }
-        // isCheckingReload = true;
         checkIfReload(function(needReload){
             if(needInit){
                 loadFile(dealingUrl,tab);

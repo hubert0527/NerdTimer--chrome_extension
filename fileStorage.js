@@ -1,3 +1,20 @@
+function saveBlocker(callback){
+    chrome.storage.local.set({'mainMessage': mainMessage},function(){
+        if(callback){
+            callback();
+        }
+    });
+}
+
+function loadBlocker(callback){
+    chrome.storage.local.get('mainMessage',function(data){
+        if(data.mainMessage!="" && data.mainMessage!=undefined) mainMessage = data.mainMessage;
+        if(callback){
+            callback();
+        }
+    });
+}
+
 function saveFile(callBack){
     // save lists
     var i,j;
@@ -168,6 +185,11 @@ function test(){
                         }
                     }
 
+                    // getCurrentTab(function(tab){
+                    //     chrome.tabs.sendMessage(tab.id, {none: "none"}, function(response) {
+                    //         console.log("send message to " + tab.url + " id = " + tab.id);
+                    //     });
+                    // });
 
                 });
             });

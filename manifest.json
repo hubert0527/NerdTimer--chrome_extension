@@ -7,7 +7,7 @@
 
 
   "web_accessible_resources": [
-    "popup.html"
+    "blocker.html"
   ],
 
   "browser_action": {
