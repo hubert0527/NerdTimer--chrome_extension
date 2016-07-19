@@ -13,9 +13,18 @@ if (!chrome.runtime) {
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
     if (msg && msg.black=="true") {
-        var tar = document.getElementById("nerdDiv");
+        console.log("got black");
+        var tar = document.getElementById("wrapper");
         if(tar!=undefined){
-            return;
+            if($(tar).is(":visible")) {
+                // already blocked
+                return;
+            }
+            else{
+                $('#wrapper').fadeIn("slow");
+                console.log("turn unvisible to visible");
+                return;
+            }
         }
 
         var iDiv = document.createElement('div');

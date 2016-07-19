@@ -19,6 +19,8 @@ init();
 // 魯古今中外至陳之魯
 // 宅晝夜最廢之宅
 
+var isWaiting5Min = false;
+
 // content of blocker
 var mainMessage="Better stop now!";
 
@@ -79,7 +81,10 @@ function isInList(mstr, lstr){
     var i,j,k;
 
     if(sL.length==sM.length){
-        for(i=0;i<sL.length;i++){
+        if(sL[0]!=sM[0]){
+            return false;
+        }
+        for(i=1;i<sL.length;i++){
             var conL = [];
             var conM = [];
             var cursor;
@@ -172,6 +177,7 @@ function checkBlock(str){
 function dealingUrl(tab){
     //getCurrentTabUrl(function(url) {
 
+        if(tab==undefined || tab.url==undefined) return false;
         var url = tab.url;
 
         purifyBlackAndWhite();
@@ -255,21 +261,42 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             // });
         });
     }
-});
-
-chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
-    if (changeInfo.status == 'complete') {
-
-        // check if has new setting?
-        checkIfReload(function(needReload){
-            if(needReload){
-                loadFile(dealingUrl,tab);
-            }
-            else{
-                dealingUrl(tab);
-            }
-        });
+    /**
+     * There might be many 5 min waiting to trigger,
+     *   so implement dictionary of timers
+     */
+    else if(msg.wait5Min!=undefined){
+        if(isWaiting5Min==true) return;
+        isWaiting5Min = true;
+        var i = setInterval(function(){
+            clearInterval(i);
+            isWaiting5Min = false;
+            getCurrentTab(dealWithUrlMain);
+        },10000);
 
     }
+});
 
+function  dealWithUrlMain(tab) {
+    // check if has new setting?
+    checkIfReload(function(needReload){
+        if(needReload){
+            loadFile(dealingUrl,tab);
+        }
+        else{
+            dealingUrl(tab);
+        }
+    });
+}
+
+chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
+    if (changeInfo.status == 'complete' && isWaiting5Min==false) {
+        dealWithUrlMain(tab);
+    }
+});
+
+chrome.tabs.onActivated.addListener(function (tabId, windowId) {
+    if(isWaiting5Min==false){
+        getCurrentTab(dealWithUrlMain);
+    }
 });
