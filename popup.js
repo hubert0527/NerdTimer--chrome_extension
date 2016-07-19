@@ -79,10 +79,11 @@ function submitMainMessage(newMessage){
 }
 
 /**
- * four modes
- * 1. lock this domain
+ * Modes :
+ * 1. lock base domain
  * 2. lock only this page
  * 3. lock partly domain (multiple choice)
+ * 4. lock on certain key-word
  */
 
 function addSinglePageToBlackList(){
