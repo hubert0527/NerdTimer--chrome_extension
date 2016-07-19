@@ -52,6 +52,12 @@ window.addEventListener("DOMContentLoaded", function() {
     console.log("blacks: " + blackList.toString());
     console.log("whites: " + whiteList.toString());
 
+    chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
+        if(response && response.mainMessage!=undefined) {
+            document.getElementById("mainMessageInput").value = response.mainMessage;
+        }
+    });
+
 });
 
 

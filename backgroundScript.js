@@ -266,7 +266,12 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
      *   so implement dictionary of timers
      */
     else if(msg.wait5Min!=undefined){
-        if(isWaiting5Min==true) return;
+        if(isWaiting5Min==true){
+            chrome.tabs.sendMessage(tab.id, {black: "false"}, function(response) {
+                console.log("send message to " + tab.url + " id = " + tab.id);
+            });
+            return;
+        }
         isWaiting5Min = true;
         var i = setInterval(function(){
             clearInterval(i);
@@ -308,7 +313,13 @@ chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
  *  Fire on tab switch
  */
 chrome.tabs.onActivated.addListener(function (tabId, windowId) {
-    if(isWaiting5Min==false){
+    if(isWaiting5Min==true){
+        getCurrentTab(function(tab){
+            chrome.tabs.sendMessage(parseInt(tab.id), {black: "false"});
+        });
+        return;
+    }
+    else{
         getCurrentTab(dealWithUrlMain);
     }
 });

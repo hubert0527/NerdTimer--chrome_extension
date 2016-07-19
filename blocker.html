@@ -9,11 +9,11 @@
     <div id="wrapper">
         <div id="central_container" style="width:80%;margin-left:10%;margin-top:20vh; padding-bottom: 20%;">
             <div id="central_message" style="text-align: center;height:20vh;">
-                <h1 id="main_message" style="font-size:20vh;font-weight: bolder;color: black;"></h1>
+                <h1 id="main_message" style="font-size:20vh;font-weight: bolder;color: black;font-family:Georgia, serif,'Adobe 仿宋 Std R';"></h1>
             </div>
             <div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;">
                 <button class="btn" id="remindMeLater"><div><p>Remind 5 minutes later</p></div></button>
-                <button class="btn" id="closeIt"><div><p>Close for this window</p></div></button>
+                <button class="btn" id="closeIt"><div><p>Close only this time</p></div></button>
             </div>
         </div>
         <span style="height: 100%;display: inline-block"></span>
@@ -70,7 +70,7 @@
             var i = setInterval(function(){
                 $('#wrapper').fadeIn('slow');
                 clearInterval(i);
-            },2000);
+            },1000);
         });
         $("#central_container").ready(function(){
             var target = document.getElementById("main_message");

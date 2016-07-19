@@ -69,10 +69,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
     }
     else if(msg.black=="false"){
-        var tar = document.getElementById("nerdDiv");
-        if(tar!=undefined){
-            document.getElementsByTagName("BODY")[0].removeChild(tar);
-        }
+        $('#wrapper').fadeOut("slow");
     }
     else if(msg.modifyMainMessage!=undefined){
         var tar = document.getElementById("main_message");
