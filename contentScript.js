@@ -39,4 +39,8 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             document.getElementsByTagName("BODY")[0].removeChild(tar);
         }
     }
+    else if(msg.modifyMainMessage!=undefined){
+        var tar = document.getElementById("main_message");
+        if(tar) $(tar).text(msg.modifyMainMessage);
+    }
 },false);

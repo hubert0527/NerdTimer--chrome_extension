@@ -247,12 +247,12 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         loadBlocker();
         sendResponse({"mainMessage":mainMessage.toString()});
     }
-    else if(msg && msg.modifyMainMessage){
+    else if(msg && msg.modifyMainMessage!=undefined){
         mainMessage = msg.modifyMainMessage;
         saveBlocker(function(){
-            getCurrentTab(function(tab){
-                chrome.tabs.reload(tab.id);
-            });
+            // getCurrentTab(function(tab){
+            //     chrome.tabs.reload(tab.id);
+            // });
         });
     }
 });

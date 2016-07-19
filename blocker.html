@@ -8,7 +8,7 @@
 <body>
     <div id="wrapper">
         <div id="central_container" style="width:80%;margin-left:10%;margin-top:20vh; padding-bottom: 20%;">
-            <div id="central_message" style="text-align: center;">
+            <div id="central_message" style="text-align: center;height:20vh;">
                 <h1 id="main_message" style="font-size:20vh;font-weight: bolder;color: black;"></h1>
             </div>
             <div style="width: 60%;margin:5vh auto">
@@ -36,7 +36,6 @@
             float: left;
             width: 39%;
             margin: 0 5%;
-            background-color: #00a5ff;
             border: none;
             border-radius: 5px;
             font-size: 3vh;
@@ -46,7 +45,17 @@
             transition-duration: 0.4s;
             overflow: hidden;
         }
-        .btn:hover{
+        #remindMeLater{
+            background-color: #00a5ff;
+        }
+        #remindMeLater:hover{
+            background-color: white;
+            box-shadow: 0 0 0 black;
+        }
+        #closeIt{
+            background-color: red;
+        }
+        #closeIt:hover{
             background-color: white;
             box-shadow: 0 0 0 black;
         }

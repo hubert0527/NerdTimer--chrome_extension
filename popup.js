@@ -40,6 +40,14 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("addCurrentPageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
     document.getElementById("addBaseDomainToWhiteList").addEventListener("click", addBaseDomainToWhiteList);
     document.getElementById("submitMainMessage").addEventListener("click", submitMainMessage);
+    $(document.getElementById("mainMessageInput")).bind('input', function() {
+            submitMainMessage($(this).val());
+        });
+    document.getElementById("mainMessageInput").onkeydown = function(key){
+        if(key.which==13 && $('#mainMessageInput').val()==""){
+            submitMainMessage("");
+        }
+    };
 
     console.log("blacks: " + blackList.toString());
     console.log("whites: " + whiteList.toString());
@@ -49,13 +57,16 @@ window.addEventListener("DOMContentLoaded", function() {
 
 var mainMessage="Better stop now!";
 
-function submitMainMessage(){
-    var newMessage = document.getElementById("mainMessageModifyInput").value;
-    if(newMessage=="") return;
+function submitMainMessage(newMessage){
+    //var newMessage = document.getElementById("mainMessageInput").value;
+    if(newMessage==undefined) return;
     loadBlocker(function(){
         if(newMessage!=mainMessage) {
             chrome.runtime.sendMessage({modifyMainMessage: newMessage}, function (response) {
                 console.log("modifyMainMessage");
+            });
+            getCurrentTab(function(tab){
+                chrome.tabs.sendMessage(tab.id,{modifyMainMessage: newMessage});
             });
         }
     });
