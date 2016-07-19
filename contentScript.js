@@ -20,14 +20,6 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
         var iDiv = document.createElement('div');
         iDiv.id = "nerdDiv";
-        $(iDiv).css("background-color","#888888");
-        $(iDiv).css("position","fixed");
-        $(iDiv).css("width","100%");
-        $(iDiv).css("height","100%");
-        $(iDiv).css("opacity","0.7");
-        $(iDiv).css("z-index","2147483647");
-        $(iDiv).css("top","0");
-        $(iDiv).css("left","0");
 
         document.getElementsByTagName("BODY")[0].appendChild(iDiv);
 

@@ -6,14 +6,14 @@
 
 </head>
 <body>
-    <div style="height: 100%;width: 100%;">
+    <div id="wrapper">
         <div id="central_container" style="width:80%;margin-left:10%;margin-top:20vh; padding-bottom: 20%;">
             <div id="central_message" style="text-align: center;">
                 <h1 id="main_message" style="font-size:20vh;font-weight: bolder;color: black;"></h1>
             </div>
             <div style="width: 60%;margin:5vh auto">
-                <button class="btn" id="remindMeLater">Remind Me 5Min Later</button>
-                <button class="btn" id="closeIt">Close(Not recommended)</button>
+                <button class="btn" id="remindMeLater"><div><p>Remind Me 5Min Later</p></div></button>
+                <button class="btn" id="closeIt"><div><p>Close<br>(Not recommended)</p></div></button>
             </div>
         </div>
         <span style="height: 100%;display: inline-block"></span>
@@ -21,9 +21,19 @@
     </div>
 
     <style>
+        #wrapper{
+            background-color: #888888;
+            position: fixed;
+            opacity: 0.7;
+            z-index: 2147483647;
+            top:0;
+            left:0;
+            height: 100%;
+            width: 100%;
+            display: none;
+        }
         .btn{
             float: left;
-            height:10vh;
             width: 39%;
             margin: 0 5%;
             background-color: #00a5ff;
@@ -34,12 +44,24 @@
             color: black;
             box-shadow: 0 0 10px black;
             transition-duration: 0.4s;
+            overflow: hidden;
         }
         .btn:hover{
             background-color: white;
+            box-shadow: 0 0 0 black;
+        }
+        .btn p{
+            margin: 5% auto;
         }
     </style>
     <script>
+
+        $('#wrapper').ready(function(){
+            var i = setInterval(function(){
+                $('#wrapper').fadeIn('slow');
+                clearInterval(i);
+            },2000);
+        });
         $("#central_container").ready(function(){
             var target = document.getElementById("main_message");
 
@@ -55,14 +77,14 @@
 //            console.log("haha");
 //        });
         $("#remindMeLater").click(function(){
-                $('#nerdDiv').fadeOut("slow");
+                $('#wrapper').fadeOut("slow");
                 var b = setInterval(function(){
-                    $('#nerdDiv').fadeIn("slow");
+                    $('#wrapper').fadeIn("slow");
                     clearInterval(b);
                 },300000);
         });
         $("#closeIt").click(function(){
-                $('#nerdDiv').fadeOut("slow");
+                $('#wrapper').fadeOut("slow");
         });
     </script>
 </body>
