@@ -7,17 +7,39 @@
 </head>
 <body>
     <div style="height: 100%;width: 100%;">
-        <div id="central_container" style="width:80%;margin-left:10%;margin-top:20vh;text-align: center; padding-bottom: 20%;">
-            <div id="central_message">
-                <h1 id="main_message" style="font-size:15vh"></h1>
+        <div id="central_container" style="width:80%;margin-left:10%;margin-top:20vh; padding-bottom: 20%;">
+            <div id="central_message" style="text-align: center;">
+                <h1 id="main_message" style="font-size:20vh;font-weight: bolder;color: black;"></h1>
+            </div>
+            <div style="width: 60%;margin:5vh auto">
+                <button class="btn" id="remindMeLater">Remind Me 5Min Later</button>
+                <button class="btn" id="closeIt">Close(Not recommended)</button>
             </div>
         </div>
         <span style="height: 100%;display: inline-block"></span>
 
     </div>
+
+    <style>
+        .btn{
+            float: left;
+            height:10vh;
+            width: 39%;
+            margin: 0 5%;
+            background-color: #00a5ff;
+            border: none;
+            border-radius: 5px;
+            font-size: 3vh;
+            font-weight: bolder;
+            color: black;
+            box-shadow: 0 0 10px black;
+            transition-duration: 0.4s;
+        }
+        .btn:hover{
+            background-color: white;
+        }
+    </style>
     <script>
-        console.log("none");
-// DONT KNOW THY THIS SCRIPT JUST DON'T WORK QAQ
         $("#central_container").ready(function(){
             var target = document.getElementById("main_message");
 
@@ -32,7 +54,16 @@
 //            $(target).text("done!");
 //            console.log("haha");
 //        });
-
+        $("#remindMeLater").click(function(){
+                $('#nerdDiv').fadeOut("slow");
+                var b = setInterval(function(){
+                    $('#nerdDiv').fadeIn("slow");
+                    clearInterval(b);
+                },300000);
+        });
+        $("#closeIt").click(function(){
+                $('#nerdDiv').fadeOut("slow");
+        });
     </script>
 </body>
 </html>

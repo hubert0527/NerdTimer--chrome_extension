@@ -15,6 +15,9 @@ function init(){
     loadFile();
 }
 init();
+//
+// 魯古今中外至陳之魯
+// 宅晝夜最廢之宅
 
 // content of blocker
 var mainMessage="Better stop now!";
