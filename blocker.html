@@ -13,7 +13,7 @@
             </div>
             <div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;">
                 <button class="btn" id="remindMeLater"><div><p>Remind 5 minutes later</p></div></button>
-                <button class="btn" id="closeIt"><div><p>Close for this time</p></div></button>
+                <button class="btn" id="closeIt"><div><p>Close for this window</p></div></button>
             </div>
         </div>
         <span style="height: 100%;display: inline-block"></span>
@@ -86,15 +86,6 @@
 //            $(target).text("done!");
 //            console.log("haha");
 //        });
-        $("#remindMeLater").click(function(){
-                $('#wrapper').fadeOut("slow");
-                chrome.runtime.sendMessage({"wait5Min":"true"}, function(response) {
-                    console.log("wait5Min");
-                });
-        });
-        $("#closeIt").click(function(){
-                $('#wrapper').fadeOut("slow");
-        });
     </script>
 </body>
 </html>

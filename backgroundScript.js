@@ -275,8 +275,15 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         },10000);
 
     }
+    else if(msg.getCurrentMainMessage!=undefined){
+        sendResponse({"mainMessage":mainMessage.toString()});
+    }
 });
 
+/**
+ * main thread of checking if tab is black
+ * @param tab
+ */
 function  dealWithUrlMain(tab) {
     // check if has new setting?
     checkIfReload(function(needReload){
@@ -289,12 +296,17 @@ function  dealWithUrlMain(tab) {
     });
 }
 
+/**
+ * Fire on page load
+ */
 chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
     if (changeInfo.status == 'complete' && isWaiting5Min==false) {
         dealWithUrlMain(tab);
     }
 });
-
+/**
+ *  Fire on tab switch
+ */
 chrome.tabs.onActivated.addListener(function (tabId, windowId) {
     if(isWaiting5Min==false){
         getCurrentTab(dealWithUrlMain);

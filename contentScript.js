@@ -1,4 +1,6 @@
 
+var stopForThisTime = false;
+
 if (!chrome.runtime) {
     // Chrome 20-21
     chrome.runtime = chrome.extension;
@@ -13,11 +15,26 @@ if (!chrome.runtime) {
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
     if (msg && msg.black=="true") {
+
+        if(stopForThisTime) return ;
+
         console.log("got black");
         var tar = document.getElementById("wrapper");
         if(tar!=undefined){
             if($(tar).is(":visible")) {
                 // already blocked
+                // still need to check text
+                chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
+                    if(response && response.mainMessage!=undefined) {
+                        var tar = $('#main_message');
+                        if(tar.text()!=response.mainMessage) {
+                            tar.fadeOut('fast', function () {
+                                tar.text(response.mainMessage);
+                                tar.fadeIn('fast');
+                            });
+                        }
+                    }
+                });
                 return;
             }
             else{
@@ -36,8 +53,17 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         $('#nerdDiv').load(path,function(){
             /**
              * write script for loaded blocker html here
-             * @type {string}
              */
+            $("#remindMeLater").click(function(){
+                $('#wrapper').fadeOut("slow");
+                chrome.runtime.sendMessage({"wait5Min":"true"}, function(response) {
+                    console.log("wait5Min");
+                });
+            });
+            $("#closeIt").click(function(){
+                stopForThisTime = true;
+                $('#wrapper').fadeOut("slow");
+            });
             //document.getElementById("main_message").textContent = "load!";
         });
 
