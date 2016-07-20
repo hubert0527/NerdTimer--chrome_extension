@@ -29,38 +29,57 @@ function saveFile(callBack){
     }
     chrome.storage.local.set({'whiteListData': str},function(){
         str = "";
-        for(j=0;j<blackList.length;j++) {
-            if(str=="") str = blackList[j];
+        for(j=0;j<hardLockList.length;j++) {
+            if(str=="") str = hardLockList[j];
             else{
-                str+= ("::"+blackList[j]);
+                str+= ("::"+hardLockList[j]);
             }
         }
-        chrome.storage.local.set({'blackListData': str},function(){
+        chrome.storage.local.set({'hardLockListData': str},function(){
 
             str = "";
-            for(j=0;j<singleWhite.length;j++) {
-                if(str=="") str = singleWhite[j];
+            for(j=0;j<softLockList.length;j++) {
+                if(str=="") str = softLockList[j];
                 else{
-                    str+= ("::"+singleWhite[j]);
+                    str+= ("::"+softLockList[j]);
                 }
             }
-            chrome.storage.local.set({'singleWhiteData': str},function(){
+            chrome.storage.local.set({'softLockListData': str},function() {
 
                 str = "";
-                for(j=0;j<singleBlack.length;j++) {
-                    if(str=="") str = singleBlack[j];
-                    else{
-                        str+= ("::"+singleBlack[j]);
+                for (j = 0; j < singleWhite.length; j++) {
+                    if (str == "") str = singleWhite[j];
+                    else {
+                        str += ("::" + singleWhite[j]);
                     }
                 }
-                chrome.storage.local.set({'singleBlackData': str},function(){
+                chrome.storage.local.set({'singleWhiteData': str}, function () {
 
-                    chrome.storage.local.set({'needReload': true},function(){
-                        if(callBack!=undefined) callBack();
+                    str = "";
+                    for (j = 0; j < singleSoftLock.length; j++) {
+                        if (str == "") str = singleSoftLock[j];
+                        else {
+                            str += ("::" + singleSoftLock[j]);
+                        }
+                    }
+                    chrome.storage.local.set({'singleSoftLockData': str}, function () {
+
+                        str = "";
+                        for (j = 0; j < singleHardLock.length; j++) {
+                            if (str == "") str = singleHardLock[j];
+                            else {
+                                str += ("::" + singleHardLock[j]);
+                            }
+                        }
+                        chrome.storage.local.set({'singleHardLockData': str}, function () {
+                            chrome.storage.local.set({'needReload': true}, function () {
+                                if (callBack != undefined) callBack();
+                            });
+                        });
+
                     });
 
                 });
-
             });
 
         });
@@ -78,56 +97,82 @@ function loadFile(callBack,tab){
         whiteList = [];
 
         if(str!=undefined) {
-            var spw = str.split("::");
-            for (i = 0; i < spw.length; i++) {
-                whiteList.push(spw[i]);
+            var sp = str.split("::");
+            for (i = 0; i < sp.length; i++) {
+                whiteList.push(sp[i]);
             }
         }
 
-        // load black
-        chrome.storage.local.get("blackListData",function(data){
-            var str = data.blackListData;
-            blackList = [];
+        // load block
+        chrome.storage.local.get("hardLockListData",function(data){
+            var str = data.hardLockListData;
+            hardLockList = [];
             if(str!=undefined) {
-                var spb = str.split("::");
-                for (i = 0; i < spb.length; i++) {
-                    blackList.push(spb[i]);
+                sp = [];
+                sp = str.split("::");
+                for (i = 0; i < sp.length; i++) {
+                    hardLockList.push(sp[i]);
                 }
             }
-
-
-            // purify just read lists
-            purifiedBlack = [];
-            for (i = 0; i < blackList.length; i++) {
-                purifiedBlack.push(purifyUrl(blackList[i]));
-            }
-
-            purifiedWhite = [];
-            for (i = 0; i < whiteList.length; i++) {
-                purifiedWhite.push(purifyUrl(whiteList[i]));
-            }
-
-            chrome.storage.local.get("singleBlackData",function(data) {
-                var str = data.singleBlackData;
-                singleBlack = [];
+            chrome.storage.local.get("softLockListData",function(data) {
+                var str = data.softLockListData;
+                softLockList = [];
                 if (str != undefined) {
-                    var spsb = str.split("::");
-                    for (i = 0; i < spsb.length; i++) {
-                        singleBlack.push(spsb[i]);
+                    sp = [];
+                    sp = str.split("::");
+                    for (i = 0; i < sp.length; i++) {
+                        softLockList.push(sp[i]);
                     }
                 }
-                chrome.storage.local.get("singleWhiteData",function(data) {
-                    var str = data.singleWhiteData;
-                    singleWhite = [];
+
+
+                // purify just read lists
+                purifiedSoftLock = [];
+                for (i = 0; i < softLockList.length; i++) {
+                    purifiedSoftLock.push(purifyUrl(softLockList[i]));
+                }
+                purifiedHardLock = [];
+                for (i = 0; i < hardLockList.length; i++) {
+                    purifiedHardLock.push(purifyUrl(hardLockList[i]));
+                }
+
+                purifiedWhite = [];
+                for (i = 0; i < whiteList.length; i++) {
+                    purifiedWhite.push(purifyUrl(whiteList[i]));
+                }
+
+                chrome.storage.local.get("singleSoftLockData", function (data) {
+                    var str = data.singleSoftLockData;
+                    singleSoftLock = [];
                     if (str != undefined) {
-                        var spsw = str.split("::");
-                        for (i = 0; i < spsw.length; i++) {
-                            singleWhite.push(spsw[i]);
+                        var spsb = str.split("::");
+                        for (i = 0; i < spsb.length; i++) {
+                            singleSoftLock.push(spsb[i]);
                         }
                     }
+                    chrome.storage.local.get("singleHardLockData", function (data) {
+                        var str = data.singleHardLockData;
+                        singleHardLock = [];
+                        if (str != undefined) {
+                            var spsb = str.split("::");
+                            for (i = 0; i < spsb.length; i++) {
+                                singleHardLock.push(spsb[i]);
+                            }
+                        }
+                        chrome.storage.local.get("singleWhiteData", function (data) {
+                            var str = data.singleWhiteData;
+                            singleWhite = [];
+                            if (str != undefined) {
+                                var spsw = str.split("::");
+                                for (i = 0; i < spsw.length; i++) {
+                                    singleWhite.push(spsw[i]);
+                                }
+                            }
 
-                    if(callBack!=undefined) callBack(tab);
+                            if (callBack != undefined) callBack(tab);
 
+                        });
+                    });
                 });
             });
 
@@ -137,65 +182,65 @@ function loadFile(callBack,tab){
 
 }
 
-function test(){
-    // get list
-    var i;
-    chrome.storage.local.get("whiteListData",function(data){
-        var str = data.whiteListData;
-        console.log("load white: " + str);
-        //whiteList = [];
-
-        if(str!=undefined) {
-            var spw = str.split("::");
-            for (i = 0; i < spw.length; i++) {
-                whiteList[i] = spw[i];
-            }
-        }
-
-        // load black
-        chrome.storage.local.get("blackListData",function(data){
-            var str = data.blackListData;
-            console.log("load black: " + str);
-            //blackList = [];
-            if(str!=undefined) {
-                var spb = str.split("::");
-                for (i = 0; i < spb.length; i++) {
-                    blackList[i] = spb[i];
-                }
-            }
-
-            chrome.storage.local.get("singleBlackData",function(data) {
-                var str = data.singleBlackData;
-                console.log("load single black: " + str);
-                singleBlack = [];
-                if (str != undefined) {
-                    var spsb = str.split("::");
-                    for (i = 0; i < spsb.length; i++) {
-                        singleBlack.push(spsb[i]);
-                    }
-                }
-                chrome.storage.local.get("singleWhiteData",function(data) {
-                    var str = data.singleWhiteData;
-                    console.log("load single white: " + str);
-                    singleWhite = [];
-                    if (str != undefined) {
-                        var spsw = str.split("::");
-                        for (i = 0; i < spsw.length; i++) {
-                            singleWhite.push(spsw[i]);
-                        }
-                    }
-
-                    // getCurrentTab(function(tab){
-                    //     chrome.tabs.sendMessage(tab.id, {none: "none"}, function(response) {
-                    //         console.log("send message to " + tab.url + " id = " + tab.id);
-                    //     });
-                    // });
-
-                });
-            });
-
-        });
-
-    });
-
-}
+// function test(){
+//     // get list
+//     var i;
+//     chrome.storage.local.get("whiteListData",function(data){
+//         var str = data.whiteListData;
+//         console.log("load white: " + str);
+//         //whiteList = [];
+//
+//         if(str!=undefined) {
+//             var spw = str.split("::");
+//             for (i = 0; i < spw.length; i++) {
+//                 whiteList[i] = spw[i];
+//             }
+//         }
+//
+//         // load black
+//         chrome.storage.local.get("blackListData",function(data){
+//             var str = data.blackListData;
+//             console.log("load black: " + str);
+//             //blackList = [];
+//             if(str!=undefined) {
+//                 var spb = str.split("::");
+//                 for (i = 0; i < spb.length; i++) {
+//                     blackList[i] = spb[i];
+//                 }
+//             }
+//
+//             chrome.storage.local.get("singleBlackData",function(data) {
+//                 var str = data.singleBlackData;
+//                 console.log("load single black: " + str);
+//                 singleBlack = [];
+//                 if (str != undefined) {
+//                     var spsb = str.split("::");
+//                     for (i = 0; i < spsb.length; i++) {
+//                         singleBlack.push(spsb[i]);
+//                     }
+//                 }
+//                 chrome.storage.local.get("singleWhiteData",function(data) {
+//                     var str = data.singleWhiteData;
+//                     console.log("load single white: " + str);
+//                     singleWhite = [];
+//                     if (str != undefined) {
+//                         var spsw = str.split("::");
+//                         for (i = 0; i < spsw.length; i++) {
+//                             singleWhite.push(spsw[i]);
+//                         }
+//                     }
+//
+//                     // getCurrentTab(function(tab){
+//                     //     chrome.tabs.sendMessage(tab.id, {none: "none"}, function(response) {
+//                     //         console.log("send message to " + tab.url + " id = " + tab.id);
+//                     //     });
+//                     // });
+//
+//                 });
+//             });
+//
+//         });
+//
+//     });
+//
+// }

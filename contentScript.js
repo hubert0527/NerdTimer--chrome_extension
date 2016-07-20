@@ -14,11 +14,17 @@ if (!chrome.runtime) {
 
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
-    if (msg && msg.black=="true") {
+    if(msg && msg.block=="hard"){
+        console.log("got hard block");
+        /**
+         * TODO: implement hard block html
+         */
+    }
+    else if (msg && msg.block=="soft") {
 
         if(stopForThisTime) return ;
 
-        console.log("got black");
+        console.log("got soft block");
         var tar = document.getElementById("blockerWrapper");
         if(tar!=undefined){
             if($(tar).is(":visible")) {
@@ -68,7 +74,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         });
 
     }
-    else if(msg && msg.black=="false"){
+    else if(msg && msg.block=="false"){
         $('#blockerWrapper').fadeOut("slow");
     }
     else if(msg.modifyMainMessage!=undefined){

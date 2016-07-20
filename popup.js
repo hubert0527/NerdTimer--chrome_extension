@@ -1,14 +1,3 @@
-var singleBlack = [];
-var singleWhite = [];
-
-var blackList = [
-    "none"
-];
-
-var whiteList = [
-    "none"
-];
-
 var ignore = [
     "www",
     "com",
@@ -19,25 +8,26 @@ var ignore = [
     "jp"
 ];
 
-var purifiedBlack;
+var singleHardLock = [];
+var singleSoftLock = [];
+var useTime = [];
+var singleWhite = [];
+
+var softLockList = [];
+var hardLockList = [];
+var whiteList = [];
+
+var purifiedSoftLock;
+var purifiedHardLock;
 var purifiedWhite;
-//
-// $(window).load(function(){
-//     loadFile();
-//     console.log("blacks: " + blackList.toString());
-//     console.log("whites: " + whiteList.toString());
-//     $(window).load(function(){
-//         $(document.getElementsByTagName("BODY")).css("background-color","red");
-//     });
-// });
 
 window.addEventListener("DOMContentLoaded", function() {
 
     loadFile();
     document.getElementById("test").addEventListener("click", test);
-    document.getElementById("addCurrentPageToBlackList").addEventListener("click", addSinglePageToBlackList);
-    document.getElementById("addBaseDomainToBlackList").addEventListener("click", addBaseDomainToBlackList);
-    document.getElementById("addCurrentPageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
+    document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
+    document.getElementById("addBaseDomainToSoftLockList").addEventListener("click", addBaseDomainToSoftLockList);
+    document.getElementById("addSinglePageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
     document.getElementById("addBaseDomainToWhiteList").addEventListener("click", addBaseDomainToWhiteList);
     document.getElementById("submitMainMessage").addEventListener("click", submitMainMessage);
     $(document.getElementById("mainMessageInput")).bind('input', function() {
@@ -54,7 +44,7 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("goToMainPage1").addEventListener("click", function(){moveLeftTo("#addToList","#mainPage");});
 
 
-    console.log("blacks: " + blackList.toString());
+    console.log("softBlocks: " + softLockList.toString());
     console.log("whites: " + whiteList.toString());
 
     chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
@@ -125,24 +115,27 @@ function moveLeftTo(cur, tar) {
  * 4. lock on certain key-word
  */
 
-function addSinglePageToBlackList(){
+function addSinglePageToSoftLockList(){
     getCurrentTabUrl(function(rawUrl){
 
         var url = cutOffHeadAndTail(rawUrl);
 
         // check if already exist
-        for(var i=0; i<singleBlack.length;i++){
-            if(singleBlack[i]==url) return;
+        for(var i=0; i<singleSoftLock.length;i++){
+            if(singleSoftLock[i]==url) return;
+        }
+        for(var i=0; i<singleHardLock.length;i++){
+            if(singleHardLock[i]==url) return;
         }
         for(var i=0; i<singleWhite.length;i++){
             if(singleWhite[i]==url) return;
         }
 
-        singleBlack.push(url);
+        singleSoftLock.push(url);
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to single black and refresh");
+                console.log("add " + url + " to single soft lock and refresh");
             });
         });
 
@@ -150,7 +143,7 @@ function addSinglePageToBlackList(){
     });
 }
 
-function addBaseDomainToBlackList(){
+function addBaseDomainToSoftLockList(){
     getCurrentTabUrl(function(rawUrl){
 
         var url = cutOffHeadAndTail(rawUrl);
@@ -161,18 +154,21 @@ function addBaseDomainToBlackList(){
         }
 
         // check if already exist
-        for(var i=0; i<blackList.length;i++){
-            if(blackList[i]==url) return;
+        for(var i=0; i<softLockList.length;i++){
+            if(softLockList[i]==url) return;
+        }
+        for(var i=0; i<hardLockList.length;i++){
+            if(hardLockList[i]==url) return;
         }
         for(var i=0; i<whiteList.length;i++){
             if(whiteList[i]==url) return;
         }
 
-        blackList.push(url);
+        softLockList.push(url);
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to black and refresh");
+                console.log("add " + url + " to soft block and refresh");
             });
         });
 
@@ -180,23 +176,112 @@ function addBaseDomainToBlackList(){
     });
 }
 
-function addSubDomainToBlackList(rawUrl){
+function addSubDomainToSoftLockList(rawUrl){
 
     var url = cutOffHeadAndTail(rawUrl);
 
     // check if already exist
-    for(var i=0; i<blackList.length;i++){
-        if(blackList[i]==url) return;
+    for(var i=0; i<softLockList.length;i++){
+        if(softLockList[i]==url) return;
+    }
+    for(var i=0; i<hardLockList.length;i++){
+        if(hardLockList[i]==url) return;
     }
     for(var i=0; i<whiteList.length;i++){
         if(whiteList[i]==url) return;
     }
 
-    blackList.push(url);
+    softLockList.push(url);
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.reload(tab.id);
-            console.log("add " + url + " to black and refresh");
+            console.log("add " + url + " to soft lock and refresh");
+        });
+    });
+
+}
+
+function addSinglePageToHardLockList(){
+    getCurrentTabUrl(function(rawUrl){
+
+        var url = cutOffHeadAndTail(rawUrl);
+
+        // check if already exist
+        for(var i=0; i<singleSoftLock.length;i++){
+            if(singleSoftLock[i]==url) return;
+        }
+        for(var i=0; i<singleHardLock.length;i++){
+            if(singleHardLock[i]==url) return;
+        }
+        for(var i=0; i<singleWhite.length;i++){
+            if(singleWhite[i]==url) return;
+        }
+
+        singleHardLock.push(url);
+        saveFile(function(){
+            getCurrentTab(function(tab){
+                chrome.tabs.reload(tab.id);
+                console.log("add " + url + " to single soft lock and refresh");
+            });
+        });
+
+
+    });
+}
+
+function addBaseDomainToHardLockList(){
+    getCurrentTabUrl(function(rawUrl){
+
+        var url = cutOffHeadAndTail(rawUrl);
+
+        var temp;
+        while( (temp = clearLast(url))!=""){
+            url = temp;
+        }
+
+        // check if already exist
+        for(var i=0; i<softLockList.length;i++){
+            if(softLockList[i]==url) return;
+        }
+        for(var i=0; i<hardLockList.length;i++){
+            if(hardLockList[i]==url) return;
+        }
+        for(var i=0; i<whiteList.length;i++){
+            if(whiteList[i]==url) return;
+        }
+
+        hardLockList.push(url);
+        saveFile(function(){
+            getCurrentTab(function(tab){
+                chrome.tabs.reload(tab.id);
+                console.log("add " + url + " to soft block and refresh");
+            });
+        });
+
+
+    });
+}
+
+function addSubDomainToHardLockList(rawUrl){
+
+    var url = cutOffHeadAndTail(rawUrl);
+
+    // check if already exist
+    for(var i=0; i<softLockList.length;i++){
+        if(softLockList[i]==url) return;
+    }
+    for(var i=0; i<hardLockList.length;i++){
+        if(hardLockList[i]==url) return;
+    }
+    for(var i=0; i<whiteList.length;i++){
+        if(whiteList[i]==url) return;
+    }
+
+    hardLockList.push(url);
+    saveFile(function(){
+        getCurrentTab(function(tab){
+            chrome.tabs.reload(tab.id);
+            console.log("add " + url + " to soft lock and refresh");
         });
     });
 
@@ -208,8 +293,11 @@ function addSinglePageToWhiteList(){
         var url = cutOffHeadAndTail(rawUrl);
 
         // check if already exist
-        for(var i=0; i<singleBlack.length;i++){
-            if(singleBlack[i]==url) return;
+        for(var i=0; i<singleSoftLock.length;i++){
+            if(singleSoftLock[i]==url) return;
+        }
+        for(var i=0; i<singleHardLock.length;i++){
+            if(singleHardLock[i]==url) return;
         }
         for(var i=0; i<singleWhite.length;i++){
             if(singleWhite[i]==url) return;
@@ -219,7 +307,7 @@ function addSinglePageToWhiteList(){
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to single black and refresh");
+                console.log("add " + url + " to single white and refresh");
             });
         });
 
@@ -238,8 +326,11 @@ function addBaseDomainToWhiteList(){
         }
 
         // check if already exist
-        for(var i=0; i<blackList.length;i++){
-            if(blackList[i]==url) return;
+        for(var i=0; i<softLockList.length;i++){
+            if(softLockList[i]==url) return;
+        }
+        for(var i=0; i<hardLockList.length;i++){
+            if(hardLockList[i]==url) return;
         }
         for(var i=0; i<whiteList.length;i++){
             if(whiteList[i]==url) return;
@@ -265,8 +356,11 @@ function addSubDomainToWhiteList(rawUrl){
     for(var i=0; i<whiteList.length;i++){
         if(whiteList[i]==url) return;
     }
-    for(var i=0; i<blackList.length;i++){
-        if(blackList[i]==url) return;
+    for(var i=0; i<softLockList.length;i++){
+        if(softLockList[i]==url) return;
+    }
+    for(var i=0; i<hardLockList.length;i++){
+        if(hardLockList[i]==url) return;
     }
 
     whiteList.push(url);
