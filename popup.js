@@ -105,11 +105,11 @@ function moveLeftTo(cur, tar) {
     cur = $(cur);
     // slide in
     tar.css("z-index","100");
-    tar.css("right","100%");
+    tar.css("left","-100%");
     tar.css("display","block");
     tar.css("height","100%");
     tar.css("width","100%");
-    tar.animate({right: '0'},function () {
+    tar.animate({left: '0'},function () {
         cur.css("display", "none");
         cur.css("position", "absolute");
         tar.css("position","relative");

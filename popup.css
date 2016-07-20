@@ -1,7 +1,13 @@
+body{
+    overflow: hidden;
+    min-width: 200px;
+    margin:0;
+}
+
 input {
-    width: 100%;
-    padding: 12px 20px;
-    margin: 8px 0;
+    width: 180px;
+    padding: 5px 10px;
+    margin: 8px auto;
     display: inline-block;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -10,8 +16,10 @@ input {
 
 #mainPage{
     background-color: red;
+    padding: 10px;
 }
 
 #addToList{
     background-color: #00a5ff;
+    padding: 10px;
 }
