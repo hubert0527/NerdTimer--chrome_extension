@@ -19,7 +19,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         if(stopForThisTime) return ;
 
         console.log("got black");
-        var tar = document.getElementById("wrapper");
+        var tar = document.getElementById("blockerWrapper");
         if(tar!=undefined){
             if($(tar).is(":visible")) {
                 // already blocked
@@ -38,7 +38,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
                 return;
             }
             else{
-                $('#wrapper').fadeIn("slow");
+                $('#blockerWrapper').fadeIn("slow");
                 console.log("turn unvisible to visible");
                 return;
             }
@@ -55,21 +55,21 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
              * write script for loaded blocker html here
              */
             $("#remindMeLater").click(function(){
-                $('#wrapper').fadeOut("slow");
+                $('#blockerWrapper').fadeOut("slow");
                 chrome.runtime.sendMessage({"wait5Min":"true"}, function(response) {
                     console.log("wait5Min");
                 });
             });
             $("#closeIt").click(function(){
                 stopForThisTime = true;
-                $('#wrapper').fadeOut("slow");
+                $('#blockerWrapper').fadeOut("slow");
             });
             //document.getElementById("main_message").textContent = "load!";
         });
 
     }
-    else if(msg.black=="false"){
-        $('#wrapper').fadeOut("slow");
+    else if(msg && msg.black=="false"){
+        $('#blockerWrapper').fadeOut("slow");
     }
     else if(msg.modifyMainMessage!=undefined){
         var tar = document.getElementById("main_message");

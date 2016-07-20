@@ -28,16 +28,25 @@
         <script src="popup.js"></script>
         <link href="popup.css" rel="stylesheet">
     </head>
-    <body>
-        <div id="status"></div>
-        <button id="test">test</button>
-        <button id="addCurrentPageToBlackList">addCurrentPageToBlackList</button>
-        <button id="addBaseDomainToBlackList">addBaseDomainToBlackList</button>
-        <button id="addCurrentPageToWhiteList">addCurrentPageToWhiteList</button>
-        <button id="addBaseDomainToWhiteList">addBaseDomainToWhiteList</button>
-        <label for="mainMessageInput">Your message: </label>
-        <input id="mainMessageInput" type="text" placeholder="Leave a message">
-        <button id="submitMainMessage">submit new main message</button>
+    <body style="overflow: hidden;min-width: 200px;margin:0;">
+        <div id="mainPage">
+            <button id="test">test</button>
+            <label for="mainMessageInput">Your message: </label>
+            <input id="mainMessageInput" type="text" placeholder="Leave a message">
+            <button id="submitMainMessage">submit new main message</button>
+            <button id="goToAddToList">add page to list</button>
+        </div>
+        <div id="addToList" style="width:100%;height:100%;position: absolute;top: 0;display: none;">
+            <div>
+                <button id="goToMainPage1"> < </button>
+            </div>
+            <div style="padding: 10px;">
+                <button id="addCurrentPageToBlackList">addCurrentPageToBlackList</button>
+                <button id="addBaseDomainToBlackList">addBaseDomainToBlackList</button>
+                <button id="addCurrentPageToWhiteList">addCurrentPageToWhiteList</button>
+                <button id="addBaseDomainToWhiteList">addBaseDomainToWhiteList</button>
+            </div>
+        </div>
     </body>
 </html>
 

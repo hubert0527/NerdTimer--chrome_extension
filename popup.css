@@ -7,3 +7,11 @@ input {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
+#mainPage{
+    background-color: red;
+}
+
+#addToList{
+    background-color: #00a5ff;
+}

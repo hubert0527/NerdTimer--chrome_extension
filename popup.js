@@ -49,6 +49,11 @@ window.addEventListener("DOMContentLoaded", function() {
         }
     };
 
+    // create sliding button
+    document.getElementById("goToAddToList").addEventListener("click", function(){moveRightTo("#mainPage","#addToList");});
+    document.getElementById("goToMainPage1").addEventListener("click", function(){moveLeftTo("#addToList","#mainPage");});
+
+
     console.log("blacks: " + blackList.toString());
     console.log("whites: " + whiteList.toString());
 
@@ -75,6 +80,40 @@ function submitMainMessage(newMessage){
                 chrome.tabs.sendMessage(tab.id,{modifyMainMessage: newMessage});
             });
         }
+    });
+}
+
+function moveRightTo(cur, tar) {
+    tar = $(tar);
+    cur = $(cur);
+    // slide in
+    tar.css("z-index","100");
+    tar.css("left","100%");
+    tar.css("display","block");
+    tar.css("height","100%");
+    tar.css("width","100%");
+    tar.animate({left: '0'},function () {
+        cur.css("display", "none");
+        cur.css("position", "absolute");
+        tar.css("position","relative");
+        tar.css("z-index","0");
+    });
+}
+
+function moveLeftTo(cur, tar) {
+    tar = $(tar);
+    cur = $(cur);
+    // slide in
+    tar.css("z-index","100");
+    tar.css("right","100%");
+    tar.css("display","block");
+    tar.css("height","100%");
+    tar.css("width","100%");
+    tar.animate({right: '0'},function () {
+        cur.css("display", "none");
+        cur.css("position", "absolute");
+        tar.css("position","relative");
+        tar.css("z-index","0");
     });
 }
 
