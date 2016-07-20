@@ -27,6 +27,8 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("test").addEventListener("click", test);
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
     document.getElementById("addBaseDomainToSoftLockList").addEventListener("click", addBaseDomainToSoftLockList);
+    document.getElementById("addSinglePageToHardLockList").addEventListener("click", addSinglePageToHardLockList);
+    document.getElementById("addBaseDomainToHardLockList").addEventListener("click", addBaseDomainToHardLockList);
     document.getElementById("addSinglePageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
     document.getElementById("addBaseDomainToWhiteList").addEventListener("click", addBaseDomainToWhiteList);
     document.getElementById("submitMainMessage").addEventListener("click", submitMainMessage);
@@ -39,9 +41,16 @@ window.addEventListener("DOMContentLoaded", function() {
         }
     };
 
-    // create sliding button
-    document.getElementById("goToAddToList").addEventListener("click", function(){moveRightTo("#mainPage","#addToList");});
-    document.getElementById("goToMainPage1").addEventListener("click", function(){moveLeftTo("#addToList","#mainPage");});
+    // create sliding button                                                                  // current        target
+    document.getElementById("goToAddToListType").addEventListener("click", function(){moveRightTo("#mainPage","#addToListType");});
+    document.getElementById("goToSoftBlock").addEventListener("click", function(){moveRightTo("#addToListType","#addToSoftBlockList");});
+    document.getElementById("goToHardBlock").addEventListener("click", function(){moveRightTo("#addToListType","#addToHardBlockList");});
+    document.getElementById("goToWhiteList").addEventListener("click", function(){moveRightTo("#addToListType","#addToWhiteList");});
+
+    document.getElementById("goToMainPage1").addEventListener("click", function(){moveLeftTo("#addToListType","#mainPage");});
+    document.getElementById("goToMainPage2").addEventListener("click", function(){moveLeftTo("#addToSoftBlockList","#addToListType");});
+    document.getElementById("goToMainPage3").addEventListener("click", function(){moveLeftTo("#addToHardBlockList","#addToListType");});
+    document.getElementById("goToMainPage4").addEventListener("click", function(){moveLeftTo("#addToWhiteList","#addToListType");});
 
 
     console.log("softBlocks: " + softLockList.toString());

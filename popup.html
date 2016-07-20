@@ -34,21 +34,48 @@
             <label for="mainMessageInput">Your message: </label>
             <input id="mainMessageInput" type="text" placeholder="Leave a message">
             <button id="submitMainMessage">submit new main message</button>
-            <button id="goToAddToList">add page to list</button>
+            <button id="goToAddToListType">add page to list</button>
         </div>
-        <div id="addToList" style="width:100%;height:100%;position: absolute;top: 0;display: none;">
+
+        <div id="addToListType" class="subPage">
             <div>
                 <button id="goToMainPage1"> < </button>
             </div>
+            <button id="goToSoftBlock">soft block</button>
+            <button id="goToHardBlock">hard block</button>
+            <button id="goToWhiteList">white list</button>
+        </div>
+
+        <div id="addToSoftBlockList" class="subPage">
             <div>
-                <button id="addSinglePageToSoftLockList">addSinglePageToSoftLockList</button>
-                <button id="addBaseDomainToSoftLockList">addBaseDomainToSoftLockList</button>
-                <button id="addSinglePageToWhiteList">addSinglePageToWhiteList</button>
-                <button id="addBaseDomainToWhiteList">addBaseDomainToWhiteList</button>
+                <button id="goToMainPage2"> < </button>
+            </div>
+
+            <div>
+                <button id="addSinglePageToSoftLockList">add single page</button>
+                <button id="addBaseDomainToSoftLockList">add base domain</button>
             </div>
         </div>
-        <div>
-            <button></button>
+
+        <div id="addToHardBlockList" class="subPage">
+            <div>
+                <button id="goToMainPage3"> < </button>
+            </div>
+
+            <div>
+                <button id="addSinglePageToHardLockList">add single page</button>
+                <button id="addBaseDomainToHardLockList">add base domain</button>
+            </div>
+        </div>
+        <div id="addToWhiteList" class="subPage">
+            <div>
+                <button id="goToMainPage4"> < </button>
+            </div>
+
+            <div>
+                <button id="addSinglePageToWhiteList">add single page</button>
+                <button id="addBaseDomainToWhiteList">add base domain</button>
+            </div>
         </div>
     </body>
 </html>

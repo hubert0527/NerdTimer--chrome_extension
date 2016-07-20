@@ -19,6 +19,19 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         /**
          * TODO: implement hard block html
          */
+        var iDiv = document.createElement('div');
+        iDiv.id = "nerdDiv";
+
+        document.getElementsByTagName("BODY")[0].appendChild(iDiv);
+
+        var path = chrome.extension.getURL("blocker.html");
+        $('#nerdDiv').load(path,function(){
+            /**
+             * write script for loaded blocker html here
+             */
+            $("#remindMeLater").css("display","none");
+            $("#closeIt").css("display","none");
+        });
     }
     else if (msg && msg.block=="soft") {
 
