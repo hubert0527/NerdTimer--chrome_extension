@@ -175,7 +175,7 @@ function checkBlock(str){
         }
     }while( (temp = clearLast(temp))!="" );
 
-    return 0;
+    return -1;
 }
 
 /**
@@ -281,8 +281,46 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
      * content script request for main message for any reason
      */
     else if(msg.getCurrentMainMessage!=undefined){
-        sendResponse({"mainMessage":mainMessage.toString()});
+        sendResponse({mainMessage:mainMessage.toString()});
     }
+
+    if(msg.checkIfInList){
+        checkIfReload(function(needReload){
+            if(needReload){
+                loadFile(function () {
+                    var url = msg.checkIfInList;
+                    purifyBlackAndWhite();
+                    var purified = purifyUrl(url);
+                    var isBad = checkBlock(purified);
+                    var str;
+                    if(isBad==0) str = "white";
+                    else if(isBad==1) str = "hard";
+                    else if(isBad==2) str = "soft";
+                    else str = "none";
+                    sendResponse({block:str});
+                    console.log("is bad? " + str);
+                });
+            }
+            else{
+                var url = msg.checkIfInList;
+                purifyBlackAndWhite();
+                var purified = purifyUrl(url);
+                var isBad = checkBlock(purified);
+                    var str;
+                    if(isBad==0) str = "white";
+                    else if(isBad==1) str = "hard";
+                    else if(isBad==2) str = "soft";
+                    else str = "none";
+                    sendResponse({block:str});
+                console.log("is bad? " + str);
+            }
+        });
+    }
+    /**
+     * IMPORTANT
+     * or, the channel will be closed
+     */
+    return true;
 });
 
 /**

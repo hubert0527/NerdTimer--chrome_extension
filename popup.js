@@ -24,7 +24,25 @@ var purifiedWhite;
 window.addEventListener("DOMContentLoaded", function() {
 
     loadFile();
-    document.getElementById("test").addEventListener("click", test);
+    
+    // find current domain
+    getCurrentTabUrl(function (url) {
+        // set domain
+        var pure = cutOffHeadAndTail(url);
+        var res = pure.split("/");
+        $(document.getElementById("currentDomain")).text(res[0]);
+
+        // check in list
+        chrome.runtime.sendMessage({"checkIfInList":url}, function(response) {
+            if(response==undefined || response.block==undefined)
+                $(document.getElementById("isInList")).text(" error");
+            if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
+            else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
+            else if(response.block=="soft") $(document.getElementById("isInList")).text(" soft block");
+            else if(response.block=="none") $(document.getElementById("isInList")).text(" not set");
+        });
+    });
+    
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
     document.getElementById("addBaseDomainToSoftLockList").addEventListener("click", addBaseDomainToSoftLockList);
     document.getElementById("addSinglePageToHardLockList").addEventListener("click", addSinglePageToHardLockList);
@@ -89,8 +107,8 @@ function moveRightTo(cur, tar) {
     tar.css("z-index","100");
     tar.css("left","100%");
     tar.css("display","block");
-    tar.css("height","100%");
-    tar.css("width","100%");
+    tar.css("height","90%");
+    tar.css("width","90%");
     tar.animate({left: '0'},function () {
         cur.css("display", "none");
         cur.css("position", "absolute");
@@ -106,8 +124,8 @@ function moveLeftTo(cur, tar) {
     tar.css("z-index","100");
     tar.css("left","-100%");
     tar.css("display","block");
-    tar.css("height","100%");
-    tar.css("width","100%");
+    tar.css("height","90%");
+    tar.css("width","90%");
     tar.animate({left: '0'},function () {
         cur.css("display", "none");
         cur.css("position", "absolute");

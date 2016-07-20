@@ -10,7 +10,7 @@ body{
     position: absolute;
     top: 0;
     display: none;
-    padding: 10px;
+    padding: 5%;
 }
 
 input {
@@ -25,7 +25,7 @@ input {
 
 #mainPage{
     background-color: red;
-    padding: 10px;
+    padding: 5%;
 }
 
 #addToListType{
