@@ -100,38 +100,51 @@ function submitMainMessage(newMessage){
     });
 }
 
+var nextLayer = 1;
+
 function moveRightTo(cur, tar) {
     tar = $(tar);
     cur = $(cur);
     // slide in
-    tar.css("z-index","100");
+    tar.css("z-index",nextLayer.toString());
+    nextLayer++;
     tar.css("left","100%");
     tar.css("display","block");
     tar.css("height","90%");
     tar.css("width","90%");
+    cur.css("position", "absolute");
+    tar.css("position","relative");
     tar.animate({left: '0'},function () {
-        cur.css("display", "none");
-        cur.css("position", "absolute");
-        tar.css("position","relative");
-        tar.css("z-index","0");
+        //cur.css("display", "none");
     });
 }
 
 function moveLeftTo(cur, tar) {
+
     tar = $(tar);
     cur = $(cur);
     // slide in
-    tar.css("z-index","100");
-    tar.css("left","-100%");
-    tar.css("display","block");
-    tar.css("height","90%");
-    tar.css("width","90%");
-    tar.animate({left: '0'},function () {
+    nextLayer--;
+    cur.css("position", "absolute");
+    tar.css("position","relative");
+    cur.animate({left: '100%'},function () {
         cur.css("display", "none");
-        cur.css("position", "absolute");
-        tar.css("position","relative");
-        tar.css("z-index","0");
     });
+
+    // tar = $(tar);
+    // cur = $(cur);
+    // // slide in
+    // tar.css("z-index","100");
+    // tar.css("left","-100%");
+    // tar.css("display","block");
+    // tar.css("height","90%");
+    // tar.css("width","90%");
+    // cur.css("position", "absolute");
+    // tar.css("position","relative");
+    // tar.animate({left: '0'},function () {
+    //     cur.css("display", "none");
+    //     tar.css("z-index","0");
+    // });
 }
 
 /**

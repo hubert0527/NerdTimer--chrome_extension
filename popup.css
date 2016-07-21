@@ -1,7 +1,8 @@
 body{
     overflow: hidden;
-    min-width: 200px;
+    min-width: 300px;
     margin:0;
+    font-family: Georgia, serif;
 }
 
 .subPage{
