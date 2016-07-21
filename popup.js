@@ -174,8 +174,7 @@ function addSinglePageToSoftLockList(){
         singleSoftLock.push(url);
         saveFile(function(){
             getCurrentTab(function(tab){
-                chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to single soft lock and refresh");
+                chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
             });
         });
 
@@ -207,8 +206,7 @@ function addBaseDomainToSoftLockList(){
         softLockList.push(url);
         saveFile(function(){
             getCurrentTab(function(tab){
-                chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to soft block and refresh");
+                chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
             });
         });
 
@@ -234,8 +232,7 @@ function addSubDomainToSoftLockList(rawUrl){
     softLockList.push(url);
     saveFile(function(){
         getCurrentTab(function(tab){
-            chrome.tabs.reload(tab.id);
-            console.log("add " + url + " to soft lock and refresh");
+            chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
         });
     });
 
@@ -260,8 +257,7 @@ function addSinglePageToHardLockList(){
         singleHardLock.push(url);
         saveFile(function(){
             getCurrentTab(function(tab){
-                chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to single soft lock and refresh");
+                chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
             });
         });
 
@@ -293,8 +289,7 @@ function addBaseDomainToHardLockList(){
         hardLockList.push(url);
         saveFile(function(){
             getCurrentTab(function(tab){
-                chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to soft block and refresh");
+                chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
             });
         });
 
@@ -320,8 +315,7 @@ function addSubDomainToHardLockList(rawUrl){
     hardLockList.push(url);
     saveFile(function(){
         getCurrentTab(function(tab){
-            chrome.tabs.reload(tab.id);
-            console.log("add " + url + " to soft lock and refresh");
+            chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
         });
     });
 
@@ -346,8 +340,7 @@ function addSinglePageToWhiteList(){
         singleWhite.push(url);
         saveFile(function(){
             getCurrentTab(function(tab){
-                chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to single white and refresh");
+                chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
             });
         });
 
@@ -379,8 +372,7 @@ function addBaseDomainToWhiteList(){
         whiteList.push(url);
         saveFile(function(){
             getCurrentTab(function(tab){
-                chrome.tabs.reload(tab.id);
-                console.log("add " + url + " to white and refresh");
+                chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
             });
         });
 
@@ -406,26 +398,8 @@ function addSubDomainToWhiteList(rawUrl){
     whiteList.push(url);
     saveFile(function(){
         getCurrentTab(function(tab){
-            chrome.tabs.reload(tab.id);
-            console.log("add " + url + " to white and refresh");
+            chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
         });
     });
 }
 
-function getCurrentTabUrl(callback) {
-  var queryInfo = {
-    active: true,
-    currentWindow: true
-  };
-
-  chrome.tabs.query(queryInfo, function(tabs) {
-    var tab = tabs[0];
-    var url = tab.url;
-    //console.assert(typeof url == 'string', 'tab.url should be a string');
-
-    currentTab = tab;
-
-    callback(url);
-  });
-
-}

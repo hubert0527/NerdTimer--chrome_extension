@@ -282,37 +282,34 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
      */
     else if(msg.getCurrentMainMessage!=undefined){
         sendResponse({mainMessage:mainMessage.toString()});
+        console.log("send main message : " + mainMessage.toString());
     }
 
     if(msg.checkIfInList){
         checkIfReload(function(needReload){
             if(needReload){
                 loadFile(function () {
-                    var url = msg.checkIfInList;
-                    purifyBlackAndWhite();
-                    var purified = purifyUrl(url);
-                    var isBad = checkBlock(purified);
-                    var str;
-                    if(isBad==0) str = "white";
-                    else if(isBad==1) str = "hard";
-                    else if(isBad==2) str = "soft";
-                    else str = "none";
-                    sendResponse({block:str});
-                    console.log("is bad? " + str);
+                    if(msg.checkIfInList=="none"){
+                        getCurrentTabUrl(function(url){
+                            doCheckIfInList(url,sendResponse);
+                        });
+                    }
+                    else{
+                        var url = msg.checkIfInList;
+                        doCheckIfInList(url,sendResponse);
+                    }
                 });
             }
             else{
-                var url = msg.checkIfInList;
-                purifyBlackAndWhite();
-                var purified = purifyUrl(url);
-                var isBad = checkBlock(purified);
-                    var str;
-                    if(isBad==0) str = "white";
-                    else if(isBad==1) str = "hard";
-                    else if(isBad==2) str = "soft";
-                    else str = "none";
-                    sendResponse({block:str});
-                console.log("is bad? " + str);
+                if(msg.checkIfInList=="none"){
+                    getCurrentTabUrl(function(url){
+                        doCheckIfInList(url,sendResponse);
+                    });
+                }
+                else{
+                    var url = msg.checkIfInList;
+                    doCheckIfInList(url,sendResponse);
+                }
             }
         });
     }
@@ -322,6 +319,19 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
      */
     return true;
 });
+
+function doCheckIfInList(url,sendResponse) {
+    purifyBlackAndWhite();
+    var purified = purifyUrl(url);
+    var isBad = checkBlock(purified);
+    var str;
+    if(isBad==0) str = "white";
+    else if(isBad==1) str = "hard";
+    else if(isBad==2) str = "soft";
+    else str = "none";
+    sendResponse({block:str});
+    console.log("is bad? " + str);
+}
 
 /**
  * main thread of checking if tab is block
