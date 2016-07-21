@@ -199,6 +199,10 @@ function dealingUrl(tab){
         console.log("softBlock: " + softLockList.toString());
         console.log("whites: " + whiteList.toString());
 
+        console.log("hardBlockSingle: " + singleHardLock.toString());
+        console.log("softBlockSingle: " + singleSoftLock.toString());
+        console.log("whitesSingle: " + singleWhite.toString());
+
         if(isBad==1){
             chrome.tabs.sendMessage(tab.id, {block: "hard"}, function(response) {
                 console.log("send message to " + tab.url + " id = " + tab.id);
@@ -284,8 +288,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         sendResponse({mainMessage:mainMessage.toString()});
         console.log("send main message : " + mainMessage.toString());
     }
-
-    if(msg.checkIfInList){
+    else if(msg.checkIfInList){
         checkIfReload(function(needReload){
             if(needReload){
                 loadFile(function () {
@@ -312,6 +315,40 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
                 }
             }
         });
+    }
+    else if(msg && msg.deleteRule){
+        var sp = msg.deleteRule.split("::");
+        var index;
+        if(sp[0]=="singleWhite"){
+            index = singleWhite.indexOf(sp[1]);
+            singleWhite.splice(index,1);
+            saveFile(getCurrentTab(dealWithUrlMain));
+        }
+        else if(sp[0]=="whiteList"){
+            index = whiteList.indexOf(sp[1]);
+            whiteList.splice(index,1);
+            saveFile(getCurrentTab(dealWithUrlMain));
+        }
+        else if(sp[0]=="singleSoftLock"){
+            index = singleSoftLock.indexOf(sp[1]);
+            singleSoftLock.splice(index,1);
+            saveFile(getCurrentTab(dealWithUrlMain));
+        }
+        else if(sp[0]=="softLockList"){
+            index = softLockList.indexOf(sp[1]);
+            softLockList.splice(index,1);
+            saveFile(getCurrentTab(dealWithUrlMain));
+        }
+        else if(sp[0]=="singleHardLock"){
+            index = singleHardLock.indexOf(sp[1]);
+            singleHardLock.splice(index,1);
+            saveFile(getCurrentTab(dealWithUrlMain));
+        }
+        else if(sp[0]=="hardLockList"){
+            index = hardLockList.indexOf(sp[1]);
+            hardLockList.splice(index,1);
+            saveFile(getCurrentTab(dealWithUrlMain));
+        }
     }
     /**
      * IMPORTANT
