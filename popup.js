@@ -243,7 +243,7 @@ function createRemoveList(){
         // high light current tab
         getCurrentTabUrl(function(url){
             url = cutOffHeadAndTail(url);
-            var child = $('#removeSoftListSinglee').children();
+            var child = $('#removeSoftListSingle').children();
             if(child && child.length>0) {
                 for (i = 0; i < child.length; i++) {
                     var sib = $($(child[i]).children("button")).siblings()[0];
