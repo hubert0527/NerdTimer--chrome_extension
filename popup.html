@@ -35,10 +35,8 @@
                 <h2 id="currentDomain" style="margin:5px 0;text-align: right;"></h2>
                 <h4 style="text-align:right;margin: 5px 0;font-size: 0.66em;">status:<span id="isInList" style="font-size: 1.5em;"></span></h4>
             </div>
-            <label for="mainMessageInput">Your message: </label>
-            <input id="mainMessageInput" type="text" placeholder="Leave a message">
-            <button id="submitMainMessage">submit new main message</button>
-            <button id="goToAddToListType">add page to list</button>
+            <button id="goToAddToListType">list settings</button>
+            <button id="goToMainMessageSetting"> message setting </button>
         </div>
 
         <div id="addToListType" class="subPage">
@@ -58,6 +56,7 @@
             <div>
                 <button id="addSinglePageToSoftLockList">add single page</button>
                 <button id="addBaseDomainToSoftLockList">add base domain</button>
+                <button id="removeFromSoft">remove</button>
             </div>
         </div>
 
@@ -69,6 +68,7 @@
             <div>
                 <button id="addSinglePageToHardLockList">add single page</button>
                 <button id="addBaseDomainToHardLockList">add base domain</button>
+                <button id="removeFromHard">remove</button>
             </div>
         </div>
         <div id="addToWhiteList" class="subPage">
@@ -79,8 +79,50 @@
             <div>
                 <button id="addSinglePageToWhiteList">add single page</button>
                 <button id="addBaseDomainToWhiteList">add base domain</button>
+                <button id="removeFromWhite">remove</button>
             </div>
         </div>
+
+        <div id="modifyMainMessage" class="subPage">
+            <div>
+                <button id="goToMainPage5"> < </button>
+            </div>
+            <label for="mainMessageInput">Your message: </label>
+            <input id="mainMessageInput" type="text" placeholder="Leave a message">
+            <button id="submitMainMessage">submit new main message</button>
+        </div>
+
+        <div id="removeWhite" class="subPage remove">
+            <div style="height: 10%;">
+                <button id="goToMainPage6"> < </button>
+            </div>
+            <div style="height: 90%;">
+                <ul id="removeWhiteList" style="width: 95%;height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 5% 0 0;">
+
+                </ul>
+            </div>
+        </div>
+        <div id="removeSoft" class="subPage remove">
+            <div style="height: 10%;">
+                <button id="goToMainPage7"> < </button>
+            </div>
+            <div style="height: 90%;">
+                <ul id="removeSoftList" style="width: 95%;height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 5% 0 0;">
+
+                </ul>
+            </div>
+        </div>
+        <div id="removeHard" class="subPage remove">
+            <div style="height: 10%;">
+                <button id="goToMainPage8"> < </button>
+            </div>
+            <div style="height: 90%;">
+                <ul id="removeHardList" style="width: 95%;height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 5% 0 0;">
+
+                </ul>
+            </div>
+        </div>
+
     </body>
 </html>
 

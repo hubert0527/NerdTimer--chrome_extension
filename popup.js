@@ -49,13 +49,21 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("addBaseDomainToHardLockList").addEventListener("click", addBaseDomainToHardLockList);
     document.getElementById("addSinglePageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
     document.getElementById("addBaseDomainToWhiteList").addEventListener("click", addBaseDomainToWhiteList);
-    document.getElementById("submitMainMessage").addEventListener("click", submitMainMessage);
+    document.getElementById("submitMainMessage").addEventListener("click", function(){
+        var v = $("#mainMessageInput").val();
+        console.log("receive event : "+v.toString());
+        if(v==MouseEvent) return;
+        submitMainMessage(v.toString());
+    });
     $(document.getElementById("mainMessageInput")).bind('input', function() {
-            submitMainMessage($(this).val());
-        });
+        var v = $(this).val();
+        console.log("receive event : "+v.toString());
+        if(v==MouseEvent) return;
+        submitMainMessage(v.toString());
+    });
     document.getElementById("mainMessageInput").onkeydown = function(key){
         if(key.which==13 && $('#mainMessageInput').val()==""){
-            submitMainMessage("");
+            submitMainMessage('');
         }
     };
 
@@ -64,21 +72,64 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("goToSoftBlock").addEventListener("click", function(){moveRightTo("#addToListType","#addToSoftBlockList");});
     document.getElementById("goToHardBlock").addEventListener("click", function(){moveRightTo("#addToListType","#addToHardBlockList");});
     document.getElementById("goToWhiteList").addEventListener("click", function(){moveRightTo("#addToListType","#addToWhiteList");});
+    document.getElementById("goToMainMessageSetting").addEventListener("click", function(){
+        moveRightTo("#mainPage","#modifyMainMessage");
+        chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
+            if(response && response.mainMessage!=undefined) {
+                document.getElementById("mainMessageInput").value = response.mainMessage;
+            }
+        });
+    });
+    document.getElementById("removeFromWhite").addEventListener("click", function(){
+        moveRightTo("#addToWhiteList","#removeWhite");
+        var ul = $('#removeWhiteList');
+        ul.remove("li");
+        var i;
+        for(i=0; i<singleWhite.length;i++){
+            if(singleWhite[i]!="") ul.append('<li>[single]'+singleWhite[i]+'</li>');
+        }
+        for(i=0; i<whiteList.length;i++){
+            if(whiteList[i]!="") ul.append('<li>[domain]'+whiteList[i]+'</li>');
+        }
+    });
+    document.getElementById("removeFromSoft").addEventListener("click", function(){
+        moveRightTo("#addToSoftBlockList","#removeSoft");
+        var ul = $('#removeSoftList');
+        ul.remove("li");
+        var i;
+        for(i=0; i<singleSoftLock.length;i++){
+            if(singleSoftLock[i]!="") ul.append('<li>[single]'+singleSoftLock[i]+'</li>');
+        }
+        for(i=0; i<softLockList.length;i++){
+            if(softLockList[i]!="") ul.append('<li>[domain]'+softLockList[i]+'</li>');
+        }
+    });
+    document.getElementById("removeFromHard").addEventListener("click", function(){
+        moveRightTo("#addToHardBlockList","#removeHard");
+        var ul = $('#removeHardList');
+        ul.remove("li");
+        var i;
+        for(i=0; i<singleHardLock.length;i++){
+            if(singleHardLock[i]!="") ul.append('<li>[single]'+singleHardLock[i]+'</li>');
+        }
+        for(i=0; i<hardLockList.length;i++){
+            if(hardLockList[i]!="") ul.append('<li>[domain]'+hardLockList[i]+'</li>');
+        }
+    });
+
 
     document.getElementById("goToMainPage1").addEventListener("click", function(){moveLeftTo("#addToListType","#mainPage");});
     document.getElementById("goToMainPage2").addEventListener("click", function(){moveLeftTo("#addToSoftBlockList","#addToListType");});
     document.getElementById("goToMainPage3").addEventListener("click", function(){moveLeftTo("#addToHardBlockList","#addToListType");});
     document.getElementById("goToMainPage4").addEventListener("click", function(){moveLeftTo("#addToWhiteList","#addToListType");});
+    document.getElementById("goToMainPage5").addEventListener("click", function(){moveLeftTo("#modifyMainMessage","#mainPage");});
+    document.getElementById("goToMainPage6").addEventListener("click", function(){moveLeftTo("#removeWhite","#addToWhiteList");});
+    document.getElementById("goToMainPage7").addEventListener("click", function(){moveLeftTo("#removeSoft","#addToSoftBlockList");});
+    document.getElementById("goToMainPage8").addEventListener("click", function(){moveLeftTo("#removeHard","addToHardBlockList");});
 
 
     console.log("softBlocks: " + softLockList.toString());
     console.log("whites: " + whiteList.toString());
-
-    chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
-        if(response && response.mainMessage!=undefined) {
-            document.getElementById("mainMessageInput").value = response.mainMessage;
-        }
-    });
 
 });
 
@@ -91,7 +142,7 @@ function submitMainMessage(newMessage){
     loadBlocker(function(){
         if(newMessage!=mainMessage) {
             chrome.runtime.sendMessage({modifyMainMessage: newMessage}, function (response) {
-                console.log("modifyMainMessage");
+                console.log("modifyMainMessage as : " + newMessage);
             });
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{modifyMainMessage: newMessage});
