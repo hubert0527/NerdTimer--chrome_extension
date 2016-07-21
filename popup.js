@@ -83,7 +83,6 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("removeFromWhite").addEventListener("click", function(){
         moveRightTo("#addToWhiteList","#removeWhite");
         var ul = $('#removeWhiteList');
-        ul.remove("li");
         var i;
         for(i=0; i<singleWhite.length;i++){
             if(singleWhite[i]!="") ul.append('<li>[single]'+singleWhite[i]+'</li>');
@@ -95,7 +94,6 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("removeFromSoft").addEventListener("click", function(){
         moveRightTo("#addToSoftBlockList","#removeSoft");
         var ul = $('#removeSoftList');
-        ul.remove("li");
         var i;
         for(i=0; i<singleSoftLock.length;i++){
             if(singleSoftLock[i]!="") ul.append('<li>[single]'+singleSoftLock[i]+'</li>');
@@ -107,7 +105,6 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("removeFromHard").addEventListener("click", function(){
         moveRightTo("#addToHardBlockList","#removeHard");
         var ul = $('#removeHardList');
-        ul.remove("li");
         var i;
         for(i=0; i<singleHardLock.length;i++){
             if(singleHardLock[i]!="") ul.append('<li>[single]'+singleHardLock[i]+'</li>');
@@ -123,9 +120,25 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("goToMainPage3").addEventListener("click", function(){moveLeftTo("#addToHardBlockList","#addToListType");});
     document.getElementById("goToMainPage4").addEventListener("click", function(){moveLeftTo("#addToWhiteList","#addToListType");});
     document.getElementById("goToMainPage5").addEventListener("click", function(){moveLeftTo("#modifyMainMessage","#mainPage");});
-    document.getElementById("goToMainPage6").addEventListener("click", function(){moveLeftTo("#removeWhite","#addToWhiteList");});
-    document.getElementById("goToMainPage7").addEventListener("click", function(){moveLeftTo("#removeSoft","#addToSoftBlockList");});
-    document.getElementById("goToMainPage8").addEventListener("click", function(){moveLeftTo("#removeHard","addToHardBlockList");});
+    document.getElementById("goToMainPage6").addEventListener("click", function(){
+        moveLeftTo("#removeWhite","#addToWhiteList",function () {
+            var ul = $('#removeWhiteList');
+            $(ul.children()).remove();
+        });
+    });
+    document.getElementById("goToMainPage7").addEventListener("click", function(){
+        moveLeftTo("#removeSoft","#addToSoftBlockList",function(){
+            var ul = $('#removeSoftList');
+            $(ul.children()).remove();
+        });
+    });
+    document.getElementById("goToMainPage8").addEventListener("click", function(){
+        moveLeftTo("#removeHard","addToHardBlockList",function(){
+            var ul = $('#removeHardList');
+            $(ul.children()).remove();
+        });
+
+    });
 
 
     console.log("softBlocks: " + softLockList.toString());
@@ -153,7 +166,7 @@ function submitMainMessage(newMessage){
 
 var nextLayer = 1;
 
-function moveRightTo(cur, tar) {
+function moveRightTo(cur, tar,callback) {
     tar = $(tar);
     cur = $(cur);
     // slide in
@@ -167,10 +180,11 @@ function moveRightTo(cur, tar) {
     tar.css("position","relative");
     tar.animate({left: '0'},function () {
         //cur.css("display", "none");
+        if(callback!=undefined) callback();
     });
 }
 
-function moveLeftTo(cur, tar) {
+function moveLeftTo(cur, tar, callback) {
 
     tar = $(tar);
     cur = $(cur);
@@ -180,22 +194,8 @@ function moveLeftTo(cur, tar) {
     tar.css("position","relative");
     cur.animate({left: '100%'},function () {
         cur.css("display", "none");
+        if(callback!=undefined) callback();
     });
-
-    // tar = $(tar);
-    // cur = $(cur);
-    // // slide in
-    // tar.css("z-index","100");
-    // tar.css("left","-100%");
-    // tar.css("display","block");
-    // tar.css("height","90%");
-    // tar.css("width","90%");
-    // cur.css("position", "absolute");
-    // tar.css("position","relative");
-    // tar.animate({left: '0'},function () {
-    //     cur.css("display", "none");
-    //     tar.css("z-index","0");
-    // });
 }
 
 /**
