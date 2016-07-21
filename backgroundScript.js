@@ -19,7 +19,7 @@ init();
 var isWaiting5Min = false;
 
 // content of blocker
-var mainMessage="Better stop now!";
+var mainMessage="You shall not pass!";
 
 var currentTab = undefined;
 var isCheckingReload = false;

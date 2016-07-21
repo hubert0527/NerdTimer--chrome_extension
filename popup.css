@@ -1,6 +1,6 @@
 body{
     overflow: hidden;
-    width: 250px;
+    width: 300px;
     height: 300px;
     margin:0;
     font-family: Georgia, serif;
@@ -50,9 +50,43 @@ input {
 .remove{
     background-color: red;
 }
-.remove li{
-    list-style-type: none;
+.remove h4{
+    margin: 7px auto;
+    text-align: center;
+}
+.remove li div{
+    float: left;
+    width: 225px;
     word-wrap: break-word;
+}
+.remove ul{
+    width: 256px;
+    padding: 0;
+    list-style-type: none;
+}
+.removeCheckWrapper button{
+    float: left;
+    width: 20px;
+    height: 20px;
+    border-radius: 10%;
+    font-size: 10px;
+    font-weight: bolder;
+    background-color: white;
+    color: black;
+    border: none;
+    box-shadow: 0 0 5px #444444;
+    margin: 5px;
+}
+.removeCheckWrapper button:hover{
+    background-color: #dddddd;
+}
+.removeCheckWrapper button:focus{
+    box-shadow:0 0 10px #444444 inset;
+}
+.removeCheckWrapper button p{
+    text-align: center;
+    margin: auto;
+    padding: 0;
 }
 
 ::-webkit-scrollbar {

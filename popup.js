@@ -80,40 +80,8 @@ window.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
-    document.getElementById("removeFromWhite").addEventListener("click", function(){
-        moveRightTo("#addToWhiteList","#removeWhite");
-        var ul = $('#removeWhiteList');
-        var i;
-        for(i=0; i<singleWhite.length;i++){
-            if(singleWhite[i]!="") ul.append('<li>[single]'+singleWhite[i]+'</li>');
-        }
-        for(i=0; i<whiteList.length;i++){
-            if(whiteList[i]!="") ul.append('<li>[domain]'+whiteList[i]+'</li>');
-        }
-    });
-    document.getElementById("removeFromSoft").addEventListener("click", function(){
-        moveRightTo("#addToSoftBlockList","#removeSoft");
-        var ul = $('#removeSoftList');
-        var i;
-        for(i=0; i<singleSoftLock.length;i++){
-            if(singleSoftLock[i]!="") ul.append('<li>[single]'+singleSoftLock[i]+'</li>');
-        }
-        for(i=0; i<softLockList.length;i++){
-            if(softLockList[i]!="") ul.append('<li>[domain]'+softLockList[i]+'</li>');
-        }
-    });
-    document.getElementById("removeFromHard").addEventListener("click", function(){
-        moveRightTo("#addToHardBlockList","#removeHard");
-        var ul = $('#removeHardList');
-        var i;
-        for(i=0; i<singleHardLock.length;i++){
-            if(singleHardLock[i]!="") ul.append('<li>[single]'+singleHardLock[i]+'</li>');
-        }
-        for(i=0; i<hardLockList.length;i++){
-            if(hardLockList[i]!="") ul.append('<li>[domain]'+hardLockList[i]+'</li>');
-        }
-    });
 
+    createRemoveList();
 
     document.getElementById("goToMainPage1").addEventListener("click", function(){moveLeftTo("#addToListType","#mainPage");});
     document.getElementById("goToMainPage2").addEventListener("click", function(){moveLeftTo("#addToSoftBlockList","#addToListType");});
@@ -122,19 +90,25 @@ window.addEventListener("DOMContentLoaded", function() {
     document.getElementById("goToMainPage5").addEventListener("click", function(){moveLeftTo("#modifyMainMessage","#mainPage");});
     document.getElementById("goToMainPage6").addEventListener("click", function(){
         moveLeftTo("#removeWhite","#addToWhiteList",function () {
-            var ul = $('#removeWhiteList');
+            var ul = $('#removeWhiteListSingle');
+            $(ul.children()).remove();
+            ul = $('#removeWhiteListDomain');
             $(ul.children()).remove();
         });
     });
     document.getElementById("goToMainPage7").addEventListener("click", function(){
         moveLeftTo("#removeSoft","#addToSoftBlockList",function(){
-            var ul = $('#removeSoftList');
+            var ul = $('#removeSoftListSingle');
+            $(ul.children()).remove();
+            ul = $('#removeSoftListDomain');
             $(ul.children()).remove();
         });
     });
     document.getElementById("goToMainPage8").addEventListener("click", function(){
         moveLeftTo("#removeHard","addToHardBlockList",function(){
-            var ul = $('#removeHardList');
+            var ul = $('#removeHardListSingle');
+            $(ul.children()).remove();
+            ul = $('#removeHardListDomain');
             $(ul.children()).remove();
         });
 
@@ -146,6 +120,158 @@ window.addEventListener("DOMContentLoaded", function() {
 
 });
 
+function createRemoveList(){
+    document.getElementById("removeFromWhite").addEventListener("click", function(){
+        moveRightTo("#addToWhiteList","#removeWhite");
+        var ul = $('#removeWhiteListSingle');
+        var i;
+        // create UI
+        for(i=0; i<singleWhite.length;i++){
+            if(singleWhite[i]!="") ul.append([
+                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                        '<button><p>X</p></button>',
+                        '<div>'+singleWhite[i]+'</div>',
+                    '</li>'
+                ].join("\n")
+            );
+        }
+        // create button function
+        var child = ul.children();
+        if(child && child.length>0) {
+            for (i = 0; i < child.length; i++) {
+                $($(child[i]).children("button")).click(function(){
+                    // send delete message
+
+                    // disappear
+                    $($(this).parent()).fadeOut('fast');
+                });
+            }
+        }
+        ul = $('#removeWhiteListDomain');
+        //create UI
+        for(i=0; i<whiteList.length;i++){
+            if(whiteList[i]!="") ul.append([
+                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                        '<button><p>X</p></button>',
+                        '<div>'+whiteList[i]+'</div>',
+                    '</li>'
+                ].join("\n")
+            );
+        }
+        // create button function
+        child = ul.children();
+        if(child && child.length>0) {
+            for (i = 0; i < child.length; i++) {
+                $($(child[i]).children("button")).click(function(){
+                    // send delete message
+
+                    // disappear
+                    $($(this).parent()).fadeOut('fast');
+                });
+            }
+        }
+    });
+    document.getElementById("removeFromSoft").addEventListener("click", function(){
+        moveRightTo("#addToSoftBlockList","#removeSoft");
+        var ul = $('#removeSoftList');
+        var i;
+        // create UI
+        for(i=0; i<singleSoftLock.length;i++){
+            if(singleSoftLock[i]!="") ul.append([
+                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                        '<button><p>X</p></button>',
+                        '<div>'+singleSoftLock[i]+'</div>',
+                    '</li>'
+                ].join("\n")
+            );
+        }
+        // create button function
+        var child = ul.children();
+        if(child && child.length>0) {
+            for (i = 0; i < child.length; i++) {
+                $($(child[i]).children("button")).click(function(){
+                    // send delete message
+
+                    // disappear
+                    $($(this).parent()).fadeOut('fast');
+                });
+            }
+        }
+        ul = $('#removeWhiteListDomain');
+        //create UI
+        for(i=0; i<softLockList.length;i++){
+            if(softLockList[i]!="") ul.append([
+                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                        '<button><p>X</p></button>',
+                        '<div>'+softLockList[i]+'</div>',
+                    '</li>'
+                ].join("\n")
+            );
+        }
+        // create button function
+        child = ul.children();
+        if(child && child.length>0) {
+            for (i = 0; i < child.length; i++) {
+                $($(child[i]).children("button")).click(function(){
+                    // send delete message
+
+                    // disappear
+                    $($(this).parent()).fadeOut('fast');
+                });
+            }
+        }
+    });
+    document.getElementById("removeFromHard").addEventListener("click", function(){
+        moveRightTo("#addToHardBlockList","#removeHard");
+        var ul = $('#removeHardList');
+        var i;
+        // create UI
+        for(i=0; i<singleHardLock.length;i++){
+            if(singleHardLock[i]!="") ul.append([
+                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                        '<button><p>X</p></button>',
+                        '<div>'+singleHardLock[i]+'</div>',
+                    '</li>'
+                ].join("\n")
+            );
+        }
+        // create button function
+        var child = ul.children();
+        if(child && child.length>0) {
+            for (i = 0; i < child.length; i++) {
+                $($(child[i]).children("button")).click(function(){
+                    // send delete message
+
+                    // disappear
+                    $($(this).parent()).fadeOut('fast');
+                });
+            }
+        }
+        ul = $('#removeWhiteListDomain');
+        //create UI
+        for(i=0; i<hardLockList.length;i++){
+            if(hardLockList[i]!="") ul.append([
+                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                        '<button><p>X</p></button>',
+                        '<div>'+hardLockList[i]+'</div>',
+                    '</li>'
+                ].join("\n")
+            );
+        }
+        // create button function
+        child = ul.children();
+        if(child && child.length>0) {
+            for (i = 0; i < child.length; i++) {
+                $($(child[i]).children("button")).click(function(){
+                    // send delete message
+
+                    // disappear
+                    $($(this).parent()).fadeOut('fast');
+                });
+            }
+        }
+    });
+}
 
 var mainMessage="Better stop now!";
 
