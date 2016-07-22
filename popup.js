@@ -8,6 +8,8 @@ var ignore = [
     "jp"
 ];
 
+var timer = 0;
+
 var singleHardLock = [];
 var singleSoftLock = [];
 var useTime = [];
@@ -63,6 +65,25 @@ window.addEventListener("DOMContentLoaded", function() {
             else if(response.block=="none") $(document.getElementById("isInList")).text(" not set");
         });
     });
+
+    // set timer
+    loadLastUsedTimer(function(time){
+        time = parseInt(time);
+        if(time) {
+            document.getElementById("waitTime").value = time;
+        }
+        else{
+            document.getElementById("waitTime").value = 10;
+        }
+    });
+    document.getElementById("startTimer").addEventListener("click",function(){
+        if(timer>0) return;
+        var time = parseInt(document.getElementById("waitTime").value);
+        saveLastUsedTimer(time,function(){
+            chrome.runtime.sendMessage({timerSet:time});
+            setPopupTimer(time);
+        });
+    });
     
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
     document.getElementById("addBaseDomainToSoftLockList").addEventListener("click", addBaseDomainToSoftLockList);
@@ -101,6 +122,13 @@ window.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
+    document.getElementById("goToTimeSetting").addEventListener("click", function(){
+        moveRightTo("#mainPage","#timeSetting");
+        // set timer status showing
+        chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
+            setPopupTimer(res.time);
+        });
+    });
 
     createRemoveList();
 
@@ -122,6 +150,7 @@ window.addEventListener("DOMContentLoaded", function() {
         moveLeftTo("#addToListType","#mainPage");
     });
     document.getElementById("goToMainPage2").addEventListener("click", function(){moveLeftTo("#addToSoftBlockList","#addToListType");});
+    document.getElementById("goToMainPage9").addEventListener("click", function(){moveLeftTo("#timeSetting","#mainPage");});
     document.getElementById("goToMainPage3").addEventListener("click", function(){moveLeftTo("#addToHardBlockList","#addToListType");});
     document.getElementById("goToMainPage4").addEventListener("click", function(){moveLeftTo("#addToWhiteList","#addToListType");});
     document.getElementById("goToMainPage5").addEventListener("click", function(){moveLeftTo("#modifyMainMessage","#mainPage");});
@@ -156,6 +185,39 @@ window.addEventListener("DOMContentLoaded", function() {
     console.log("whites: " + whiteList.toString());
 
 });
+
+function setPopupTimer(time){
+
+    timer = time;
+    if(timer<=0) {
+        document.getElementById("timeDisplay").textContent = " 00 : 00";
+        return;
+    }
+    var sec = (timer%60).toString();
+    var min = (Math.floor(timer/60)).toString();
+    if(sec<10){
+        sec = "0"+sec;
+    }
+    if(min<10){
+        min = "0"+min;
+    }
+    document.getElementById("timeDisplay").textContent =  min + " : " + sec;
+    var i = setInterval(function(){
+        console.log("time = " + timer + ", min = " + timer/60 + " sec = " + timer%60);
+        timer --;
+        sec = (timer%60).toString();
+        min = (Math.floor(timer/60)).toString();
+        if(sec<10){
+        sec = "0"+sec;
+        }
+        if(min<10){
+            min = "0"+min;
+        }
+        document.getElementById("timeDisplay").textContent = min + " : " + sec;
+        if(timer<=0) clearInterval(i);
+    },1000);
+
+}
 
 function createRemoveList(){
     document.getElementById("removeFromWhite").addEventListener("click", function(){

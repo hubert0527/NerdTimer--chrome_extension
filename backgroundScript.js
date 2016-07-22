@@ -16,7 +16,8 @@ function init(){
 }
 init();
 
-var isWaiting5Min = false;
+var timer=0;
+var isWaitingTimer = false;
 
 // content of blocker
 var mainMessage="You shall not pass!";
@@ -211,7 +212,7 @@ function dealingUrl(tab){
         }
         else if(isBad==2){
 
-            if(isWaiting5Min==true){
+            if(isWaitingTimer==true){
                 chrome.tabs.sendMessage(tab.id, {block: "false"}, function(response) {
                     console.log("send message to " + tab.url + " id = " + tab.id);
                 });
@@ -274,10 +275,10 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
      * content script request bg script stop sending soft block for 5 min
      */
     else if(msg.wait5Min!=undefined){
-        isWaiting5Min = true;
+        isWaitingTimer = true;
         var i = setInterval(function(){
             clearInterval(i);
-            isWaiting5Min = false;
+            isWaitingTimer = false;
             getCurrentTab(dealWithUrlMain);
         },10000);
 
@@ -351,12 +352,35 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             saveFile(getCurrentTab(dealWithUrlMain));
         }
     }
+    else if(msg && msg.timerSet){
+        setTimer(msg.timerSet,function(){
+            getCurrentTab(dealWithUrlMain);
+        });
+        getCurrentTab(dealWithUrlMain);
+        return false;
+    }
+    else if(msg && msg.getTimerTime){
+        sendResponse({time:timer});
+    }
     /**
      * IMPORTANT
      * or, the channel will be closed
      */
     return true;
 });
+
+function setTimer(time,callback){
+    isWaitingTimer = true;
+    timer = time;
+    var t = setInterval(function(){
+        if(timer>0) timer --;
+        else{
+            clearInterval(t);
+            isWaitingTimer = false;
+            if(callback!=undefined) callback();
+        }
+    },1000);
+}
 
 function doCheckIfInList(url,sendResponse) {
     purifyBlackAndWhite();

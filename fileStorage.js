@@ -1,3 +1,16 @@
+
+function saveLastUsedTimer(time,callback){
+    chrome.storage.local.set({'lastTimer': time},function(){
+        if(callback) callback();
+    });
+}
+
+function loadLastUsedTimer(callback){
+    chrome.storage.local.get('lastTimer',function(time){
+        if(callback) callback(time);
+    });
+}
+
 function saveBlocker(callback){
     chrome.storage.local.set({'mainMessage': mainMessage},function(){
         if(callback){

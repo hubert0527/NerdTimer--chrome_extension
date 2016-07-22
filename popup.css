@@ -35,6 +35,10 @@ input {
     font-size: 1.5em;
 }
 
+#timeSetting{
+    background-color: gold;
+}
+
 #addToListType{
     background-color: #00a5ff;
 }
