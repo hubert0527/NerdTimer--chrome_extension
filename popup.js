@@ -83,7 +83,23 @@ window.addEventListener("DOMContentLoaded", function() {
 
     createRemoveList();
 
-    document.getElementById("goToMainPage1").addEventListener("click", function(){moveLeftTo("#addToListType","#mainPage");});
+    document.getElementById("goToMainPage1").addEventListener("click", function(){
+        loadFile();
+
+        // refresh status
+        getCurrentTabUrl(function (url) {
+            // check in list
+            chrome.runtime.sendMessage({"checkIfInList":url}, function(response) {
+                if(response==undefined || response.block==undefined)
+                    $(document.getElementById("isInList")).text(" error");
+                if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
+                else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
+                else if(response.block=="soft") $(document.getElementById("isInList")).text(" soft block");
+                else if(response.block=="none") $(document.getElementById("isInList")).text(" not set");
+            });
+        });
+        moveLeftTo("#addToListType","#mainPage");
+    });
     document.getElementById("goToMainPage2").addEventListener("click", function(){moveLeftTo("#addToSoftBlockList","#addToListType");});
     document.getElementById("goToMainPage3").addEventListener("click", function(){moveLeftTo("#addToHardBlockList","#addToListType");});
     document.getElementById("goToMainPage4").addEventListener("click", function(){moveLeftTo("#addToWhiteList","#addToListType");});
@@ -125,12 +141,21 @@ function createRemoveList(){
         moveRightTo("#addToWhiteList","#removeWhite");
         var ul = $('#removeWhiteListSingle');
         var i;
+
+        // temporary eliminate "www" and sort
+        var temp = singleWhite.slice(0);
+        for(i=0;i<temp.length;i++){
+            if(temp[i].substring(0,3)=="www"){
+                temp[i] = temp[i].substring(4);
+            }
+        }
+        sortList(temp);
         // create UI
-        for(i=0; i<singleWhite.length;i++){
-            if(singleWhite[i]!="") ul.append([
+        for(i=0; i<temp.length;i++){
+            if(temp[i]!="") ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
                         '<button><p>X</p></button>',
-                        '<div>'+singleWhite[i]+'</div>',
+                        '<div>'+temp[i]+'</div>',
                     '</li>'
                 ].join("\n")
             );
@@ -155,6 +180,9 @@ function createRemoveList(){
         // high light current tab
         getCurrentTabUrl(function(url){
             url = cutOffHeadAndTail(url);
+            if(url.substring(0,3)=="www"){
+                url = url.substring(4);
+            }
             var child = $('#removeWhiteListSingle').children();
             if(child && child.length>0) {
                 for (i = 0; i < child.length; i++) {
@@ -168,12 +196,20 @@ function createRemoveList(){
         });
 
         ul = $('#removeWhiteListDomain');
+        // temporary eliminate "www" and sort
+        temp = whiteList.slice(0);
+        for(i=0;i<temp.length;i++){
+            if(temp[i].substring(0,3)=="www"){
+                temp[i] = temp[i].substring(4);
+            }
+        }
+        sortList(temp);
         //create UI
-        for(i=0; i<whiteList.length;i++){
-            if(whiteList[i]!="") ul.append([
+        for(i=0; i<temp.length;i++){
+            if(temp[i]!="") ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
                         '<button><p>X</p></button>',
-                        '<div>'+whiteList[i]+'</div>',
+                        '<div>'+temp[i]+'</div>',
                     '</li>'
                 ].join("\n")
             );
@@ -198,6 +234,9 @@ function createRemoveList(){
         // high light current tab
         getCurrentTabUrl(function(url){
             url = cutOffHeadAndTail(url);
+            if(url.substring(0,3)=="www"){
+                url = url.substring(4);
+            }
             var child = $('#removeWhiteListDomain').children();
             if(child && child.length>0) {
                 for (i = 0; i < child.length; i++) {
@@ -213,12 +252,21 @@ function createRemoveList(){
         moveRightTo("#addToSoftBlockList","#removeSoft");
         var ul = $('#removeSoftListSingle');
         var i;
+
+        // temporary eliminate "www" and sort
+        var temp = singleSoftLock.slice(0);
+        for(i=0;i<temp.length;i++){
+            if(temp[i].substring(0,3)=="www"){
+                temp[i] = temp[i].substring(4);
+            }
+        }
+        sortList(temp);
         // create UI
-        for(i=0; i<singleSoftLock.length;i++){
-            if(singleSoftLock[i]!="") ul.append([
+        for(i=0; i<temp.length;i++){
+            if(temp[i]!="") ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
                         '<button><p>X</p></button>',
-                        '<div>'+singleSoftLock[i]+'</div>',
+                        '<div>'+temp[i]+'</div>',
                     '</li>'
                 ].join("\n")
             );
@@ -243,6 +291,9 @@ function createRemoveList(){
         // high light current tab
         getCurrentTabUrl(function(url){
             url = cutOffHeadAndTail(url);
+            if(url.substring(0,3)=="www"){
+                url = url.substring(4);
+            }
             var child = $('#removeSoftListSingle').children();
             if(child && child.length>0) {
                 for (i = 0; i < child.length; i++) {
@@ -255,12 +306,20 @@ function createRemoveList(){
         });
 
         ul = $('#removeSoftListDomain');
+        // temporary eliminate "www" and sort
+        temp = softLockList.slice(0);
+        for(i=0;i<temp.length;i++){
+            if(temp[i].substring(0,3)=="www"){
+                temp[i] = temp[i].substring(4);
+            }
+        }
+        sortList(temp);
         //create UI
-        for(i=0; i<softLockList.length;i++){
-            if(softLockList[i]!="") ul.append([
+        for(i=0; i<temp.length;i++){
+            if(temp[i]!="") ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
                         '<button><p>X</p></button>',
-                        '<div>'+softLockList[i]+'</div>',
+                        '<div>'+temp[i]+'</div>',
                     '</li>'
                 ].join("\n")
             );
@@ -285,6 +344,9 @@ function createRemoveList(){
         // high light current tab
         getCurrentTabUrl(function(url){
             url = cutOffHeadAndTail(url);
+            if(url.substring(0,3)=="www"){
+                url = url.substring(4);
+            }
             var child = $('#removeSoftListDomain').children();
             if(child && child.length>0) {
                 for (i = 0; i < child.length; i++) {
@@ -300,12 +362,21 @@ function createRemoveList(){
         moveRightTo("#addToHardBlockList","#removeHard");
         var ul = $('#removeHardListSingle');
         var i;
+
+        // temporary eliminate "www" and sort
+        var temp = singleHardLock.slice(0);
+        for(i=0;i<temp.length;i++){
+            if(temp[i].substring(0,3)=="www"){
+                temp[i] = temp[i].substring(4);
+            }
+        }
+        sortList(temp);
         // create UI
-        for(i=0; i<singleHardLock.length;i++){
-            if(singleHardLock[i]!="") ul.append([
+        for(i=0; i<temp.length;i++){
+            if(temp[i]!="") ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
                         '<button><p>X</p></button>',
-                        '<div>'+singleHardLock[i]+'</div>',
+                        '<div>'+temp[i]+'</div>',
                     '</li>'
                 ].join("\n")
             );
@@ -330,6 +401,9 @@ function createRemoveList(){
         // high light current tab
         getCurrentTabUrl(function(url){
             url = cutOffHeadAndTail(url);
+            if(url.substring(0,3)=="www"){
+                url = url.substring(4);
+            }
             var child = $('#removeHardListSingle').children();
             if(child && child.length>0) {
                 for (i = 0; i < child.length; i++) {
@@ -342,12 +416,20 @@ function createRemoveList(){
         });
 
         ul = $('#removeHardListDomain');
+        // temporary eliminate "www" and sort
+        temp = hardLockList.slice(0);
+        for(i=0;i<temp.length;i++){
+            if(temp[i].substring(0,3)=="www"){
+                temp[i] = temp[i].substring(4);
+            }
+        }
+        sortList(temp);
         //create UI
-        for(i=0; i<hardLockList.length;i++){
-            if(hardLockList[i]!="") ul.append([
+        for(i=0; i<temp.length;i++){
+            if(temp[i]!="") ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
                         '<button><p>X</p></button>',
-                        '<div>'+hardLockList[i]+'</div>',
+                        '<div>'+temp[i]+'</div>',
                     '</li>'
                 ].join("\n")
             );
@@ -372,6 +454,9 @@ function createRemoveList(){
         // high light current tab
         getCurrentTabUrl(function(url){
             url = cutOffHeadAndTail(url);
+            if(url.substring(0,3)=="www"){
+                url = url.substring(4);
+            }
             var child = $('#removeHardListDomain').children();
             if(child && child.length>0) {
                 for (i = 0; i < child.length; i++) {
@@ -461,6 +546,7 @@ function addSinglePageToSoftLockList(){
         }
 
         singleSoftLock.push(url);
+        sortList(singleSoftLock);
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
@@ -493,6 +579,7 @@ function addBaseDomainToSoftLockList(){
         }
 
         softLockList.push(url);
+        sortList(softLockList);
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
@@ -519,6 +606,7 @@ function addSubDomainToSoftLockList(rawUrl){
     }
 
     softLockList.push(url);
+    sortList(softLockList);
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
@@ -544,6 +632,7 @@ function addSinglePageToHardLockList(){
         }
 
         singleHardLock.push(url);
+        sortList(singleHardLock);
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
@@ -576,6 +665,7 @@ function addBaseDomainToHardLockList(){
         }
 
         hardLockList.push(url);
+        sortList(hardLockList);
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
@@ -602,6 +692,7 @@ function addSubDomainToHardLockList(rawUrl){
     }
 
     hardLockList.push(url);
+    sortList(hardLockList);
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
@@ -627,6 +718,7 @@ function addSinglePageToWhiteList(){
         }
 
         singleWhite.push(url);
+        sortList(singleWhite);
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
@@ -659,6 +751,7 @@ function addBaseDomainToWhiteList(){
         }
 
         whiteList.push(url);
+        sortList(whiteList);
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
@@ -685,6 +778,7 @@ function addSubDomainToWhiteList(rawUrl){
     }
 
     whiteList.push(url);
+    sortList(whiteList);
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});

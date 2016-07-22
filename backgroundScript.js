@@ -53,13 +53,13 @@ function purifyBlackAndWhite(){
     var i;
 
     for(i=0;i<singleHardLock.length;i++){
-        singleHardLock[i] = purifyUrl(singleHardLock[i]);
+        singleHardLock[i] = cutOffHeadAndTail(singleHardLock[i]);
     }
     for(i=0;i<singleSoftLock.length;i++){
-        singleSoftLock[i] = purifyUrl(singleSoftLock[i]);
+        singleSoftLock[i] = cutOffHeadAndTail(singleSoftLock[i]);
     }
     for(i=0;i<singleWhite.length;i++){
-        singleWhite[i] = purifyUrl(singleWhite[i]);
+        singleWhite[i] = cutOffHeadAndTail(singleWhite[i]);
     }
 
     purifiedHardLock = new Array(hardLockList.length);

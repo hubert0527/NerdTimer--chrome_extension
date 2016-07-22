@@ -1,4 +1,13 @@
 
+function sortList(list){
+    // sorting
+    list.sort(function(aa,bb){
+        if(aa < bb) return -1;
+        else if(aa > bb) return 1;
+        else return 0;
+    });
+}
+
 function cutOffHeadAndTail(url){
     var i;
     var pure='', prev, cur, start_pos=-1;
