@@ -29,8 +29,29 @@ window.addEventListener("DOMContentLoaded", function() {
     getCurrentTabUrl(function (url) {
         // set domain
         var pure = cutOffHeadAndTail(url);
+        if(pure.substring(0,3)=="www"){
+            pure = pure.substring(4);
+        }
         var res = pure.split("/");
         $(document.getElementById("currentDomain")).text(res[0]);
+
+        // check if domain is too long
+        var cli = document.getElementById("currentDomain").clientWidth;
+        var scr = document.getElementById("currentDomain").scrollWidth;
+
+        while(scr > cli){
+            cli = document.getElementById("currentDomain").clientWidth;
+            scr = document.getElementById("currentDomain").scrollWidth;
+            var lineH = parseInt(($("#currentDomain").css('font-size')));
+            if(lineH>15){
+                lineH--;
+                $("#currentDomain").css('font-size',lineH+"px");
+            }
+            else{
+                $("#currentDomain").css('word-wrap',"break-word");
+                break;
+            }
+        }
 
         // check in list
         chrome.runtime.sendMessage({"checkIfInList":url}, function(response) {

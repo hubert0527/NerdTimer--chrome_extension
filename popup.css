@@ -31,6 +31,9 @@ input {
     background-color: darkgoldenrod;
     padding: 5%;
 }
+#currentDomain{
+    font-size: 1.5em;
+}
 
 #addToListType{
     background-color: #00a5ff;

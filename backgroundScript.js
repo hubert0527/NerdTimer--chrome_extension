@@ -145,19 +145,19 @@ function isInList(mstr, lstr){
  * @returns {boolean}
  */
 
-function checkBlock(str){
-    var temp = str;
+function checkBlock(purified, cutted){
+    var temp = purified;
     var i;
 
     // search single page first
     for(i=0;i<singleWhite.length;i++){
-        if(str==singleWhite[i]) return 0;
+        if(cutted==singleWhite[i]) return 0;
     }
     for(i=0;i<singleHardLock.length;i++){
-        if(str == singleHardLock[i]) return 1;
+        if(cutted == singleHardLock[i]) return 1;
     }
     for(i=0;i<singleSoftLock.length;i++){
-        if(str == singleSoftLock[i]) return 2;
+        if(cutted == singleSoftLock[i]) return 2;
     }
 
     // search in domain
@@ -191,8 +191,9 @@ function dealingUrl(tab){
         purifyBlackAndWhite();
 
         var purified = purifyUrl(url);
+        var cutted = cutOffHeadAndTail(url);
 
-        var isBad = checkBlock(purified);
+        var isBad = checkBlock(purified,cutted);
 
         console.log("block? " + isBad);
         console.log("hardBlock: " + hardLockList.toString());
@@ -360,7 +361,8 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 function doCheckIfInList(url,sendResponse) {
     purifyBlackAndWhite();
     var purified = purifyUrl(url);
-    var isBad = checkBlock(purified);
+    var cutted = cutOffHeadAndTail(url);
+    var isBad = checkBlock(purified,cutted);
     var str;
     if(isBad==0) str = "white";
     else if(isBad==1) str = "hard";
