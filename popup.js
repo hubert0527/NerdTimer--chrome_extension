@@ -9,6 +9,7 @@ var ignore = [
 ];
 
 var timer = 0;
+var timerInst;
 
 var singleHardLock = [];
 var singleSoftLock = [];
@@ -83,6 +84,12 @@ window.addEventListener("DOMContentLoaded", function() {
             chrome.runtime.sendMessage({timerSet:time});
             setPopupTimer(time);
         });
+    });
+    document.getElementById("cancelTimer").addEventListener("click",function(){
+        timer = 0;
+        document.getElementById("timeDisplay").textContent = " 00 : 00";
+        clearInterval(timerInst);
+        chrome.runtime.sendMessage({cancelTimer:"true"});
     });
     
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
@@ -186,10 +193,9 @@ window.addEventListener("DOMContentLoaded", function() {
 
 });
 
-function setPopupTimer(time){
+function setPopupTimer(timer){
 
-    timer = time;
-    if(timer<=0) {
+    if(!timer || timer<=0) {
         document.getElementById("timeDisplay").textContent = " 00 : 00";
         return;
     }
@@ -202,8 +208,14 @@ function setPopupTimer(time){
         min = "0"+min;
     }
     document.getElementById("timeDisplay").textContent =  min + " : " + sec;
-    var i = setInterval(function(){
-        console.log("time = " + timer + ", min = " + timer/60 + " sec = " + timer%60);
+    timerInst = setInterval(function(){
+        //console.log("time = " + timer + ", min = " + timer/60 + " sec = " + timer%60);
+        if(timer<=0){
+            timer = 0;
+            clearInterval(timerInst);
+            return;
+        }
+
         timer --;
         sec = (timer%60).toString();
         min = (Math.floor(timer/60)).toString();
@@ -214,7 +226,6 @@ function setPopupTimer(time){
             min = "0"+min;
         }
         document.getElementById("timeDisplay").textContent = min + " : " + sec;
-        if(timer<=0) clearInterval(i);
     },1000);
 
 }

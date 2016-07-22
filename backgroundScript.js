@@ -17,6 +17,7 @@ function init(){
 init();
 
 var timer=0;
+var timerInst;
 var isWaitingTimer = false;
 
 // content of blocker
@@ -362,6 +363,12 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     else if(msg && msg.getTimerTime){
         sendResponse({time:timer});
     }
+    else if(msg && msg.cancelTimer){
+        timer = 0;
+        clearInterval(timerInst);
+        getCurrentTab(dealWithUrlMain);
+    }
+
     /**
      * IMPORTANT
      * or, the channel will be closed
@@ -372,10 +379,10 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 function setTimer(time,callback){
     isWaitingTimer = true;
     timer = time;
-    var t = setInterval(function(){
+    var timerInst = setInterval(function(){
         if(timer>0) timer --;
         else{
-            clearInterval(t);
+            clearInterval(timerInst);
             isWaitingTimer = false;
             if(callback!=undefined) callback();
         }
