@@ -73,7 +73,14 @@ function doHardBlock(){
     var iDiv = document.createElement('div');
     iDiv.id = "nerdDiv";
 
-    document.getElementsByTagName("BODY")[0].appendChild(iDiv);
+    var body = document.getElementsByTagName("BODY")[0];
+    if(body){
+        body.appendChild(iDiv);
+    }
+    else{
+        document.getElementsByTagName("HTML")[0].appendChild(iDiv);;
+    }
+
 
     var path = chrome.extension.getURL("blocker.html");
     $('#nerdDiv').load(path,function(){
@@ -116,7 +123,13 @@ function doSoftBlock(){
     var iDiv = document.createElement('div');
     iDiv.id = "nerdDiv";
 
-    document.getElementsByTagName("BODY")[0].appendChild(iDiv);
+    var body = document.getElementsByTagName("BODY")[0];
+    if(body){
+        body.appendChild(iDiv);
+    }
+    else{
+        document.getElementsByTagName("HTML")[0].appendChild(iDiv);;
+    }
 
     var path = chrome.extension.getURL("blocker.html");
     $('#nerdDiv').load(path,function(){
