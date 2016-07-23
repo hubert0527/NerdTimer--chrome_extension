@@ -67,23 +67,15 @@ window.addEventListener("DOMContentLoaded", function() {
         });
     });
 
-    // set timer
-    loadLastUsedTimer(function(time){
-        time = parseInt(time);
-        if(time) {
-            document.getElementById("waitTime").value = time;
-        }
-        else{
-            document.getElementById("waitTime").value = 10;
-        }
-    });
     document.getElementById("startTimer").addEventListener("click",function(){
         if(timer>0) return;
         var time = parseInt(document.getElementById("waitTime").value);
-        saveLastUsedTimer(time,function(){
-            chrome.runtime.sendMessage({timerSet:time});
-            setPopupTimer(time);
-        });
+        if(time && time>0) {
+            saveLastUsedTimer(time, function () {
+                chrome.runtime.sendMessage({timerSet: time});
+                setPopupTimer(time);
+            });
+        }
     });
     document.getElementById("cancelTimer").addEventListener("click",function(){
         timer = 0;
@@ -131,6 +123,16 @@ window.addEventListener("DOMContentLoaded", function() {
     });
     document.getElementById("goToTimeSetting").addEventListener("click", function(){
         moveRightTo("#mainPage","#timeSetting");
+        // load last used timer
+        loadLastUsedTimer(function(time){
+            time = parseInt(time);
+            if(time) {
+                document.getElementById("waitTime").value = time;
+            }
+            else{
+                document.getElementById("waitTime").value = 10;
+            }
+        });
         // set timer status showing
         chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
             setPopupTimer(res.time);

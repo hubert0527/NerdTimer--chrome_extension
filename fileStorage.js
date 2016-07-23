@@ -1,12 +1,15 @@
 
 function saveLastUsedTimer(time,callback){
     chrome.storage.local.set({'lastTimer': time},function(){
+        console.log("save last time = " + time);
         if(callback) callback();
     });
 }
 
 function loadLastUsedTimer(callback){
-    chrome.storage.local.get('lastTimer',function(time){
+    chrome.storage.local.get('lastTimer',function(storage){
+        var time = parseInt(storage.lastTimer);
+        console.log("load last time = " + time);
         if(callback) callback(time);
     });
 }
