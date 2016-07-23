@@ -36,24 +36,28 @@
                 <h4 style="text-align:right;margin: 5px 0;font-size: 0.66em;">status:<span id="isInList" style="font-size: 2em;"></span></h4>
             </div>
             <hr>
-            <button id="goToTimeSetting">time setting</button>
-            <hr>
-            <button id="goToAddToListType">rule settings</button>
-            <hr>
-            <button id="goToMainMessageSetting"> message setting </button>
-        </div>
+            <div>
+                <div id="currentTimer" style="margin-left: 10px;height: 35px;display : flex;align-items : center;">
+                    <p style="display: inline-block;margin:5px 0;">暫停</p>
+                    <p id="timeDisplay" style="display: inline-block;"></p>
+                    <button id="cancelTimer" style="display: inline-block;">cancel</button>
+                </div>
 
-        <div id="timeSetting" class="subPage">
-            <div>
-                <button id="goToMainPage9"> < </button>
+                <div id="setNewTimer" style="margin-left: 10px;height: 35px;display : flex;align-items : center;">
+                    <p style="display: inline-block;margin:5px 0;">暫停</p>
+                    <input id="waitTime" style="display: inline-block;" placeholder="N/A">
+                    <p style="display: inline-block;margin:5px 0;">分鐘</p>
+                    <span style="font-size:0.3em;margin:5px 0;">(1~999)</span>
+                    <button id="startTimer" style="display: inline-block;margin:5px 0;">submit</button>
+                </div>
+                <div style="clear: both;"></div>
             </div>
-            <h2 id="timeDisplay"></h2>
+            <hr>
+            <button id="goToAddToListType">規則設置</button>
+            <hr>
+            <button id="goToMainMessageSetting">訊息設置</button>
+            <hr>
             <button>close app</button>
-            <div>
-                <input id="waitTime">
-                <button style="display: inline-block" id="startTimer">submit</button>
-                <button style="display: inline-block" id="cancelTimer">cancel</button>
-            </div>
         </div>
 
         <div id="addToListType" class="subPage">

@@ -67,6 +67,8 @@ window.addEventListener("DOMContentLoaded", function() {
         });
     });
 
+    loadMainPageTimer();
+
     document.getElementById("startTimer").addEventListener("click",function(){
         if(timer>0) return;
         var time = parseInt(document.getElementById("waitTime").value);
@@ -77,9 +79,53 @@ window.addEventListener("DOMContentLoaded", function() {
             });
         }
     });
+    // timer setting only allow number
+    $(document.getElementById("waitTime")).keydown(function (e) {
+        // press ENTER
+        if(e.which==13){
+            if(timer>0) return;
+            var time = parseInt(document.getElementById("waitTime").value);
+            if(time && time>0) {
+                saveLastUsedTimer(time, function () {
+                    chrome.runtime.sendMessage({timerSet: time});
+                    setPopupTimer(time);
+                });
+            }
+            return;
+        }
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+             // Allow: Ctrl+A
+            (e.keyCode == 65 && e.ctrlKey === true) ||
+             // Allow: Ctrl+C
+            (e.keyCode == 67 && e.ctrlKey === true) ||
+             // Allow: Ctrl+X
+            (e.keyCode == 88 && e.ctrlKey === true) ||
+             // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+                 // let it happen, don't do anything
+                 return;
+        }
+        // Ensure that it is a number and stop the keypress
+        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+    // timer can't have too-high number, MAX=999
+    $(document.getElementById("waitTime")).bind("input",function(){
+        var str = $(this).val();
+        if(parseInt(str)>1000){
+            $(this).val( str.substring(0,str.length-1) );
+        }
+        else if(!parseInt(str)){
+            $(this).val( str.substring(0,str.length-1) );
+        }
+    });
+
+
     document.getElementById("cancelTimer").addEventListener("click",function(){
         timer = 0;
-        document.getElementById("timeDisplay").textContent = " 00 : 00";
+        document.getElementById("timeDisplay").textContent = " 00:00";
         clearInterval(timerInst);
         chrome.runtime.sendMessage({cancelTimer:"true"});
     });
@@ -121,23 +167,6 @@ window.addEventListener("DOMContentLoaded", function() {
             }
         });
     });
-    document.getElementById("goToTimeSetting").addEventListener("click", function(){
-        moveRightTo("#mainPage","#timeSetting");
-        // load last used timer
-        loadLastUsedTimer(function(time){
-            time = parseInt(time);
-            if(time) {
-                document.getElementById("waitTime").value = time;
-            }
-            else{
-                document.getElementById("waitTime").value = 10;
-            }
-        });
-        // set timer status showing
-        chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
-            setPopupTimer(res.time);
-        });
-    });
 
     createRemoveList();
 
@@ -156,10 +185,10 @@ window.addEventListener("DOMContentLoaded", function() {
                 else if(response.block=="none") $(document.getElementById("isInList")).text(" not set");
             });
         });
+
         moveLeftTo("#addToListType","#mainPage");
     });
     document.getElementById("goToMainPage2").addEventListener("click", function(){moveLeftTo("#addToSoftBlockList","#addToListType");});
-    document.getElementById("goToMainPage9").addEventListener("click", function(){moveLeftTo("#timeSetting","#mainPage");});
     document.getElementById("goToMainPage3").addEventListener("click", function(){moveLeftTo("#addToHardBlockList","#addToListType");});
     document.getElementById("goToMainPage4").addEventListener("click", function(){moveLeftTo("#addToWhiteList","#addToListType");});
     document.getElementById("goToMainPage5").addEventListener("click", function(){moveLeftTo("#modifyMainMessage","#mainPage");});
@@ -195,21 +224,40 @@ window.addEventListener("DOMContentLoaded", function() {
 
 });
 
-function setPopupTimer(timer){
+function loadMainPageTimer(){
+    // load last used timer
+    loadLastUsedTimer(function(time){
+        time = parseInt(time);
+        if(time) {
+            document.getElementById("waitTime").value = time;
+        }
+        else{
+            document.getElementById("waitTime").value = 10;
+        }
+    });
+    // set timer status showing
+    chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
+        setPopupTimer(res.time);
+    });
 
+}
+
+function setPopupTimer(time){
+
+    timer = time;
     if(!timer || timer<=0) {
-        document.getElementById("timeDisplay").textContent = " 00 : 00";
+        document.getElementById("timeDisplay").textContent = " 00:00";
         return;
     }
     var sec = (timer%60).toString();
-    var min = (Math.floor(timer/60)).toString();
+    var min = (parseInt(timer/60)).toString();
     if(sec<10){
         sec = "0"+sec;
     }
     if(min<10){
         min = "0"+min;
     }
-    document.getElementById("timeDisplay").textContent =  min + " : " + sec;
+    document.getElementById("timeDisplay").textContent =  min + ":" + sec;
     timerInst = setInterval(function(){
         //console.log("time = " + timer + ", min = " + timer/60 + " sec = " + timer%60);
         if(timer<=0){
@@ -220,7 +268,7 @@ function setPopupTimer(timer){
 
         timer --;
         sec = (timer%60).toString();
-        min = (Math.floor(timer/60)).toString();
+        min = (parseInt(timer/60)).toString();
         if(sec<10){
         sec = "0"+sec;
         }
