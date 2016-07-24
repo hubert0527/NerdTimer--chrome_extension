@@ -73,6 +73,9 @@ window.addEventListener("DOMContentLoaded", function() {
         if(timer>0) return;
         var time = parseInt(document.getElementById("waitTime").value);
         if(time && time>0) {
+            $("#timerNotYetSet").fadeOut("slow",function(){
+                $("#timerSet").fadeIn("slow");
+            });
             saveLastUsedTimer(time, function () {
                 chrome.runtime.sendMessage({timerSet: time});
                 setPopupTimer(time);
@@ -90,6 +93,9 @@ window.addEventListener("DOMContentLoaded", function() {
                     chrome.runtime.sendMessage({timerSet: time});
                     setPopupTimer(time);
                 });
+                $("#timerNotYetSet").fadeOut("slow",function(){
+                        $("#timerSet").fadeIn("slow");
+                    });
             }
             return;
         }
@@ -119,15 +125,22 @@ window.addEventListener("DOMContentLoaded", function() {
         }
         else if(!parseInt(str)){
             $(this).val( str.substring(0,str.length-1) );
+            document.getElementById("startTimer").disabled = true;
+        }
+        else{
+            document.getElementById("startTimer").disabled = false;
         }
     });
 
-
+    // cancel timer
     document.getElementById("cancelTimer").addEventListener("click",function(){
-        timer = 0;
-        document.getElementById("timeDisplay").textContent = " 00:00";
         clearInterval(timerInst);
         chrome.runtime.sendMessage({cancelTimer:"true"});
+        $("#timerSet").fadeOut("slow",function(){
+            $("#timerNotYetSet").fadeIn("slow");
+            timer = 0;
+            document.getElementById("timeDisplay").textContent = " 00:00";
+        });
     });
     
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
@@ -237,6 +250,13 @@ function loadMainPageTimer(){
     });
     // set timer status showing
     chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
+        // run only on initial
+        if(res.time>0) {
+            $('#timerSet').css("display","block");
+        }
+        else{
+            $('#timerNotYetSet').css("display","block");
+        }
         setPopupTimer(res.time);
     });
 
@@ -263,6 +283,9 @@ function setPopupTimer(time){
         if(timer<=0){
             timer = 0;
             clearInterval(timerInst);
+            $("#timerSet").fadeOut("slow",function(){
+                $("#timerNotYetSet").fadeIn("slow");
+            });
             return;
         }
 
@@ -275,7 +298,7 @@ function setPopupTimer(time){
         if(min<10){
             min = "0"+min;
         }
-        document.getElementById("timeDisplay").textContent = min + " : " + sec;
+        document.getElementById("timeDisplay").textContent = min + ":" + sec;
     },1000);
 
 }
@@ -630,6 +653,7 @@ function submitMainMessage(newMessage){
         }
     });
 }
+
 
 var nextLayer = 1;
 
