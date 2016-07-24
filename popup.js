@@ -139,7 +139,7 @@ window.addEventListener("DOMContentLoaded", function() {
         $("#timerSet").fadeOut("slow",function(){
             $("#timerNotYetSet").fadeIn("slow");
             timer = 0;
-            document.getElementById("timeDisplay").textContent = " 00:00";
+            document.getElementById("timeDisplay").textContent = "00:00:00";
         });
     });
     
@@ -266,18 +266,22 @@ function setPopupTimer(time){
 
     timer = time;
     if(!timer || timer<=0) {
-        document.getElementById("timeDisplay").textContent = " 00:00";
+        document.getElementById("timeDisplay").textContent = "00:00:00";
         return;
     }
     var sec = (timer%60).toString();
-    var min = (parseInt(timer/60)).toString();
+    var min = (parseInt((timer/60)%60)).toString();
+    var hr = (parseInt((timer/3600))).toString();
     if(sec<10){
         sec = "0"+sec;
     }
     if(min<10){
         min = "0"+min;
     }
-    document.getElementById("timeDisplay").textContent =  min + ":" + sec;
+    if(hr<10){
+        hr = "0"+hr;
+    }
+    document.getElementById("timeDisplay").textContent = hr + ":" + min + ":" + sec;
     timerInst = setInterval(function(){
         //console.log("time = " + timer + ", min = " + timer/60 + " sec = " + timer%60);
         if(timer<=0){
@@ -292,13 +296,17 @@ function setPopupTimer(time){
         timer --;
         sec = (timer%60).toString();
         min = (parseInt(timer/60)).toString();
+        hr = (parseInt((timer/3600))).toString();
         if(sec<10){
         sec = "0"+sec;
         }
         if(min<10){
             min = "0"+min;
         }
-        document.getElementById("timeDisplay").textContent = min + ":" + sec;
+        if(hr<10){
+            hr = "0"+hr;
+        }
+        document.getElementById("timeDisplay").textContent = hr + ":" + min + ":" + sec;
     },1000);
 
 }
@@ -665,10 +673,10 @@ function moveRightTo(cur, tar,callback) {
     nextLayer++;
     tar.css("left","100%");
     tar.css("display","block");
-    tar.css("height","90%");
-    tar.css("width","90%");
-    cur.css("position", "absolute");
-    tar.css("position","relative");
+    // tar.css("height","90%");
+    // tar.css("width","90%");
+    // cur.css("position", "absolute");
+    // tar.css("position","relative");
     tar.animate({left: '0'},function () {
         //cur.css("display", "none");
         if(callback!=undefined) callback();
@@ -681,8 +689,8 @@ function moveLeftTo(cur, tar, callback) {
     cur = $(cur);
     // slide in
     nextLayer--;
-    cur.css("position", "absolute");
-    tar.css("position","relative");
+    // cur.css("position", "absolute");
+    // tar.css("position","relative");
     cur.animate({left: '100%'},function () {
         cur.css("display", "none");
         if(callback!=undefined) callback();

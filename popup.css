@@ -6,11 +6,14 @@ body{
     font-family: "Adobe 宋体 Std L",Georgia, serif;
 }
 
+hr{
+    margin: 6px;
+}
+
 .subPage{
     width:90%;
-    height:90%;
+    top: 105px;
     position: absolute;
-    top: 0;
     display: none;
     padding: 5%;
 }
@@ -27,10 +30,31 @@ input {
 
 #mainPage{
     width:90%;
-    height:90%;
+    height:55%;
     background-color: lightseagreen;
-    padding: 5%;
+    padding: 0 5% 5% 5%;
 }
+#topCol{
+    width:90%;
+    height: 85px;
+    padding: 15px 5% 0 5%;
+    margin-bottom: 10px;
+    background-color: lightseagreen;
+    overflow-y: scroll;
+    border-width:3px;
+    border-bottom-style: solid;
+    border-color: black;
+}
+#topCol::-webkit-scrollbar{
+    width: 4px;
+}
+#topCol::-webkit-scrollbar-track-piece{
+    background-color: transparent;
+}
+#topCol::-webkit-scrollbar-button{
+    background-color: transparent;
+}
+
 #currentDomain{
     font-size: 1.5em;
 }
@@ -73,22 +97,22 @@ input {
 }
 
 #addToListType{
-    background-color: #00a5ff;
+    background-color: lightseagreen;
 }
 #addToHardBlockList{
-    background-color: green;
+    background-color: lightseagreen;
 }
 #addToSoftBlockList{
-    background-color: purple;
+    background-color: lightseagreen;
 }
 #addToWhiteList{
-    background-color: white;
+    background-color: lightseagreen;
 }
 #modifyMainMessage{
-    background-color: chocolate;
+    background-color: lightseagreen;
 }
 .remove{
-    background-color: red;
+    background-color: lightseagreen;
 }
 .remove h4{
     margin: 7px auto;
@@ -130,15 +154,18 @@ input {
 }
 
 ::-webkit-scrollbar {
-    width: 5%;
+    width: 8px;
 }
 ::-webkit-scrollbar-button {
-    height: 5px;
-    background-color: black;
+    height: 10px;
+    background-color: transparent;
 }
 ::-webkit-scrollbar-track-piece {
+    border: 3px solid transparent;
+    background-clip: content-box;
     background-color: black;
 }
 ::-webkit-scrollbar-thumb {
     background: white;
-}​
+}
+​

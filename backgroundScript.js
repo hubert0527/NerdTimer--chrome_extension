@@ -276,13 +276,17 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
      * content script request bg script stop sending soft block for 5 min
      */
     else if(msg.wait5Min!=undefined){
-        isWaitingTimer = true;
-        var i = setInterval(function(){
-            clearInterval(i);
-            isWaitingTimer = false;
+        // isWaitingTimer = true;
+        // var i = setInterval(function(){
+        //     clearInterval(i);
+        //     isWaitingTimer = false;
+        //     getCurrentTab(dealWithUrlMain);
+        // },10000);
+        setTimer(300,function(){
             getCurrentTab(dealWithUrlMain);
-        },10000);
-
+        });
+        getCurrentTab(dealWithUrlMain);
+        return false;
     }
     /**
      * content script request for main message for any reason
