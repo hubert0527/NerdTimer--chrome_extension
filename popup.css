@@ -1,9 +1,25 @@
 body{
     overflow: hidden;
     width: 300px;
-    height: 300px;
+    height: 350px;
     margin:0;
     font-family: "Adobe 宋体 Std L",Georgia, serif;
+}
+
+footer{
+    height: 16px;
+    font-size: 5px;
+    font-weight: bold;
+    text-align: right;
+    left:0;
+    width:90%;
+    margin: 0 5%;
+    padding: 5px 0 2px 0;
+    bottom: 0;
+    position: relative;
+    border-color: black;
+    border-top-style: solid;
+    border-width: 2px;
 }
 
 hr{
@@ -12,10 +28,12 @@ hr{
 
 .subPage{
     width:90%;
-    top: 105px;
+    /* -25px(footer) -113(topCol) */
+    height: 210px;
+    top: 113px;
     position: absolute;
     display: none;
-    padding: 5%;
+    padding: 0 5% 2px 5%;
 }
 
 input {
@@ -27,12 +45,18 @@ input {
     border-radius: 4px;
     box-sizing: border-box;
 }
+#mainMessageInput{
+    width: 90%;
+    padding: 2px 5px;
+    margin: 0 5%;
+    border-width: 0px;
+}
 
 #mainPage{
     width:90%;
-    height:55%;
+    height:212px;
     background-color: lightseagreen;
-    padding: 0 5% 5% 5%;
+    padding: 0 5% 20px 5%;
 }
 #topCol{
     width:90%;
@@ -64,7 +88,7 @@ input {
     text-align: center;
     padding: 0;
     margin: 0 5px;
-    font-size: 10vh;
+    font-size: 30px;
     font-weight: bolder;
 }
 .optionBtn{
@@ -114,6 +138,19 @@ input {
 .remove{
     background-color: lightseagreen;
 }
+.remove ul{
+    margin: 5px 0;
+}
+.remove li{
+    border:1px black solid;
+    border-radius: 5px;
+    margin: 3px;
+    overflow: hidden;
+}
+.remove li p{
+    margin: 0;
+    padding: 0;
+}
 .remove h4{
     margin: 7px auto;
     text-align: center;
@@ -157,8 +194,9 @@ input {
     width: 8px;
 }
 ::-webkit-scrollbar-button {
-    height: 10px;
-    background-color: transparent;
+    width: 6px;
+    height: 3px;
+    background-color: black;
 }
 ::-webkit-scrollbar-track-piece {
     border: 3px solid transparent;

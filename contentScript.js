@@ -35,7 +35,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             else if (res && res.block=="soft") {
                 doSoftBlock();
             }
-            else if(res && res.block=="false"){
+            else if(res && (res.block=="false"||res.block=="white"||res.block=="none")){
                 $('#blockerWrapper').fadeOut("slow");
             }
         });
