@@ -41,20 +41,21 @@
 
             <div>
                 <div id="mainPage">
-                    <div style="height: 30px;">
-                        <div id="timerSet" style="display: none;height: 30px;">
-                            <div id="currentTimer" style="margin-left: 10px;height: 30px;display : flex;align-items : center;">
+                    <div>
+                        <h6 style="margin:0">計時器</h6>
+                        <div id="timerSet" style="display: none;margin-left: 20px;">
+                            <div id="currentTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.7em;">
                                 <p style="display: inline-block;margin:5px 0;">暫停</p>
                                 <p id="timeDisplay" style="display: inline-block;"></p>
                                 <button id="cancelTimer" class="optionBtn" style="display: inline-block;">cancel</button>
                             </div>
                         </div>
-                        <div id="timerNotYetSet" style="display: none;height: 30px;">
-                            <div id="setNewTimer" style="margin-left: 10px;height: 30px;display : flex;align-items : center;">
+                        <div id="timerNotYetSet" style="display: none;margin-left: 20px;">
+                            <div id="setNewTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.7em;">
                                 <p style="display: inline-block;margin:5px 0;">暫停</p>
-                                <input id="waitTime" style="display: inline-block;text-align: right;" placeholder="N/A">
+                                <input id="waitTime" style="display: inline-block;text-align: right;font-size: 0.7em;" placeholder="N/A">
                                 <p style="display: inline-block;margin:5px 0;">分鐘</p>
-                                <span style="font-size:0.3em;margin:5px 0;">(1~999)</span>
+                                <span style="font-size:0.3em;margin:5px 5px 5px 0;">(1~999)</span>
                                 <button id="startTimer" class="optionBtn" style="display: inline-block;">submit</button>
                             </div>
                         </div>
@@ -62,60 +63,65 @@
                     <hr>
                     <div>
                         <h6 style="margin: 5px 0">阻擋設定</h6>
-                        <button id="fastAdd">快速加入</button>
-                        <button id="fastWhite">設為例外</button>
-                        <button id="goToAddToListType">更多</button>
+                        <div style="margin-left: 20px">
+                            <button id="fastAdd" class="optionBtn">快速加入</button>
+                            <button id="fastWhite" class="optionBtn">設為例外</button>
+                            <button id="goToAddToListType" class="optionBtn">更多</button>
+                        </div>
                     </div>
                     <hr>
                     <div>
                         <h6 style="margin: 5px 0">留言板</h6>
-                        <div style="">
+                        <div style="margin-left: 20px;">
                             <input id="mainMessageInput" type="text" placeholder="Leave a message">
                             <!--<button id="submitMainMessage" style="display:inline-block">submit</button>-->
                         </div>
                     </div>
                     <hr>
                     <div>
-                        <button>停止鎖定</button>
-                        <span style="font-size: 0.3em">(直到下次開啟)</span>
+                        <h6 style="margin: 5px 0">停止</h6>
+                        <div style="margin-left: 20px;">
+                            <button class="optionBtn">停止鎖定</button>
+                            <span style="font-size: 0.3em">(直到下次開啟)</span>
+                        </div>
                     </div>
 
                 </div>
 
                 <div id="addToListType" class="subPage">
                     <div>
-                        <button id="goToMainPage1"> < </button>
+                        <button id="goToMainPage1" class="optionBtn backBtn"> < </button>
                     </div>
                     <div>
-                        <h5 style="margin: 5px 0">納入管理</h5>
-                        <div>
-                            <button id="addBaseDomainToSoftLockList">加入此網站</button>
-                            <button id="addSinglePageToSoftLockList">加入此頁面</button>
-                            <button id="removeFromSoft">管理</button>
+                        <h5 style="margin: 7px 0">納入管理</h5>
+                        <div style="margin-left: 20px">
+                            <button id="addBaseDomainToSoftLockList" class="optionBtn">加入此網站</button>
+                            <button id="addSinglePageToSoftLockList" class="optionBtn">加入此頁面</button>
+                            <button id="removeFromSoft" class="optionBtn">管理</button>
                         </div>
                         <hr>
-                        <h5 style="margin: 5px 0">鎖定</h5>
-                        <div>
-                            <button id="addBaseDomainToHardLockList">加入此網站</button>
-                            <button id="addSinglePageToHardLockList">加入此頁面</button>
-                            <button id="removeFromHard">管理</button>
-                        </div>
-                        <hr>
-                        <h5 style="margin: 5px 0">例外清單</h5>
-                        <div>
-                            <button id="addBaseDomainToWhiteList">加入此網站</button>
-                            <button id="addSinglePageToWhiteList">加入此頁面</button>
-                            <button id="removeFromWhite">管理</button>
+                        <!--<h5 style="margin: 5px 0">鎖定</h5>-->
+                        <!--<div>-->
+                            <!--<button id="addBaseDomainToHardLockList">加入此網站</button>-->
+                            <!--<button id="addSinglePageToHardLockList">加入此頁面</button>-->
+                            <!--<button id="removeFromHard">管理</button>-->
+                        <!--</div>-->
+                        <!--<hr>-->
+                        <h5 style="margin: 7px 0">例外清單</h5>
+                        <div style="margin-left: 20px">
+                            <button id="addBaseDomainToWhiteList" class="optionBtn">加入此網站</button>
+                            <button id="addSinglePageToWhiteList" class="optionBtn">加入此頁面</button>
+                            <button id="removeFromWhite" class="optionBtn">管理</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="removeWhite" class="subPage remove">
                     <div style="height: 10%;">
-                        <button id="goToMainPage6"> < </button>
+                        <button id="goToMainPage6" class="optionBtn backBtn"> < </button>
                     </div>
                     <div style="height: 90%;">
-                        <div style="width: 95%;height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 5% 0 0;">
+                        <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
                             <h4>[single]</h4>
                             <ul id="removeWhiteListSingle"></ul>
                             <h4>[domain]</h4>
@@ -125,10 +131,10 @@
                 </div>
                 <div id="removeSoft" class="subPage remove">
                     <div style="height: 10%;">
-                        <button id="goToMainPage7"> < </button>
+                        <button id="goToMainPage7" class="optionBtn backBtn"> < </button>
                     </div>
                     <div style="height: 90%;">
-                        <div style="width: 95%;height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 5% 0 0;">
+                        <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
                             <h4>[single]</h4>
                             <ul id="removeSoftListSingle"></ul>
                             <h4>[domain]</h4>
@@ -136,26 +142,26 @@
                         </div>
                     </div>
                 </div>
-                <div id="removeHard" class="subPage remove">
-                    <div style="height: 10%;">
-                        <button id="goToMainPage8"> < </button>
-                    </div>
-                    <div style="height: 90%;">
-                        <div style="width: 95%;height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 5% 0 0;">
-                            <h4>[single]</h4>
-                            <ul id="removeHardListSingle"></ul>
-                            <h4>[domain]</h4>
-                            <ul id="removeHardListDomain"></ul>
-                        </div>
-                    </div>
-                </div>
+                <!--<div id="removeHard" class="subPage remove">-->
+                    <!--<div style="height: 10%;">-->
+                        <!--<button id="goToMainPage8"> < </button>-->
+                    <!--</div>-->
+                    <!--<div style="height: 90%;">-->
+                        <!--<div style="width: 95%;height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 5% 0 0;">-->
+                            <!--<h4>[single]</h4>-->
+                            <!--<ul id="removeHardListSingle"></ul>-->
+                            <!--<h4>[domain]</h4>-->
+                            <!--<ul id="removeHardListDomain"></ul>-->
+                        <!--</div>-->
+                    <!--</div>-->
+                <!--</div>-->
 
             </div>
         </div>
 
         <footer>
             <p style="margin: 0;padding: 0;">
-                created by Hubert Lin, Github:<a id="mGH" style="color: blue;" href="https://goo.gl/oxFPKz" target="_blank">link</a>
+                created by <a id="mGH" style="color: blue;" href="https://goo.gl/oxFPKz" target="_blank">Hubert Lin</a>
             </p>
         </footer>
 

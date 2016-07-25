@@ -1,6 +1,6 @@
 body{
     overflow: hidden;
-    width: 300px;
+    width: 250px;
     height: 350px;
     margin:0;
     font-family: "Adobe 宋体 Std L",Georgia, serif;
@@ -46,9 +46,8 @@ input {
     box-sizing: border-box;
 }
 #mainMessageInput{
-    width: 90%;
     padding: 2px 5px;
-    margin: 0 5%;
+    margin: 0;
     border-width: 0px;
 }
 
@@ -92,15 +91,16 @@ input {
     font-weight: bolder;
 }
 .optionBtn{
+    font-size: 0.66em;
     background-color: white;
-    padding: 2px 5px;
-    margin: 0 5px;
+    padding: 2px 4px;
     border-color: #ffffff;
 }
 .optionBtn:hover:enabled{
     transition-duration: 0.4s;
-    background-color: #ff3246;
-    border-color: #ff3246;
+    /*background-color: #beeaff;*/
+    background-color: #ffac1b;
+    border-color: #ffac1b;
 }
 .optionBtn:active:enabled{
     transition-duration: 0.4s;
@@ -113,6 +113,10 @@ input {
     background-color: #cccccc;
     border-style: solid;
     border-color: #cccccc;
+}
+
+.backBtn{
+    padding: 1px 8px;
 }
 #waitTime{
     padding: 1px 2px;
@@ -157,11 +161,12 @@ input {
 }
 .remove li div{
     float: left;
-    width: 225px;
+    /*ul width -30px*/
+    width: 170px;
+    margin: 5px 0;
     word-wrap: break-word;
 }
 .remove ul{
-    width: 256px;
     padding: 0;
     list-style-type: none;
 }
@@ -179,10 +184,13 @@ input {
     margin: 5px;
 }
 .removeCheckWrapper button:hover{
-    background-color: #dddddd;
+    transition-duration: 0.4s;
+    background-color: #ffac1b;
 }
-.removeCheckWrapper button:focus{
+.removeCheckWrapper button:active{
+    transition-duration: 0.4s;
     box-shadow:0 0 10px #444444 inset;
+    background-color: red;
 }
 .removeCheckWrapper button p{
     text-align: center;
