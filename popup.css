@@ -4,6 +4,7 @@ body{
     height: 350px;
     margin:0;
     font-family: "Adobe 宋体 Std L",Georgia, serif;
+    background-color: lightseagreen;
 }
 
 footer{
@@ -29,11 +30,12 @@ hr{
 .subPage{
     width:90%;
     /* -25px(footer) -113(topCol) */
-    height: 210px;
-    top: 113px;
+    height: 220px;
+    top: 103px;
     position: absolute;
     display: none;
     padding: 0 5% 2px 5%;
+    background-color: lightseagreen;
 }
 
 input {
@@ -54,15 +56,12 @@ input {
 #mainPage{
     width:90%;
     height:212px;
-    background-color: lightseagreen;
     padding: 0 5% 20px 5%;
 }
 #topCol{
     width:90%;
     height: 85px;
     padding: 15px 5% 0 5%;
-    margin-bottom: 10px;
-    background-color: lightseagreen;
     overflow-y: scroll;
     border-width:3px;
     border-bottom-style: solid;
@@ -87,7 +86,6 @@ input {
     text-align: center;
     padding: 0;
     margin: 0 5px;
-    font-size: 30px;
     font-weight: bolder;
 }
 .optionBtn{
@@ -116,32 +114,54 @@ input {
 }
 
 .backBtn{
-    padding: 1px 8px;
+    background-color: transparent;
+    height: 20px;
+    width: 30px;
+    padding: 4px 2px;
+    border: 1px solid transparent;
 }
+.backBtn:hover{
+    transition-duration: 0.4s;
+    border-color: black;
+}
+.backBtn:active{
+    transition-duration: 0.1s;
+    border-color: black;
+    box-shadow: 0 0 5px black inset;
+}
+.subTitle{
+    padding: 5px 0;
+    position: absolute;
+    text-align: center;
+    width: 100%;
+    top: 0;
+    left: 0;
+    font-weight: bold;
+    z-index: -1;
+    border-color: black;
+    border-width: 2px;
+    border-bottom-style: solid;
+}
+.imgBtn{
+    border: 1px solid transparent;
+}
+.imgBtn:hover{
+    transition-duration: 0.4s;
+    border: 1px solid #222222;
+}
+.imgBtn:active{
+    transition-duration: 0.4s;
+    border: 1px solid #222222;
+    box-shadow: 0 0 5px black inset;
+}
+
 #waitTime{
     padding: 1px 2px;
     width: 28px;
     margin:5px 3px;
 }
 
-#addToListType{
-    background-color: lightseagreen;
-}
-#addToHardBlockList{
-    background-color: lightseagreen;
-}
-#addToSoftBlockList{
-    background-color: lightseagreen;
-}
-#addToWhiteList{
-    background-color: lightseagreen;
-}
-#modifyMainMessage{
-    background-color: lightseagreen;
-}
-.remove{
-    background-color: lightseagreen;
-}
+
 .remove ul{
     margin: 5px 0;
 }
@@ -214,4 +234,153 @@ input {
 ::-webkit-scrollbar-thumb {
     background: white;
 }
-​
+
+
+.arrow_box {
+    font-family: "Adobe 宋体 Std L","Adobe Caslon Pro Bold";
+    font-size: 0.66em;
+    font-weight: 700;
+    display: none;
+	position: absolute;
+	background: #88b7d5;
+	border: 2px solid #c2e1f5;
+    padding: 2px 5px;
+}
+.arrow_box:after, .arrow_box:before {
+	bottom: 100%;
+	left: 50%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+.arrow_box:after {
+	border-color: rgba(136, 183, 213, 0);
+	border-bottom-color: #88b7d5;
+	border-width: 5px;
+	margin-left: -5px;
+}
+.arrow_box:before {
+	border-color: rgba(194, 225, 245, 0);
+	border-bottom-color: #c2e1f5;
+	border-width: 8px;
+	margin-left: -8px;
+}
+
+.arrow_box_right {
+    font-family: "Adobe 宋体 Std L","Adobe Caslon Pro Bold";
+    font-size: 0.66em;
+    font-weight: 700;
+    display: none;
+	position: absolute;
+	background: #88b7d5;
+	border: 2px solid #c2e1f5;
+    padding: 2px 5px;
+}
+.arrow_box_right:after, .arrow_box:before {
+	right: 100%;
+	top: 50%;
+	border: solid transparent;
+	content: "";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+.arrow_box_right:after {
+	border-color: rgba(136, 183, 213, 0);
+	border-right-color: #88b7d5;
+	border-width: 10px;
+	margin-top: -10px;
+}
+.arrow_box_right:before {
+	border-color: rgba(194, 225, 245, 0);
+	border-right-color: #c2e1f5;
+	border-width: 16px;
+	margin-top: -16px;
+}
+
+
+#timerInputPop{
+    left:52px;
+    top:215px;
+    padding: 2px 5px;
+}
+#prompt1Pop{
+    left: 77px;
+    bottom: 45px;
+    z-index: 1;
+}
+
+
+
+/* The switch - the box around the slider */
+.switchWrapper {
+  position: relative;
+  display: inline-block;
+  /*width: 60px;*/
+  /*height: 34px;*/
+  width: 50px;
+  height: 25px;
+}
+
+/* Hide default HTML checkbox */
+.switchWrapper input {display:none;}
+
+/* The slider */
+.switchSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #0eff72;
+  transition: .4s;
+}
+
+.switchSlider:before {
+  position: absolute;
+  content: "";
+  height: 21px;
+  width: 21px;
+  left: -1px;
+  bottom: -1px;
+  background-color: white;
+    border-width: 3px;
+    border-style: solid;
+    border-color: #444;
+}
+.slideAnimation:before{
+    transition: .4s;
+}
+
+input:checked + .switchSlider {
+  background-color: #888;
+}
+
+input:focus + .switchSlider {
+  box-shadow: 0 0 1px #888;
+}
+
+input:checked + .switchSlider:before {
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.switchSlider.round {
+  border-radius: 25px;
+}
+
+.switchSlider.round:before {
+  border-radius: 50%;
+}
+
+.noTransition {
+  -webkit-transition: none !important;
+  -ms-transition: none !important;
+  -o-transition: none !important;
+  transition: none !important;
+}

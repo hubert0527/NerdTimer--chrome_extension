@@ -19,6 +19,7 @@ init();
 var timer=0;
 var timerInst;
 var isWaitingTimer = false;
+var isAppClosed = false;
 
 // content of blocker
 var mainMessage="You shall not pass!";
@@ -213,7 +214,7 @@ function dealingUrl(tab){
         }
         else if(isBad==2){
 
-            if(isWaitingTimer==true){
+            if(isWaitingTimer==true || isAppClosed==true){
                 chrome.tabs.sendMessage(tab.id, {block: "false"}, function(response) {
                     console.log("send message to " + tab.url + " id = " + tab.id);
                 });
@@ -371,6 +372,22 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         timer = 0;
         clearInterval(timerInst);
         getCurrentTab(dealWithUrlMain);
+    }
+    else if(msg && msg.isAppClosed){
+        if(isAppClosed){
+            sendResponse({isAppClosed:"true"});
+        }
+        else{
+            sendResponse({isAppClosed:"false"});
+        }
+    }
+    else if(msg && msg.changeAppStatus){
+        if(msg.changeAppStatus=="open"){
+            isAppClosed = false;
+        }
+        else{
+            isAppClosed = true;
+        }
     }
 
     /**

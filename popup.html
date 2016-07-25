@@ -42,31 +42,32 @@
             <div>
                 <div id="mainPage">
                     <div>
-                        <h6 style="margin:0">計時器</h6>
-                        <div id="timerSet" style="display: none;margin-left: 20px;">
-                            <div id="currentTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.7em;">
-                                <p style="display: inline-block;margin:5px 0;">暫停</p>
-                                <p id="timeDisplay" style="display: inline-block;"></p>
-                                <button id="cancelTimer" class="optionBtn" style="display: inline-block;">cancel</button>
-                            </div>
-                        </div>
-                        <div id="timerNotYetSet" style="display: none;margin-left: 20px;">
-                            <div id="setNewTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.7em;">
-                                <p style="display: inline-block;margin:5px 0;">暫停</p>
-                                <input id="waitTime" style="display: inline-block;text-align: right;font-size: 0.7em;" placeholder="N/A">
-                                <p style="display: inline-block;margin:5px 0;">分鐘</p>
-                                <span style="font-size:0.3em;margin:5px 5px 5px 0;">(1~999)</span>
-                                <button id="startTimer" class="optionBtn" style="display: inline-block;">submit</button>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div>
-                        <h6 style="margin: 5px 0">阻擋設定</h6>
+                        <h6 style="margin: 10px 0">設定</h6>
                         <div style="margin-left: 20px">
                             <button id="fastAdd" class="optionBtn">快速加入</button>
                             <button id="fastWhite" class="optionBtn">設為例外</button>
                             <button id="goToAddToListType" class="optionBtn">更多</button>
+                        </div>
+                    </div>
+                    <hr>
+                    <div>
+                        <h6 style="margin:0">計時器</h6>
+                        <div id="timerSet" style="display: none;margin-left: 20px;">
+                            <div id="currentTimer" style="height: 25px;display : flex;align-items : center;font-size: 1.5em;">
+                                <!--<p style="display: inline-block;margin:5px 0;">暫停</p>-->
+                                <p id="timeDisplay" style="display: inline-block;"></p>
+                                <img id="cancelTimer" class="imgBtn" src="cancel.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
+                            </div>
+                        </div>
+                        <div id="timerNotYetSet" style="display: none;margin-left: 20px;">
+                            <div id="setNewTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.8em;">
+                                <p style="display: inline-block;margin:5px 0;">暫停</p>
+                                <input id="waitTime" style="display: inline-block;text-align: right;font-size: 0.9em;">
+                                <p style="display: inline-block;margin:5px 5px 5px 0;">分鐘</p>
+                                <!--<span style="font-size:0.3em;margin:5px 5px 5px 0;">(1~999)</span>-->
+                                <img id="startTimer" class="imgBtn" src="submit3.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
+                                <div id="timerInputPop" class="arrow_box">0 ~ 999</div>
+                            </div>
                         </div>
                     </div>
                     <hr>
@@ -79,25 +80,36 @@
                     </div>
                     <hr>
                     <div>
-                        <h6 style="margin: 5px 0">停止</h6>
-                        <div style="margin-left: 20px;">
-                            <button class="optionBtn">停止鎖定</button>
-                            <span style="font-size: 0.3em">(直到下次開啟)</span>
-                        </div>
+                        <h6 style="margin: 5px 0">關閉</h6>
+                        <img id="prompt1" src="question.png" style="width: 16px;height: 16px;margin: 2px 5px;position: absolute;bottom: 54px;left: 45px;">
+                        <div id="prompt1Pop" class="arrow_box_right">停止鎖定頁面，<br>直到下一次開啟</div>
+
+                        <!--<div style="margin-left: 20px;">-->
+                            <!--<button id="closeButton" class="optionBtn" style="float: left;">停止鎖定</button>-->
+                        <!--</div>-->
+                        <label class="switchWrapper" style="margin-left: 20px;">
+                            <input id="switchBtn" type="checkbox">
+                            <div id="closeButton" class="switchSlider round slideAnimation"></div>
+                        </label>
                     </div>
 
                 </div>
 
                 <div id="addToListType" class="subPage">
-                    <div>
-                        <button id="goToMainPage1" class="optionBtn backBtn"> < </button>
+                    <div style="height: 30px;">
+                        <div id="goToMainPage1" class="backBtn">
+                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                        </div>
+                        <div class="subTitle">
+                            <p style="margin: 0;">設置</p>
+                        </div>
                     </div>
                     <div>
-                        <h5 style="margin: 7px 0">納入管理</h5>
+                        <h5 style="margin: 7px 0">鎖定</h5>
                         <div style="margin-left: 20px">
-                            <button id="addBaseDomainToSoftLockList" class="optionBtn">加入此網站</button>
-                            <button id="addSinglePageToSoftLockList" class="optionBtn">加入此頁面</button>
-                            <button id="removeFromSoft" class="optionBtn">管理</button>
+                            <button id="addBaseDomainToSoftLockList" class="optionBtn">網域</button>
+                            <button id="addSinglePageToSoftLockList" class="optionBtn">頁面</button>
+                            <button id="removeFromSoft" class="optionBtn" style="float: right;margin-right: 20px;">管理...</button>
                         </div>
                         <hr>
                         <!--<h5 style="margin: 5px 0">鎖定</h5>-->
@@ -107,20 +119,25 @@
                             <!--<button id="removeFromHard">管理</button>-->
                         <!--</div>-->
                         <!--<hr>-->
-                        <h5 style="margin: 7px 0">例外清單</h5>
+                        <h5 style="margin: 7px 0">白名單</h5>
                         <div style="margin-left: 20px">
-                            <button id="addBaseDomainToWhiteList" class="optionBtn">加入此網站</button>
-                            <button id="addSinglePageToWhiteList" class="optionBtn">加入此頁面</button>
-                            <button id="removeFromWhite" class="optionBtn">管理</button>
+                            <button id="addBaseDomainToWhiteList" class="optionBtn">網域</button>
+                            <button id="addSinglePageToWhiteList" class="optionBtn">頁面</button>
+                            <button id="removeFromWhite" class="optionBtn" style="float: right;margin-right: 20px;">管理...</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="removeWhite" class="subPage remove">
-                    <div style="height: 10%;">
-                        <button id="goToMainPage6" class="optionBtn backBtn"> < </button>
+                    <div style="height: 30px;">
+                        <div id="goToMainPage6" class="backBtn">
+                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                        </div>
+                        <div class="subTitle">
+                            <p style="margin: 0;">鎖定</p>
+                        </div>
                     </div>
-                    <div style="height: 90%;">
+                    <div style="height: 180px;margin-top: 5px;">
                         <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
                             <h4>[single]</h4>
                             <ul id="removeWhiteListSingle"></ul>
@@ -130,10 +147,15 @@
                     </div>
                 </div>
                 <div id="removeSoft" class="subPage remove">
-                    <div style="height: 10%;">
-                        <button id="goToMainPage7" class="optionBtn backBtn"> < </button>
+                    <div style="height: 30px;">
+                        <div id="goToMainPage7" class="backBtn">
+                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                        </div>
+                        <div class="subTitle">
+                            <p style="margin: 0;">白名單</p>
+                        </div>
                     </div>
-                    <div style="height: 90%;">
+                    <div style="height: 180px;margin-top: 5px;">
                         <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
                             <h4>[single]</h4>
                             <ul id="removeSoftListSingle"></ul>
