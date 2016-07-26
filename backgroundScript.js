@@ -10,12 +10,6 @@ if (!chrome.runtime) {
     chrome.runtime.connect = chrome.extension.connect;
 }
 
-function init(){
-    loadBlocker();
-    loadFile();
-}
-init();
-
 var timer=0;
 var timerInst;
 var isWaitingTimer = false;
@@ -47,22 +41,34 @@ var softLockList = [];
 var hardLockList = [];
 var whiteList = [];
 
+// this only record time except this time you browse
+var softTimeRecord = [];
+var whiteTimeRecord = [];
+var totalTimeRecord=0;
+// this only record this time browse
+var softTimeRecordNew = [];
+var whiteTimeRecordNew = [];
+var totalTimeRecordNew=0;
+
+
 var purifiedSoftLock;
 var purifiedHardLock;
 var purifiedWhite;
 
-function getCurrentTime() {
-    var date = new Date();
-    var l = date.getTime();
-    // return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-    return l;
+function init(){
+    loadBlocker();
+    loadFile();
+    var i;
+    for(i=0;i<softLockList.length;i++){
+        softTimeRecordNew.append(0);
+    }
+    for(i=0;i<whiteList.length;i++){
+        whiteTimeRecordNew.append(0);
+    }
 }
-chrome.windows.onRemoved.addListener(function(){
-    saveCurrentTime(getCurrentTime());
-});
+init();
 
-
-function purifyBlackAndWhite(){
+function purifyBlackAndWhite(callback){
     var i;
 
     for(i=0;i<singleHardLock.length;i++){
@@ -87,6 +93,8 @@ function purifyBlackAndWhite(){
     for(i=0;i<whiteList.length;i++){
         purifiedWhite[i] = purifyUrl(whiteList[i]);
     }
+
+    if(callback) callback();
 }
 
 function isInList(mstr, lstr){
@@ -195,7 +203,7 @@ function checkBlock(purified, cutted){
  * get current url, purify it
  *  and check in black and white list to judge whether need process
  */
-function dealingUrl(tab){
+function dealingUrl(tab,callback){
     //getCurrentTabUrl(function(url) {
 
         if(tab==undefined || tab.url==undefined) return false;
@@ -240,6 +248,8 @@ function dealingUrl(tab){
                 console.log("send message to " + tab.url + " id = " + tab.id);
             });
         }
+
+        if(callback) callback();
 
     //});
 }
@@ -399,6 +409,22 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             isAppClosed = true;
         }
     }
+    else if(msg && msg.forceSaveFully){
+        getCurrentTab(function(tab){
+            doTimeRecord(tab);
+            sendResponse({none:"none"});
+        });
+    }
+    else if(msg && msg.resetAllStatistics){
+        var i;
+        for(i=0;i<whiteTimeRecord.length;i++) whiteTimeRecord[i] = 0;
+        for(i=0;i<whiteTimeRecordNew.length;i++) whiteTimeRecordNew[i] = 0;
+        for(i=0;i<softTimeRecord.length;i++) softTimeRecord[i] = 0;
+        for(i=0;i<softTimeRecordNew.length;i++) softTimeRecordNew[i] = 0;
+        totalTimeRecord = 0;
+        totalTimeRecordNew = 0;
+        saveFileFully();
+    }
 
     /**
      * IMPORTANT
@@ -438,29 +464,97 @@ function doCheckIfInList(url,sendResponse) {
  * main thread of checking if tab is block
  * @param tab
  */
-function  dealWithUrlMain(tab) {
+function  dealWithUrlMain(tab,callback) {
     // check if has new setting?
     checkIfReload(function(needReload){
         if(needReload){
-            loadFile(dealingUrl,tab);
+            loadFile(dealingUrl,tab,callback);
         }
         else{
-            dealingUrl(tab);
+            dealingUrl(tab,callback);
         }
     });
 }
 
 /**
- * Fire on page load
- */
-chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
-    if (changeInfo.status == 'complete') {
-        dealWithUrlMain(tab);
-    }
-});
-/**
  *  Fire on tab switch
  */
 chrome.tabs.onActivated.addListener(function (tabId, windowId) {
-    getCurrentTab(dealWithUrlMain);
+    getCurrentTab(function(tab){
+        dealWithUrlMain(tab,function(){
+            doTimeRecord(tab);
+        })
+    });
 });
+
+function doTimeRecord(tab){
+    // do time record
+    if(currentPage!="" && currentPageLoadTime!=0){
+        var p = purifyUrl(currentPage);
+        // find which domain this page belongs to and store value
+        var current = getCurrentTime();
+        var diff = current-currentPageLoadTime;
+        searchDomain(p,diff);
+
+        saveFileFully(function(){
+
+            console.log("temporary save " + tab.url + " with time : " + diff + "ms");
+        });
+
+        // load page for next record
+        currentPageLoadTime = current;
+        currentPage = tab.url;
+    }
+    else{
+        // load page for next record
+        currentPageLoadTime = getCurrentTime();
+        currentPage = tab.url;
+    }
+}
+
+/**
+ * Fire on page load
+ */
+var currentPage="";
+var currentPageLoadTime=0;
+chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
+    if (changeInfo.status == 'complete') {
+        // check block
+        dealWithUrlMain(tab,function(){
+            doTimeRecord(tab);
+        });
+    }
+});
+
+/**
+ * return current time in long expression
+ * @returns {number}
+ */
+function getCurrentTime() {
+    var date = new Date();
+    return date.getTime();
+}
+
+chrome.windows.onRemoved.addListener(function(){
+    //saveCurrentTime(getCurrentTime());
+    getCurrentTab(function (tab) {
+        doTimeRecord(tab);
+    })
+});
+
+function searchDomain(purified, timeDiff) {
+    do{
+        // search white first
+        for(i=0;i<purifiedWhite.length;i++){
+            if(isInList(purified,purifiedWhite[i])==true){
+                whiteTimeRecordNew[i] += timeDiff;
+            }
+        }
+        for(i=0;i<purifiedSoftLock.length;i++){
+            if(isInList(purified,purifiedSoftLock[i])==true){
+                softTimeRecordNew[i] += timeDiff;
+            }
+        }
+    }while( (purified = clearLast(purified))!="" );
+
+}

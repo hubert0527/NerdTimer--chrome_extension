@@ -52,9 +52,9 @@ function saveFile(callBack){
 
     str = "";
     for(j=0;j<whiteList.length;j++) {
-        if(str=="") str = whiteList[j];
+        if(str=="") str = whiteList[j] +"||"+whiteTimeRecord[j];
         else{
-            str+= ("::"+whiteList[j]);
+            str+= ("::"+whiteList[j] +"||"+whiteTimeRecord[j]);
         }
     }
     chrome.storage.local.set({'whiteListData': str},function(){
@@ -69,9 +69,9 @@ function saveFile(callBack){
 
             str = "";
             for(j=0;j<softLockList.length;j++) {
-                if(str=="") str = softLockList[j];
+                if(str=="") str = softLockList[j] +"||"+softTimeRecord[j];
                 else{
-                    str+= ("::"+softLockList[j]);
+                    str+= ("::"+softLockList[j] +"||"+softTimeRecord[j]);
                 }
             }
             chrome.storage.local.set({'softLockListData': str},function() {
@@ -119,17 +119,27 @@ function saveFile(callBack){
 }
 
 
-function loadFile(callBack,tab){
+function loadFile(callBack,tab,callback2){
     // get list
-    var i;
+    var i, sp2;
     chrome.storage.local.get("whiteListData",function(data){
         var str = data.whiteListData;
         whiteList = [];
+        whiteTimeRecord = [];
 
         if(str!=undefined && str!="") {
             var sp = str.split("::");
             for (i = 0; i < sp.length; i++) {
-                whiteList.push(sp[i]);
+                // split for time record
+                sp2 = sp[i].split("||");
+                whiteList.push(sp2[0]);
+                sp2[1] = parseInt(sp2[1]);
+                if(sp2[1]){
+                    whiteTimeRecord.push(sp2[1]);
+                }
+                else{
+                    whiteTimeRecord.push(0);
+                }
             }
         }
 
@@ -147,11 +157,21 @@ function loadFile(callBack,tab){
             chrome.storage.local.get("softLockListData",function(data) {
                 var str = data.softLockListData;
                 softLockList = [];
+                softTimeRecord = [];
                 if (str != undefined && str!="") {
                     sp = [];
                     sp = str.split("::");
                     for (i = 0; i < sp.length; i++) {
-                        softLockList.push(sp[i]);
+                        // split for time record
+                        sp2 = sp[i].split("||");
+                        softLockList.push(sp2[0]);
+                        sp2[1] = parseInt(sp2[1]);
+                        if(sp2[1]){
+                            softTimeRecord.push(sp2[1]);
+                        }
+                        else{
+                            softTimeRecord.push(0);
+                        }
                     }
                 }
 
@@ -199,8 +219,20 @@ function loadFile(callBack,tab){
                                 }
                             }
 
-                            if (callBack != undefined) callBack(tab);
+                            chrome.storage.local.get("singleWhiteData", function (data) {
 
+                                var p = parseInt(data.totalTimeRecord);
+                                if(p){
+                                    totalTimeRecord = p;
+                                }
+                                else{
+                                    totalTimeRecord = 0;
+                                }
+
+                                if (callBack && callback2) callBack(tab,callback2);
+                                else if (callBack) callBack(tab);
+
+                            });
                         });
                     });
                 });
@@ -274,3 +306,95 @@ function loadFile(callBack,tab){
 //     });
 //
 // }
+
+/**
+ * difference is that this will merge this time browse data with last time and store
+ * @param callBack
+ */
+function saveFileFully(callBack){
+    // save lists
+    var i,j;
+    var str;
+
+    str = "";
+    for(j=0;j<whiteList.length;j++) {
+        if(!whiteTimeRecordNew[j]) whiteTimeRecordNew[j] = 0;
+        whiteTimeRecord[j] += whiteTimeRecordNew[j];
+        if(str=="") str = whiteList[j] +"||"+whiteTimeRecord[j];
+        else{
+            str+= ("::"+whiteList[j] +"||"+whiteTimeRecord[j]);
+        }
+        whiteTimeRecordNew[j] = 0;
+    }
+    chrome.storage.local.set({'whiteListData': str},function(){
+        str = "";
+        for(j=0;j<hardLockList.length;j++) {
+            if(str=="") str = hardLockList[j];
+            else{
+                str+= ("::"+hardLockList[j]);
+            }
+        }
+        chrome.storage.local.set({'hardLockListData': str},function(){
+
+            str = "";
+            for(j=0;j<softLockList.length;j++) {
+                if(!softTimeRecordNew[j]) softTimeRecordNew[j] = 0;
+                softTimeRecord[j] += softTimeRecordNew[j]
+                if(str=="") str = softLockList[j] +"||"+softTimeRecord[j];
+                else{
+                    str+= ("::"+softLockList[j] +"||"+softTimeRecord[j]);
+                }
+                softTimeRecordNew[j] = 0;
+            }
+            console.log("store : " + str);
+            chrome.storage.local.set({'softLockListData': str},function() {
+
+                str = "";
+                for (j = 0; j < singleWhite.length; j++) {
+                    if (str == "") str = singleWhite[j];
+                    else {
+                        str += ("::" + singleWhite[j]);
+                    }
+                }
+                chrome.storage.local.set({'singleWhiteData': str}, function () {
+
+                    str = "";
+                    for (j = 0; j < singleSoftLock.length; j++) {
+                        if (str == "") str = singleSoftLock[j];
+                        else {
+                            str += ("::" + singleSoftLock[j]);
+                        }
+                    }
+                    chrome.storage.local.set({'singleSoftLockData': str}, function () {
+
+                        str = "";
+                        for (j = 0; j < singleHardLock.length; j++) {
+                            if (str == "") str = singleHardLock[j];
+                            else {
+                                str += ("::" + singleHardLock[j]);
+                            }
+                        }
+                        chrome.storage.local.set({'singleHardLockData': str}, function () {
+
+                            str = "";
+                            str = (totalTimeRecord+totalTimeRecordNew).toString();
+                            totalTimeRecordNew = 0;
+
+                            chrome.storage.local.set({'totalTimeRecord': str}, function () {
+                                chrome.storage.local.set({'needReload': true}, function () {
+                                        if (callBack != undefined) callBack();
+                                });
+                            });
+
+                        });
+
+                    });
+
+                });
+            });
+
+        });
+
+    });
+
+}

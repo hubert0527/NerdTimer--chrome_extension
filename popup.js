@@ -8,6 +8,8 @@ var ignore = [
     "jp"
 ];
 
+var chart;
+
 var isAppClosed = false;
 
 var timer = 0;
@@ -15,12 +17,16 @@ var timerInst;
 
 var singleHardLock = [];
 var singleSoftLock = [];
-var useTime = [];
 var singleWhite = [];
 
 var softLockList = [];
 var hardLockList = [];
 var whiteList = [];
+
+// this only record time except this time you browse
+var softTimeRecord = [];
+var whiteTimeRecord = [];
+var totalTimeRecord=0;
 
 var purifiedSoftLock;
 var purifiedHardLock;
@@ -44,13 +50,13 @@ window.addEventListener("DOMContentLoaded", function() {
     console.log("softBlocks: " + softLockList.toString());
     console.log("whites: " + whiteList.toString());
 
-    loadCurrentTime(function(time){
-        time = parseInt(time);
-        //var str = time.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
-        time = new Date(time);
-        console.log(time);
-        $('#dateTime').text(time);
-    });
+    // loadCurrentTime(function(time){
+    //     time = parseInt(time);
+    //     //var str = time.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    //     time = new Date(time);
+    //     console.log(time);
+    //     $('#dateTime').text(time);
+    // });
 
 });
 
@@ -164,61 +170,21 @@ function loadButtons() {
     // create sliding button                                                                  // current        target
     document.getElementById("goToAddToListType").addEventListener("click", function(){moveRightTo("#mainPage","#addToListType");});
     document.getElementById("goToStatistics").addEventListener("click", function(){
-        moveRightTo("#addToListType","#statistics");
 
-        var ctx = $('#chartArea');
-        Chart.defaults.global.legend.display = false;
-        var data = {
-                labels: ["facebook.com", "google.com", "yahoo.com", "stackOverFlow.com", "pchome.com", "amazon.com", "yahoo.com", "stackOverFlow.com", "pchome.com", "amazon.com"],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [19, 18, 16, 15, 10, 6, 3,2,1,1],
-                    backgroundColor: [
-                        '#ff0300',
-                        '#ff5e03',
-                        '#ffc900',
-                        '#efff08',
-                        '#96ff08',
-                        '#04ff1f',
-                        '#00ffb4',
-                        '#00bcff',
-                        '#0058ff',
-                        '#1a00ff'
-                    ],
-                    borderColor: [
-                        'black',
-                        'black',
-                        'black',
-                        'black',
-                        'black',
-                        'black',
-                        'black',
-                        'black',
-                        'black',
-                        'black'
-                    ],
-                    borderWidth: 2
-                }]
-            };
+        chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
+            loadFile(function(){
 
-        var myLine = new Chart(ctx,{
-            type: "bar",
-            data: data,
-            options: {
-                scales: {
-                    xAxes: [{
-                        display: false
-                    }],
-                    yAxes: [{
-                        display: false
-                    }]
-                },
-                defaultFontColor: '#000',
-                responsive: false
+                // get fist N data
+                var n = 10;
+                getFirstNInList(n);
+                // draw chart
+                drawChart(0);
 
-            }
+                moveRightTo("#addToListType","#statistics");
+
+
+            });
         });
-
 
     });
 
@@ -277,8 +243,135 @@ function loadButtons() {
     // });
     document.getElementById("goToMainPage9").addEventListener("click", function(){
         moveLeftTo("#statistics","#addToListType",function(){
+            var me = $("#statistics");
+            $('#chartArea').remove();
+            me.append(
+                '<canvas id="chartArea" width="225" height="195" style="margin-top:2px;"></canvas>'
+            );
 
         });
+    });
+}
+
+var topWhiteValue = [];
+var topWhiteDomain = [];
+var topSoftValue = [];
+var topSoftDomain = [];
+
+function getFirstNInList(n) {
+    var i;
+    var dual,min;
+    var temp = [];
+    for(i=0;i<whiteTimeRecord.length;i++){
+        dual = [whiteTimeRecord[i],whiteList[i]];
+        temp.push(dual);
+    }
+    temp.sort(function(aa,bb){
+        if(aa[0]>bb[0]) return -1;
+        else if (aa[0]<bb[0]) return 1;
+        else {
+            if(aa[1]>bb[1]) return 1;
+            else return -1;
+        }
+    });
+
+    min = n < whiteTimeRecord.length ? n : whiteTimeRecord.length;
+    for(i=0;i<min;i++){
+        topWhiteValue[i] = temp[i][0];
+        topWhiteDomain[i] = temp[i][1];
+    }
+
+    temp = [];
+
+    for(i=0;i<softTimeRecord.length;i++){
+        dual = [softTimeRecord[i],softLockList[i]];
+        temp.push(dual);
+    }
+    temp.sort(function(aa,bb){
+        if(aa[0]>bb[0]) return -1;
+        else if (aa[0]<bb[0]) return 1;
+        else {
+            if(aa[1]>bb[1]) return 1;
+            else return -1;
+        }
+    });
+
+    min = n < softTimeRecord.length ? n : softTimeRecord.length;
+    for(i=0;i<min;i++){
+        topSoftValue[i] = temp[i][0];
+        topSoftDomain[i] = temp[i][1];
+    }
+
+}
+
+/**
+ * implement 4 modes, draw three kinds of chart
+ *
+ * 0: default, show top N most used domain excluding white list
+ * 1: show top N most used domain including white list
+ * 2.
+ *
+ */
+function drawChart(mode){
+
+    var label, value;
+
+    if(mode==0){
+        label = topSoftDomain;
+        value = topSoftValue;
+    }
+
+    var ctx = $('#chartArea');
+    Chart.defaults.global.legend.display = false;
+    var data = {
+            labels: label,
+            datasets: [{
+                label: '# of Votes',
+                data: value,
+                backgroundColor: [
+                    '#ff0300',
+                    '#ff5e03',
+                    '#ffc900',
+                    '#efff08',
+                    '#96ff08',
+                    '#04ff1f',
+                    '#00ffb4',
+                    '#00bcff',
+                    '#0058ff',
+                    '#1a00ff'
+                ],
+                borderColor: [
+                    'black',
+                    'black',
+                    'black',
+                    'black',
+                    'black',
+                    'black',
+                    'black',
+                    'black',
+                    'black',
+                    'black'
+                ],
+                borderWidth: 2
+            }]
+        };
+
+    chart = new Chart(ctx,{
+        type: "bar",
+        data: data,
+        options: {
+            scales: {
+                xAxes: [{
+                    display: false
+                }],
+                yAxes: [{
+                    display: false
+                }]
+            },
+            defaultFontColor: '#000',
+            responsive: false
+
+        }
     });
 }
 
@@ -510,7 +603,7 @@ function createRemoveList(){
                     temp[i] = temp[i].substring(4);
                 }
             }
-            sortList(temp);
+            temp = sortList(temp);
             // create UI
             for(i=0; i<temp.length;i++){
                 if(temp[i]!="") ul.append([
@@ -574,7 +667,7 @@ function createRemoveList(){
                     temp[i] = temp[i].substring(4);
                 }
             }
-            sortList(temp);
+            temp = sortList(temp);
             //create UI
             for(i=0; i<temp.length;i++){
                 if(temp[i]!="") ul.append([
@@ -647,7 +740,7 @@ function createRemoveList(){
                     temp[i] = temp[i].substring(4);
                 }
             }
-            sortList(temp);
+            temp = sortList(temp);
             // create UI
             for(i=0; i<temp.length;i++){
                 if(temp[i]!="") ul.append([
@@ -710,7 +803,7 @@ function createRemoveList(){
                     temp[i] = temp[i].substring(4);
                 }
             }
-            sortList(temp);
+            temp = sortList(temp);
             //create UI
             for (i = 0; i < temp.length; i++) {
                 if (temp[i] != "") ul.append([
@@ -958,7 +1051,7 @@ function addSinglePageToSoftLockList(){
         }
 
         singleSoftLock.push(url);
-        sortList(singleSoftLock);
+
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
@@ -991,7 +1084,7 @@ function addBaseDomainToSoftLockList(){
         }
 
         softLockList.push(url);
-        sortList(softLockList);
+
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
@@ -1018,7 +1111,7 @@ function addSubDomainToSoftLockList(rawUrl){
     }
 
     softLockList.push(url);
-    sortList(softLockList);
+
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
@@ -1044,7 +1137,7 @@ function addSinglePageToHardLockList(){
         }
 
         singleHardLock.push(url);
-        sortList(singleHardLock);
+
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
@@ -1077,7 +1170,7 @@ function addBaseDomainToHardLockList(){
         }
 
         hardLockList.push(url);
-        sortList(hardLockList);
+
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
@@ -1104,7 +1197,7 @@ function addSubDomainToHardLockList(rawUrl){
     }
 
     hardLockList.push(url);
-    sortList(hardLockList);
+
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
@@ -1130,7 +1223,7 @@ function addSinglePageToWhiteList(){
         }
 
         singleWhite.push(url);
-        sortList(singleWhite);
+
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
@@ -1163,7 +1256,7 @@ function addBaseDomainToWhiteList(){
         }
 
         whiteList.push(url);
-        sortList(whiteList);
+
         saveFile(function(){
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
@@ -1190,7 +1283,7 @@ function addSubDomainToWhiteList(rawUrl){
     }
 
     whiteList.push(url);
-    sortList(whiteList);
+    
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});

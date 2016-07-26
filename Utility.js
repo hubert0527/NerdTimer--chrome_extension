@@ -1,11 +1,13 @@
 
 function sortList(list){
+    var temp = list.slice(0);
     // sorting
-    list.sort(function(aa,bb){
+    temp.sort(function(aa,bb){
         if(aa < bb) return -1;
         else if(aa > bb) return 1;
         else return 0;
     });
+    return temp;
 }
 
 function cutOffHeadAndTail(url){
