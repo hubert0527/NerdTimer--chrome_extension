@@ -488,6 +488,15 @@ chrome.tabs.onActivated.addListener(function (tabId, windowId) {
 });
 
 function doTimeRecord(tab){
+
+    var url;
+    if(tab){
+        url = tab.url;
+    }
+    else{
+        url = "null";
+    }
+
     // do time record
     if(currentPage!="" && currentPageLoadTime!=0){
         var p = purifyUrl(currentPage);
@@ -497,18 +506,17 @@ function doTimeRecord(tab){
         searchDomain(p,diff);
 
         saveFileFully(function(){
-
-            console.log("temporary save " + tab.url + " with time : " + diff + "ms");
+            console.log("temporary save " + url + " with time : " + diff + "ms");
         });
 
         // load page for next record
         currentPageLoadTime = current;
-        currentPage = tab.url;
+        currentPage = url;
     }
     else{
         // load page for next record
         currentPageLoadTime = getCurrentTime();
-        currentPage = tab.url;
+        currentPage = url;
     }
 }
 
@@ -538,7 +546,8 @@ function getCurrentTime() {
 chrome.windows.onRemoved.addListener(function(){
     //saveCurrentTime(getCurrentTime());
     getCurrentTab(function (tab) {
-        doTimeRecord(tab);
+        // no value cuz no need
+        doTimeRecord();
     })
 });
 
