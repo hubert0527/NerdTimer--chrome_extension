@@ -1,7 +1,7 @@
 body{
     overflow: hidden;
     width: 250px;
-    height: 350px;
+    height: 355px;
     margin:0;
     font-family: "Adobe 宋体 Std L",Georgia, serif;
     background-color: lightseagreen;
@@ -30,7 +30,7 @@ hr{
 .subPage{
     width:90%;
     /* -25px(footer) -113(topCol) */
-    height: 220px;
+    height: 225px;
     top: 103px;
     position: absolute;
     display: none;
@@ -309,7 +309,7 @@ input {
     padding: 2px 5px;
 }
 #prompt1Pop{
-    left: 77px;
+    left: 67px;
     bottom: 45px;
     z-index: 1;
 }
@@ -323,7 +323,7 @@ input {
   /*width: 60px;*/
   /*height: 34px;*/
   width: 50px;
-  height: 25px;
+  height: 23px;
 }
 
 /* Hide default HTML checkbox */
@@ -344,8 +344,8 @@ input {
 .switchSlider:before {
   position: absolute;
   content: "";
-  height: 21px;
-  width: 21px;
+  height: 19px;
+  width: 19px;
   left: -1px;
   bottom: -1px;
   background-color: white;
@@ -378,9 +378,3 @@ input:checked + .switchSlider:before {
   border-radius: 50%;
 }
 
-.noTransition {
-  -webkit-transition: none !important;
-  -ms-transition: none !important;
-  -o-transition: none !important;
-  transition: none !important;
-}

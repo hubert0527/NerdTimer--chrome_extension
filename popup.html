@@ -25,7 +25,9 @@
         <script src="jquery-1.11.3.min.js"></script>
         <script src="utility.js"></script>
         <script src="fileStorage.js"></script>
+        <script src="Chart.js"></script>
         <script src="popup.js"></script>
+
         <link href="popup.css" rel="stylesheet">
     </head>
     <body style="background-color: lightseagreen">
@@ -80,17 +82,26 @@
                     </div>
                     <hr>
                     <div>
-                        <h6 style="margin: 5px 0">關閉</h6>
-                        <img id="prompt1" src="question.png" style="width: 16px;height: 16px;margin: 2px 5px;position: absolute;bottom: 54px;left: 45px;">
-                        <div id="prompt1Pop" class="arrow_box_right">停止鎖定頁面，<br>直到下一次開啟</div>
+                        <div style="width: 50%;float: left;">
+                            <h6 style="margin: 5px 0">關閉</h6>
+                            <img id="prompt1" src="question.png" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 55.8px;left: 39px;">
+                            <div id="prompt1Pop" class="arrow_box_right">停止鎖定頁面，<br>直到下一次開啟瀏覽器</div>
 
-                        <!--<div style="margin-left: 20px;">-->
-                            <!--<button id="closeButton" class="optionBtn" style="float: left;">停止鎖定</button>-->
-                        <!--</div>-->
-                        <label class="switchWrapper" style="margin-left: 20px;">
-                            <input id="switchBtn" type="checkbox">
-                            <div id="closeButton" class="switchSlider round slideAnimation"></div>
-                        </label>
+                            <!--<div style="margin-left: 20px;">-->
+                                <!--<button id="closeButton" class="optionBtn" style="float: left;">停止鎖定</button>-->
+                            <!--</div>-->
+                            <label class="switchWrapper" style="margin-left: 20px;">
+                                <input id="switchBtn" type="checkbox">
+                                <div id="closeButton" class="switchSlider round slideAnimation"></div>
+                            </label>
+                        </div>
+                        <div style="width: 50%;float: left;">
+                            <h6 style="margin: 5px 0">檔案</h6>
+                            <div style="margin-left: 20px;">
+                                <button class="optionBtn">匯入..</button>
+                                <button class="optionBtn">匯出..</button>
+                            </div>
+                        </div>
                     </div>
 
                 </div>
@@ -101,7 +112,7 @@
                             <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
-                            <p style="margin: 0;">設置</p>
+                            <p style="margin: 0;">設定</p>
                         </div>
                     </div>
                     <div>
@@ -125,6 +136,13 @@
                             <button id="addSinglePageToWhiteList" class="optionBtn">頁面</button>
                             <button id="removeFromWhite" class="optionBtn" style="float: right;margin-right: 20px;">管理...</button>
                         </div>
+
+                        <hr>
+
+                        <h5 style="margin: 7px 0">紀錄</h5>
+                        <div style="margin-left: 20px">
+                            <button id="goToStatistics" class="optionBtn">觀看紀錄</button>
+                        </div>
                     </div>
                 </div>
 
@@ -134,15 +152,15 @@
                             <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
-                            <p style="margin: 0;">鎖定</p>
+                            <p style="margin: 0;">白名單</p>
                         </div>
                     </div>
                     <div style="height: 180px;margin-top: 5px;">
                         <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
-                            <h4>[single]</h4>
-                            <ul id="removeWhiteListSingle"></ul>
                             <h4>[domain]</h4>
                             <ul id="removeWhiteListDomain"></ul>
+                            <h4>[single]</h4>
+                            <ul id="removeWhiteListSingle"></ul>
                         </div>
                     </div>
                 </div>
@@ -152,15 +170,15 @@
                             <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
-                            <p style="margin: 0;">白名單</p>
+                            <p style="margin: 0;">鎖定</p>
                         </div>
                     </div>
                     <div style="height: 180px;margin-top: 5px;">
                         <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
-                            <h4>[single]</h4>
-                            <ul id="removeSoftListSingle"></ul>
                             <h4>[domain]</h4>
                             <ul id="removeSoftListDomain"></ul>
+                            <h4>[single]</h4>
+                            <ul id="removeSoftListSingle"></ul>
                         </div>
                     </div>
                 </div>
@@ -178,10 +196,23 @@
                     <!--</div>-->
                 <!--</div>-->
 
+                <div id="statistics" class="subPage">
+                    <div style="">
+                        <div id="goToMainPage9" class="backBtn">
+                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                        </div>
+                        <div class="subTitle">
+                            <p style="margin: 0;">紀錄</p>
+                        </div>
+                    </div>
+                    <canvas id="chartArea" width="225" height="195" style="margin-top:2px;"></canvas>
+                </div>
+
             </div>
         </div>
 
         <footer>
+            <p id="dateTime" style="margin: 0;padding: 0;position: absolute;bottom: 0;left: 0;"> 00:00 </p>
             <p style="margin: 0;padding: 0;">
                 created by <a id="mGH" style="color: blue;" href="https://goo.gl/oxFPKz" target="_blank">Hubert Lin</a>
             </p>

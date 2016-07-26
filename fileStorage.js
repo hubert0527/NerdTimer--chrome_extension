@@ -1,4 +1,18 @@
 
+function saveCurrentTime(time){
+    time = time.toString();
+    chrome.storage.local.set({'currentTime': time});
+}
+function loadCurrentTime(callback){
+    chrome.storage.local.get('currentTime',function(storage){
+        var time = parseInt(storage.currentTime);
+        if(!time) time = 0;
+        console.log("currentTime = " + time);
+        if(callback) callback(time);
+        return time;
+    });
+}
+
 function saveLastUsedTimer(time,callback){
     chrome.storage.local.set({'lastTimer': time},function(){
         console.log("save last time = " + time);
@@ -112,7 +126,7 @@ function loadFile(callBack,tab){
         var str = data.whiteListData;
         whiteList = [];
 
-        if(str!=undefined) {
+        if(str!=undefined && str!="") {
             var sp = str.split("::");
             for (i = 0; i < sp.length; i++) {
                 whiteList.push(sp[i]);
@@ -123,7 +137,7 @@ function loadFile(callBack,tab){
         chrome.storage.local.get("hardLockListData",function(data){
             var str = data.hardLockListData;
             hardLockList = [];
-            if(str!=undefined) {
+            if(str!=undefined && str!="") {
                 sp = [];
                 sp = str.split("::");
                 for (i = 0; i < sp.length; i++) {
@@ -133,7 +147,7 @@ function loadFile(callBack,tab){
             chrome.storage.local.get("softLockListData",function(data) {
                 var str = data.softLockListData;
                 softLockList = [];
-                if (str != undefined) {
+                if (str != undefined && str!="") {
                     sp = [];
                     sp = str.split("::");
                     for (i = 0; i < sp.length; i++) {
@@ -160,7 +174,7 @@ function loadFile(callBack,tab){
                 chrome.storage.local.get("singleSoftLockData", function (data) {
                     var str = data.singleSoftLockData;
                     singleSoftLock = [];
-                    if (str != undefined) {
+                    if (str != undefined && str!="") {
                         var spsb = str.split("::");
                         for (i = 0; i < spsb.length; i++) {
                             singleSoftLock.push(spsb[i]);
@@ -169,7 +183,7 @@ function loadFile(callBack,tab){
                     chrome.storage.local.get("singleHardLockData", function (data) {
                         var str = data.singleHardLockData;
                         singleHardLock = [];
-                        if (str != undefined) {
+                        if (str != undefined && str!="") {
                             var spsb = str.split("::");
                             for (i = 0; i < spsb.length; i++) {
                                 singleHardLock.push(spsb[i]);
@@ -178,7 +192,7 @@ function loadFile(callBack,tab){
                         chrome.storage.local.get("singleWhiteData", function (data) {
                             var str = data.singleWhiteData;
                             singleWhite = [];
-                            if (str != undefined) {
+                            if (str != undefined && str!="") {
                                 var spsw = str.split("::");
                                 for (i = 0; i < spsw.length; i++) {
                                     singleWhite.push(spsw[i]);

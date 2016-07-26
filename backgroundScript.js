@@ -51,6 +51,16 @@ var purifiedSoftLock;
 var purifiedHardLock;
 var purifiedWhite;
 
+function getCurrentTime() {
+    var date = new Date();
+    var l = date.getTime();
+    // return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+    return l;
+}
+chrome.windows.onRemoved.addListener(function(){
+    saveCurrentTime(getCurrentTime());
+});
+
 
 function purifyBlackAndWhite(){
     var i;

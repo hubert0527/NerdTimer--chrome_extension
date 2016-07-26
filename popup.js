@@ -44,6 +44,14 @@ window.addEventListener("DOMContentLoaded", function() {
     console.log("softBlocks: " + softLockList.toString());
     console.log("whites: " + whiteList.toString());
 
+    loadCurrentTime(function(time){
+        time = parseInt(time);
+        //var str = time.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate() + " " + date.getHours() + ":" + date.getMinutes() + ":" + date.getSeconds();
+        time = new Date(time);
+        console.log(time);
+        $('#dateTime').text(time);
+    });
+
 });
 
 /**
@@ -125,6 +133,7 @@ function loadCloseButton() {
     });
 }
 
+
 function loadButtons() {
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
     document.getElementById("addBaseDomainToSoftLockList").addEventListener("click", addBaseDomainToSoftLockList);
@@ -154,7 +163,66 @@ function loadButtons() {
 
     // create sliding button                                                                  // current        target
     document.getElementById("goToAddToListType").addEventListener("click", function(){moveRightTo("#mainPage","#addToListType");});
+    document.getElementById("goToStatistics").addEventListener("click", function(){
+        moveRightTo("#addToListType","#statistics");
 
+        var ctx = $('#chartArea');
+        Chart.defaults.global.legend.display = false;
+        var data = {
+                labels: ["facebook.com", "google.com", "yahoo.com", "stackOverFlow.com", "pchome.com", "amazon.com", "yahoo.com", "stackOverFlow.com", "pchome.com", "amazon.com"],
+                datasets: [{
+                    label: '# of Votes',
+                    data: [19, 18, 16, 15, 10, 6, 3,2,1,1],
+                    backgroundColor: [
+                        '#ff0300',
+                        '#ff5e03',
+                        '#ffc900',
+                        '#efff08',
+                        '#96ff08',
+                        '#04ff1f',
+                        '#00ffb4',
+                        '#00bcff',
+                        '#0058ff',
+                        '#1a00ff'
+                    ],
+                    borderColor: [
+                        'black',
+                        'black',
+                        'black',
+                        'black',
+                        'black',
+                        'black',
+                        'black',
+                        'black',
+                        'black',
+                        'black'
+                    ],
+                    borderWidth: 2
+                }]
+            };
+
+        var myLine = new Chart(ctx,{
+            type: "bar",
+            data: data,
+            options: {
+                scales: {
+                    xAxes: [{
+                        display: false
+                    }],
+                    yAxes: [{
+                        display: false
+                    }]
+                },
+                defaultFontColor: '#000',
+                responsive: false
+
+            }
+        });
+
+
+    });
+
+    // create go to remove list buttons
     createRemoveList();
 
     document.getElementById("goToMainPage1").addEventListener("click", function(){
@@ -207,6 +275,11 @@ function loadButtons() {
     //     });
     //
     // });
+    document.getElementById("goToMainPage9").addEventListener("click", function(){
+        moveLeftTo("#statistics","#addToListType",function(){
+
+        });
+    });
 }
 
 function loadTimerBlock() {
@@ -429,231 +502,272 @@ function createRemoveList(){
         var ul = $('#removeWhiteListSingle');
         var i;
 
-        // temporary eliminate "www" and sort
-        var temp = singleWhite.slice(0);
-        for(i=0;i<temp.length;i++){
-            if(temp[i].substring(0,3)=="www"){
-                temp[i] = temp[i].substring(4);
+        if(singleWhite.length>0){
+            // temporary eliminate "www" and sort
+            var temp = singleWhite.slice(0);
+            for(i=0;i<temp.length;i++){
+                if(temp[i].substring(0,3)=="www"){
+                    temp[i] = temp[i].substring(4);
+                }
             }
+            sortList(temp);
+            // create UI
+            for(i=0; i<temp.length;i++){
+                if(temp[i]!="") ul.append([
+                        '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                            '<button><p>X</p></button>',
+                            '<div>'+temp[i]+'</div>',
+                        '</li>'
+                    ].join("\n")
+                );
+            }
+            // create button function
+            var child = ul.children();
+            if(child && child.length>0) {
+                for (i = 0; i < child.length; i++) {
+                    $($(child[i]).children("button")).click(function(){
+                        var tar = $(this).siblings()[0].textContent;
+                        // send delete message
+                        chrome.runtime.sendMessage({deleteRule:"singleWhite::"+tar});
+                        // remove from local
+                        var index = singleWhite.indexOf(tar);
+                        singleWhite.splice(index,1);
+
+                        // disappear
+                        $($(this).parent()).fadeOut('fast');
+                    });
+                }
+            }
+            // high light current tab
+            getCurrentTabUrl(function(url){
+                url = cutOffHeadAndTail(url);
+                if(url.substring(0,3)=="www"){
+                    url = url.substring(4);
+                }
+                var child = $('#removeWhiteListSingle').children();
+                if(child && child.length>0) {
+                    for (i = 0; i < child.length; i++) {
+                        var sib = $($(child[i]).children("button")).siblings()[0];
+                        var t = sib.textContent;
+                        if(sib.textContent==url){
+                            $(child[i]).css("background-color","yellow");
+                        }
+                    }
+                }
+            });
         }
-        sortList(temp);
-        // create UI
-        for(i=0; i<temp.length;i++){
-            if(temp[i]!="") ul.append([
+        else{
+            ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                        '<button><p>X</p></button>',
-                        '<div>'+temp[i]+'</div>',
+                    '<div style="text-align: center;width: 100%;">(empty)</div>',
                     '</li>'
                 ].join("\n")
             );
         }
-        // create button function
-        var child = ul.children();
-        if(child && child.length>0) {
-            for (i = 0; i < child.length; i++) {
-                $($(child[i]).children("button")).click(function(){
-                    var tar = $(this).siblings()[0].textContent;
-                    // send delete message
-                    chrome.runtime.sendMessage({deleteRule:"singleWhite::"+tar});
-                    // remove from local
-                    var index = singleWhite.indexOf(tar);
-                    singleWhite.splice(index,1);
-
-                    // disappear
-                    $($(this).parent()).fadeOut('fast');
-                });
-            }
-        }
-        // high light current tab
-        getCurrentTabUrl(function(url){
-            url = cutOffHeadAndTail(url);
-            if(url.substring(0,3)=="www"){
-                url = url.substring(4);
-            }
-            var child = $('#removeWhiteListSingle').children();
-            if(child && child.length>0) {
-                for (i = 0; i < child.length; i++) {
-                    var sib = $($(child[i]).children("button")).siblings()[0];
-                    var t = sib.textContent;
-                    if(sib.textContent==url){
-                        $(child[i]).css("background-color","yellow");
-                    }
-                }
-            }
-        });
 
         ul = $('#removeWhiteListDomain');
-        // temporary eliminate "www" and sort
-        temp = whiteList.slice(0);
-        for(i=0;i<temp.length;i++){
-            if(temp[i].substring(0,3)=="www"){
-                temp[i] = temp[i].substring(4);
+        if(whiteList.length>0){
+            // temporary eliminate "www" and sort
+            temp = whiteList.slice(0);
+            for(i=0;i<temp.length;i++){
+                if(temp[i].substring(0,3)=="www"){
+                    temp[i] = temp[i].substring(4);
+                }
             }
+            sortList(temp);
+            //create UI
+            for(i=0; i<temp.length;i++){
+                if(temp[i]!="") ul.append([
+                        '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                            '<button><p>X</p></button>',
+                            '<div>'+temp[i]+'</div>',
+                        '</li>'
+                    ].join("\n")
+                );
+            }
+            // create button function
+            child = ul.children();
+            if(child && child.length>0) {
+                for (i = 0; i < child.length; i++) {
+                    $($(child[i]).children("button")).click(function(){
+                        var tar = $(this).siblings()[0].textContent;
+                        // send delete message
+                        chrome.runtime.sendMessage({deleteRule:"whiteList::"+tar});
+                        // remove from local
+                        var index = whiteList.indexOf(tar);
+                        whiteList.splice(index,1);
+
+                        // disappear
+                        $($(this).parent()).fadeOut('fast');
+                    });
+                }
+            }
+            // high light current tab
+            getCurrentTabUrl(function(url){
+                url = cutOffHeadAndTail(url);
+                if(url.substring(0,3)=="www"){
+                    url = url.substring(4);
+                }
+                // get base domain
+                var temp;
+                while( (temp = clearLast(url))!=""){
+                    url = temp;
+                }
+                var child = $('#removeWhiteListDomain').children();
+                if(child && child.length>0) {
+                    for (i = 0; i < child.length; i++) {
+                        var sib = $($(child[i]).children("button")).siblings()[0];
+                        if(sib.textContent==url){
+                            $(child[i]).css("background-color","yellow");
+                        }
+                    }
+                }
+            });
         }
-        sortList(temp);
-        //create UI
-        for(i=0; i<temp.length;i++){
-            if(temp[i]!="") ul.append([
+        else{
+            ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                        '<button><p>X</p></button>',
-                        '<div>'+temp[i]+'</div>',
+                    '<div style="text-align: center;width: 100%;">(empty)</div>',
                     '</li>'
                 ].join("\n")
             );
         }
-        // create button function
-        child = ul.children();
-        if(child && child.length>0) {
-            for (i = 0; i < child.length; i++) {
-                $($(child[i]).children("button")).click(function(){
-                    var tar = $(this).siblings()[0].textContent;
-                    // send delete message
-                    chrome.runtime.sendMessage({deleteRule:"whiteList::"+tar});
-                    // remove from local
-                    var index = whiteList.indexOf(tar);
-                    whiteList.splice(index,1);
-
-                    // disappear
-                    $($(this).parent()).fadeOut('fast');
-                });
-            }
-        }
-        // high light current tab
-        getCurrentTabUrl(function(url){
-            url = cutOffHeadAndTail(url);
-            if(url.substring(0,3)=="www"){
-                url = url.substring(4);
-            }
-            // get base domain
-            var temp;
-            while( (temp = clearLast(url))!=""){
-                url = temp;
-            }
-            var child = $('#removeWhiteListDomain').children();
-            if(child && child.length>0) {
-                for (i = 0; i < child.length; i++) {
-                    var sib = $($(child[i]).children("button")).siblings()[0];
-                    if(sib.textContent==url){
-                        $(child[i]).css("background-color","yellow");
-                    }
-                }
-            }
-        });
     });
+
     document.getElementById("removeFromSoft").addEventListener("click", function(){
         moveRightTo("#addToListType","#removeSoft");
         var ul = $('#removeSoftListSingle');
         var i;
 
-        // temporary eliminate "www" and sort
-        var temp = singleSoftLock.slice(0);
-        for(i=0;i<temp.length;i++){
-            if(temp[i].substring(0,3)=="www"){
-                temp[i] = temp[i].substring(4);
+        if(singleSoftLock.length>0){
+            // temporary eliminate "www" and sort
+            var temp = singleSoftLock.slice(0);
+            for(i=0;i<temp.length;i++){
+                if(temp[i].substring(0,3)=="www"){
+                    temp[i] = temp[i].substring(4);
+                }
             }
+            sortList(temp);
+            // create UI
+            for(i=0; i<temp.length;i++){
+                if(temp[i]!="") ul.append([
+                        '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                            '<button><p>X</p></button>',
+                            '<div>'+temp[i]+'</div>',
+                        '</li>'
+                    ].join("\n")
+                );
+            }
+            // create button function
+            var child = ul.children();
+            if(child && child.length>0) {
+                for (i = 0; i < child.length; i++) {
+                    $($(child[i]).children("button")).click(function(){
+                        var tar = $(this).siblings()[0].textContent;
+                        // send delete message
+                        chrome.runtime.sendMessage({deleteRule:"singleSoftLock::"+tar});
+                        // remove from local
+                        var index = singleSoftLock.indexOf(tar);
+                        singleSoftLock.splice(index,1);
+
+                        // disappear
+                        $($(this).parent()).fadeOut('fast');
+                    });
+                }
+            }
+            // high light current tab
+            getCurrentTabUrl(function(url){
+                url = cutOffHeadAndTail(url);
+                if(url.substring(0,3)=="www"){
+                    url = url.substring(4);
+                }
+                var child = $('#removeSoftListSingle').children();
+                if(child && child.length>0) {
+                    for (i = 0; i < child.length; i++) {
+                        var sib = $($(child[i]).children("button")).siblings()[0];
+                        if(sib.textContent==url){
+                            $(child[i]).css("background-color","yellow");
+                        }
+                    }
+                }
+            });
         }
-        sortList(temp);
-        // create UI
-        for(i=0; i<temp.length;i++){
-            if(temp[i]!="") ul.append([
+        else{
+            ul.append([
                     '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                        '<button><p>X</p></button>',
-                        '<div>'+temp[i]+'</div>',
+                    '<div style="text-align: center;width: 100%;">(empty)</div>',
                     '</li>'
                 ].join("\n")
             );
         }
-        // create button function
-        var child = ul.children();
-        if(child && child.length>0) {
-            for (i = 0; i < child.length; i++) {
-                $($(child[i]).children("button")).click(function(){
-                    var tar = $(this).siblings()[0].textContent;
-                    // send delete message
-                    chrome.runtime.sendMessage({deleteRule:"singleSoftLock::"+tar});
-                    // remove from local
-                    var index = singleSoftLock.indexOf(tar);
-                    singleSoftLock.splice(index,1);
-
-                    // disappear
-                    $($(this).parent()).fadeOut('fast');
-                });
-            }
-        }
-        // high light current tab
-        getCurrentTabUrl(function(url){
-            url = cutOffHeadAndTail(url);
-            if(url.substring(0,3)=="www"){
-                url = url.substring(4);
-            }
-            var child = $('#removeSoftListSingle').children();
-            if(child && child.length>0) {
-                for (i = 0; i < child.length; i++) {
-                    var sib = $($(child[i]).children("button")).siblings()[0];
-                    if(sib.textContent==url){
-                        $(child[i]).css("background-color","yellow");
-                    }
-                }
-            }
-        });
 
         ul = $('#removeSoftListDomain');
-        // temporary eliminate "www" and sort
-        temp = softLockList.slice(0);
-        for(i=0;i<temp.length;i++){
-            if(temp[i].substring(0,3)=="www"){
-                temp[i] = temp[i].substring(4);
+        if(softLockList.length>0) {
+            // temporary eliminate "www" and sort
+            temp = softLockList.slice(0);
+            for (i = 0; i < temp.length; i++) {
+                if (temp[i].substring(0, 3) == "www") {
+                    temp[i] = temp[i].substring(4);
+                }
             }
-        }
-        sortList(temp);
-        //create UI
-        for(i=0; i<temp.length;i++){
-            if(temp[i]!="") ul.append([
-                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+            sortList(temp);
+            //create UI
+            for (i = 0; i < temp.length; i++) {
+                if (temp[i] != "") ul.append([
+                        '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
                         '<button><p>X</p></button>',
-                        '<div>'+temp[i]+'</div>',
+                        '<div>' + temp[i] + '</div>',
+                        '</li>'
+                    ].join("\n")
+                );
+            }
+            // create button function
+            child = ul.children();
+            if (child && child.length > 0) {
+                for (i = 0; i < child.length; i++) {
+                    $($(child[i]).children("button")).click(function () {
+                        var tar = $(this).siblings()[0].textContent;
+                        // send delete message
+                        chrome.runtime.sendMessage({deleteRule: "softLockList::" + tar});
+                        // remove from local
+                        var index = softLockList.indexOf(tar);
+                        softLockList.splice(index, 1);
+
+                        // disappear
+                        $($(this).parent()).fadeOut('fast');
+                    });
+                }
+            }
+            // high light current tab
+            getCurrentTabUrl(function (url) {
+                url = cutOffHeadAndTail(url);
+                if (url.substring(0, 3) == "www") {
+                    url = url.substring(4);
+                }
+                // get base domain
+                var temp;
+                while ((temp = clearLast(url)) != "") {
+                    url = temp;
+                }
+                var child = $('#removeSoftListDomain').children();
+                if (child && child.length > 0) {
+                    for (i = 0; i < child.length; i++) {
+                        var sib = $($(child[i]).children("button")).siblings()[0];
+                        if (sib.textContent == url) {
+                            $(child[i]).css("background-color", "yellow");
+                        }
+                    }
+                }
+            });
+        }
+        else{
+            ul.append([
+                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+                    '<div style="text-align: center;width: 100%;">(empty)</div>',
                     '</li>'
                 ].join("\n")
             );
         }
-        // create button function
-        child = ul.children();
-        if(child && child.length>0) {
-            for (i = 0; i < child.length; i++) {
-                $($(child[i]).children("button")).click(function(){
-                    var tar = $(this).siblings()[0].textContent;
-                    // send delete message
-                    chrome.runtime.sendMessage({deleteRule:"softLockList::"+tar});
-                    // remove from local
-                    var index = softLockList.indexOf(tar);
-                    softLockList.splice(index,1);
-
-                    // disappear
-                    $($(this).parent()).fadeOut('fast');
-                });
-            }
-        }
-        // high light current tab
-        getCurrentTabUrl(function(url){
-            url = cutOffHeadAndTail(url);
-            if(url.substring(0,3)=="www"){
-                url = url.substring(4);
-            }
-            // get base domain
-            var temp;
-            while( (temp = clearLast(url))!=""){
-                url = temp;
-            }
-            var child = $('#removeSoftListDomain').children();
-            if(child && child.length>0) {
-                for (i = 0; i < child.length; i++) {
-                    var sib = $($(child[i]).children("button")).siblings()[0];
-                    if(sib.textContent==url){
-                        $(child[i]).css("background-color","yellow");
-                    }
-                }
-            }
-        });
     });
     // document.getElementById("removeFromHard").addEventListener("click", function(){
     //     moveRightTo("#addToListType","#removeHard");
