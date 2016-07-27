@@ -135,6 +135,8 @@ function loadCloseButton() {
     });
 }
 
+var chartMode = 0;
+var chartMode1OptionRec = 0;
 
 function loadButtons() {
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
@@ -172,6 +174,76 @@ function loadButtons() {
 
                 // draw chart
                 drawChart(0);
+                $('#statisticsForEachWebsiteOption0').prop('checked',true);
+                $('#statisticsForEachWebsiteOption0').change(function(){
+                    if(this.checked){
+                        chartMode = 0;
+                        chartMode1OptionRec = 0;
+                        $($('#statisticsForEachWebsiteOptions').children()).prop('checked',false);
+                        $('#statisticsForEachWebsiteOption0').prop('checked',true);
+                        var me = $("#statistics");
+                        $('#chartArea').remove();
+                        me.append(
+                            '<canvas id="chartArea" width="225" height="160"></canvas>'
+                        );
+                        drawChart(0);
+                    }
+                });
+                $('#statisticsForEachWebsiteOption1').change(function(){
+                    if(this.checked){
+                        chartMode = 10;
+                        chartMode1OptionRec = 1;
+                        $($('#statisticsForEachWebsiteOptions').children()).prop('checked',false);
+                        $('#statisticsForEachWebsiteOption1').prop('checked',true);
+                        var me = $("#statistics");
+                        $('#chartArea').remove();
+                        me.append(
+                            '<canvas id="chartArea" width="225" height="160"></canvas>'
+                        );
+                        drawChart(10);
+                    }
+                });
+                $('#statisticsForEachWebsiteOption2').change(function(){
+                    if(this.checked){
+                        chartMode = 20;
+                        chartMode1OptionRec = 2;
+                        $($('#statisticsForEachWebsiteOptions').children()).prop('checked',false);
+                        $('#statisticsForEachWebsiteOption2').prop('checked',true);
+                        var me = $("#statistics");
+                        $('#chartArea').remove();
+                        me.append(
+                            '<canvas id="chartArea" width="225" height="160"></canvas>'
+                        );
+                        drawChart(20);
+                    }
+                });
+
+
+                // create chart mode buttons
+                $('#statisticsForEachWebsite').click(function(){
+                    if(chartMode==0 || chartMode==10 || chartMode==20) return;
+                    chartMode = chartMode1OptionRec*10;
+                    $('#statisticsForEachWebsiteOptions').fadeIn('fast');
+                    $($('#statisticsForEachWebsiteOptions').children()).prop('checked',false);
+                    $('#statisticsForEachWebsiteOption'+chartMode1OptionRec).prop('checked',true);
+                    var me = $("#statistics");
+                    $('#chartArea').remove();
+                    me.append(
+                        '<canvas id="chartArea" width="225" height="160"></canvas>'
+                    );
+                    drawChart(chartMode1OptionRec*10);
+                });
+                $('#statisticsForPast7Days').click(function(){
+                    if(chartMode==1) return;
+                    chartMode = 1;
+                    $('#statisticsForEachWebsiteOptions').fadeOut('fast');
+                    var me = $("#statistics");
+                    $('#chartArea').remove();
+                    me.append(
+                        '<canvas id="chartArea" width="225" height="160"></canvas>'
+                    );
+                    drawChart(1);
+                });
 
                 moveRightTo("#addToListType","#statistics");
 
@@ -194,8 +266,8 @@ function loadButtons() {
                 if(response==undefined || response.block==undefined)
                     $(document.getElementById("isInList")).text(" error");
                 if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
-                else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
-                else if(response.block=="soft") $(document.getElementById("isInList")).text(" soft block");
+                // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
+                else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
                 else if(response.block=="none") $(document.getElementById("isInList")).text(" not set");
             });
         });
@@ -239,7 +311,7 @@ function loadButtons() {
             var me = $("#statistics");
             $('#chartArea').remove();
             me.append(
-                '<canvas id="chartArea" width="225" height="195" style="margin-top:2px;"></canvas>'
+                '<canvas id="chartArea" width="225" height="160"></canvas>'
             );
 
         });
@@ -331,32 +403,25 @@ function getWhiteIndex(arr) {
  * implement 4 modes, draw three kinds of chart
  *
  * 0: default, show top N most used domain including white list
- * 1: show top N most used domain excludes white list
- * 2.
+ * 10: show top N most used domain excludes white list
+ *
+ * 1: past 7 days totalTime-Locked-white use time line
  *
  */
 function drawChart(mode){
 
-    var label, value, labelW, valueW;
-    var formattedTime;
-    var li, colors, borders=[], category=[];
-    var barDist, borderWidth;
+    var days = 7;
     var n=10;
-    var i;
+    var li, i;
 
-    if(n<=10) {
-        borderWidth=3;
-        barDist = 0.8;
-    }
-    else if(n<15) {
-        borderWidth =1;
-        barDist = 0.9;
-    }
-    else {
-        borderWidth = 0;
-        barDist = 1;
-    }
+    // chart must use
+    var data, chartType, chartOption={};
+    // bar prop
+    var barDist, borderColors=[], borderWidth, timeValue, domainName=[], colors, listCategory=[], formattedTime;
+    // line prop
+    var lineLocked, lineWhite, lineTotal;
 
+    // mixed top N
     if(mode==0){
         // get fist N data
 
@@ -366,67 +431,98 @@ function drawChart(mode){
         li = [ t1 , t2 ];
         li = getFirstNInList(n,li);
 
-        value = li[0];
-        for(i=li[0].length;i<n;i++) value.push(0);
-        label = li[1];
-        for(i=li[1].length;i<n;i++) label.push(0);
+        timeValue = li[0];
+        for(i=li[0].length;i<n;i++) timeValue.push(0);
+        for(i=0;i<li[1].length;i++){
+            domainName.push(purifyUrl(li[1][i]));
+        }
+        for(i=li[1].length;i<n;i++) domainName.push(0);
 
         formattedTime =formattingTimeArr(li[0]);
         colors = generateNColor(n);
-        for(i=0;i<value.length;i++) borders.push("black");
+        for(i=0;i<timeValue.length;i++) borderColors.push("black");
 
         // remove color of domain in white List
-        var whiteIndex = getWhiteIndex(label);
+        var whiteIndex = getWhiteIndex(domainName);
         for(i=0;i<whiteIndex.length;i++){
             colors[whiteIndex[i]] = "grey";
         }
 
         // deal with category
-        for(i=0;i<value.length;i++){
-            category[i]="blocked";
+        for(i=0;i<timeValue.length;i++){
+            listCategory[i]="blocked";
         }
         for(i=0;i<whiteIndex.length;i++){
-            category[whiteIndex[i]] = "white";
+            listCategory[whiteIndex[i]] = "white list";
         }
     }
-    else if(mode==1){
+    // only listed top N
+    else if(mode==10){
 
         // get fist N data
         li = [ softTimeRecord , softLockList ];
         li = getFirstNInList(n,li);
 
-        value = li[0];
-        label = li[1];
+        timeValue = li[0];
+        for(i=0;i<li[1].length;i++){
+            domainName.push(purifyUrl(li[1][i]));
+        }
+        for(i=li[1].length;i<n;i++) domainName.push(0);
 
         formattedTime =formattingTimeArr(li[0]);
         colors = generateNColor(n);
-        for(i=0;i<value.length;i++) borders.push("black");
+        for(i=0;i<timeValue.length;i++) borderColors.push("black");
 
     }
+    // only white top N
+    else if(mode==20){
 
-    var ctx = $('#chartArea');
+        // get fist N data
+        li = [ whiteTimeRecord , whiteList ];
+        li = getFirstNInList(n,li);
 
-    var data = {
-            labels: label,
-            datasets: [{
-                label: '# of Votes',
-                data: value,
-                backgroundColor: colors,
-                borderColor: borders,
-                borderWidth: borderWidth
-            }]
+        timeValue = li[0];
+        for(i=0;i<li[1].length;i++){
+            domainName.push(purifyUrl(li[1][i]));
+        }
+        for(i=li[1].length;i<n;i++) domainName.push(0);
 
-        };
+        formattedTime =formattingTimeArr(li[0]);
+        colors = generateNColor(n);
+        for(i=0;i<timeValue.length;i++) borderColors.push("black");
+    }
 
-    chart = new Chart(ctx,{
-        type: "bar",
-        data: data,
-        options: {
 
+    // past 7 days
+    else if(mode==1){
+        lineLocked = [1,3,5,NaN,5,3,1];
+        lineWhite = [3,5,7,5,3,1,2];
+        lineTotal = [6,12,18,17,10,8,4];
+    }
+
+
+    // mode 0 prepare
+    if(mode%10==0) {
+        chartType="bar";
+
+        // change border and bar dist types
+        if (n <= 10) {
+            borderWidth = 3;
+            barDist = 0.8;
+        }
+        else if (n < 15) {
+            borderWidth = 1;
+            barDist = 0.9;
+        }
+        else {
+            borderWidth = 0;
+            barDist = 1;
+        }
+
+        chartOption={
             legend: {
                 display: false
             },
-
             // hover pop up
             tooltips:{
                 callbacks:{
@@ -435,11 +531,10 @@ function drawChart(mode){
                         return formattedTime[index];
                     },
                     afterLabel : function(tooltipItem,data){
-                        return category[tooltipItem.index];
+                        return listCategory[tooltipItem.index];
                     }
                 }
             },
-
             scales: {
                 xAxes: [{
                     display: false,
@@ -451,7 +546,93 @@ function drawChart(mode){
             },
             defaultFontColor: '#000',
             responsive: false
+        };
+
+        data = {
+            labels: domainName,
+            datasets: [{
+                label: "time used: ",
+                data: timeValue,
+                backgroundColor: colors,
+                borderColor: borderColors,
+                borderWidth: borderWidth
+            }]
+
+        };
+    }
+    else if(mode==1){
+        chartType="line";
+
+        var pastNDays=[];
+        for(i=0;i<days;i++){
+            pastNDays[i] = i+'';
         }
+
+        var labelsLocked=[];
+        for(i=0;i<days;i++) labelsLocked.push("Locked");
+        var labelsWhite=[];
+        for(i=0;i<days;i++) labelsWhite.push("White");
+        var labelsTotal=[];
+        for(i=0;i<days;i++) labelsTotal.push("Total");
+
+        data = {
+            labels: pastNDays,
+            datasets: [{
+                label: 'Locked',
+                data: lineLocked,
+                backgroundColor: 'rgba(255,0,0,0.7)',
+                borderColor: 'black',
+                borderWidth: 2,
+                lineTension: 0,
+                spanGaps: true
+            },{
+                label: 'White',
+                data: lineWhite,
+                backgroundColor: 'rgba(255,255,255,0.7)',
+                borderColor: 'black',
+                borderWidth: 2,
+                lineTension: 0,
+                spanGaps: true
+            },{
+                label: 'Total',
+                data: lineTotal,
+                backgroundColor: 'rgba(255,255,0,0.7)',
+                borderColor: 'black',
+                borderWidth: 2,
+                lineTension: 0,
+                spanGaps: true
+            }]
+
+        };
+
+        chartOption= {
+            legend: {
+                display: false
+            },
+            scales: {
+                xAxes: [{
+                    ticks: {
+                        display: false,
+                        padding: 100
+                    }
+                }],
+                yAxes: [{
+                    // display: false
+                    ticks: {
+                        display: false
+                    }
+                }]
+            }
+        };
+    }
+
+
+    var ctx = $('#chartArea');
+
+    chart = new Chart(ctx,{
+        type: chartType,
+        data: data,
+        options: chartOption
     });
 }
 
@@ -581,9 +762,9 @@ function loadTopCol(){
             if(response==undefined || response.block==undefined)
                 $(document.getElementById("isInList")).text(" error");
             if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
-            else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
-            else if(response.block=="soft") $(document.getElementById("isInList")).text(" soft block");
-            else if(response.block=="none") $(document.getElementById("isInList")).text(" not set");
+            // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
+            else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
+            else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
         });
     });
 }
@@ -1139,7 +1320,7 @@ function addSinglePageToSoftLockList(){
         }
 
         singleSoftLock.push(url);
-        $(document.getElementById("isInList")).text(" soft block");
+        $(document.getElementById("isInList")).text(" Locked");
 
         saveFile(function(){
             getCurrentTab(function(tab){
@@ -1173,7 +1354,7 @@ function addBaseDomainToSoftLockList(){
         }
 
         softLockList.push(url);
-        $(document.getElementById("isInList")).text(" soft block");
+        $(document.getElementById("isInList")).text(" Locked");
 
         saveFile(function(){
             getCurrentTab(function(tab){
@@ -1201,7 +1382,7 @@ function addSubDomainToSoftLockList(rawUrl){
     }
 
     softLockList.push(url);
-    $(document.getElementById("isInList")).text(" soft block");
+    $(document.getElementById("isInList")).text(" Locked");
 
     saveFile(function(){
         getCurrentTab(function(tab){

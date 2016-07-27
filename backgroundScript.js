@@ -489,19 +489,15 @@ function  dealWithUrlMain(tab,callback) {
     });
 }
 
-// /**
-//  *  Fire on tab switch
-//  *
-//  *  Although check focus content script triggered, but it only store time slack between switching tab process
-//  *      i.e. 3~6 ms
-//  */
-// chrome.tabs.onActivated.addListener(function (tabId, windowId) {
-//     getCurrentTab(function(tab){
-//         dealWithUrlMain(tab,function(){
-//             doTimeRecord(tab);
-//         })
-//     });
-// });
+/**
+ *  Fire on tab switch
+ *
+ */
+chrome.tabs.onActivated.addListener(function (tabId, windowId) {
+    getCurrentTab(function(tab){
+        dealWithUrlMain(tab);
+    });
+});
 
 function doTimeRecord(tab,tabUrl){
 

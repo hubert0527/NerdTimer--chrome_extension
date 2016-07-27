@@ -38,7 +38,7 @@ hr{
     background-color: lightseagreen;
 }
 
-input {
+.mainPageInput {
     width: 180px;
     padding: 5px 10px;
     margin: 8px auto;
@@ -378,3 +378,11 @@ input:checked + .switchSlider:before {
   border-radius: 50%;
 }
 
+#statisticsForEachWebsiteOptions{
+    position: absolute;
+    padding: 5px;
+    right: 5%;
+    top: 30%;
+    border: 2px black solid;
+    border-radius: 10px;
+}

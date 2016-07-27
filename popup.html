@@ -35,8 +35,8 @@
         <div id="pageWrapper" style="height: 100%;margin-bottom: -25px;">
             <div id="topCol">
                 <div  style="width: 100%;">
-                    <h4 style="margin:0;font-size: 0.8em;">Your current domain is: </h4>
-                    <h2 id="currentDomain" style="margin:5px 0;text-align: right;"></h2>
+                    <h4 style="margin:0;font-size: 0.8em;">Your current website is: </h4>
+                    <h2 id="currentDomain" style="text-align: right;line-height: 27px;margin:5px 0;"></h2>
                     <h4 style="text-align:right;margin: 5px 0;font-size: 0.66em;">status:<span id="isInList" style="font-size: 1.8em;"></span></h4>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                         <div id="timerNotYetSet" style="display: none;margin-left: 20px;">
                             <div id="setNewTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.8em;">
                                 <p style="display: inline-block;margin:5px 0;">暫停</p>
-                                <input id="waitTime" style="display: inline-block;text-align: right;font-size: 0.9em;">
+                                <input id="waitTime" class="mainPageInput" style="display: inline-block;text-align: right;font-size: 0.9em;">
                                 <p style="display: inline-block;margin:5px 5px 5px 0;">分鐘</p>
                                 <!--<span style="font-size:0.3em;margin:5px 5px 5px 0;">(1~999)</span>-->
                                 <img id="startTimer" class="imgBtn" src="submit3.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
@@ -76,7 +76,7 @@
                     <div>
                         <h6 style="margin: 5px 0">留言板</h6>
                         <div style="margin-left: 20px;">
-                            <input id="mainMessageInput" type="text" placeholder="Leave a message">
+                            <input id="mainMessageInput" class="mainPageInput" type="text" placeholder="Leave a message">
                             <!--<button id="submitMainMessage" style="display:inline-block">submit</button>-->
                         </div>
                     </div>
@@ -91,7 +91,7 @@
                                 <!--<button id="closeButton" class="optionBtn" style="float: left;">停止鎖定</button>-->
                             <!--</div>-->
                             <label class="switchWrapper" style="margin-left: 20px;">
-                                <input id="switchBtn" type="checkbox">
+                                <input id="switchBtn" class="mainPageInput" type="checkbox">
                                 <div id="closeButton" class="switchSlider round slideAnimation"></div>
                             </label>
                         </div>
@@ -157,9 +157,9 @@
                     </div>
                     <div style="height: 180px;margin-top: 5px;">
                         <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
-                            <h4>[domain]</h4>
+                            <h4>[網站]</h4>
                             <ul id="removeWhiteListDomain"></ul>
-                            <h4>[single]</h4>
+                            <h4>[頁面]</h4>
                             <ul id="removeWhiteListSingle"></ul>
                         </div>
                     </div>
@@ -175,9 +175,9 @@
                     </div>
                     <div style="height: 180px;margin-top: 5px;">
                         <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
-                            <h4>[domain]</h4>
+                            <h4>[網站]</h4>
                             <ul id="removeSoftListDomain"></ul>
-                            <h4>[single]</h4>
+                            <h4>[頁面]</h4>
                             <ul id="removeSoftListSingle"></ul>
                         </div>
                     </div>
@@ -205,7 +205,19 @@
                             <p style="margin: 0;">紀錄</p>
                         </div>
                     </div>
-                    <canvas id="chartArea" width="225" height="195" style="margin-top:2px;"></canvas>
+                    <div style="height: 30px;width: 100%;margin-top: 7px;">
+                        <button id="statisticsForEachWebsite" class="optionBtn">網站統計</button>
+                        <button id="statisticsForPast7Days" class="optionBtn">過去七天</button>
+                        <button class="optionBtn">mode3</button>
+                    </div>
+                    <!-- if no child, will not appear  -->
+                    <div id="statisticsForEachWebsiteOptions">
+                        <input id="statisticsForEachWebsiteOption0" type="checkbox" name="value"> Mix<br>
+                        <input id="statisticsForEachWebsiteOption1" type="checkbox" name="value"> Locked<br>
+                        <input id="statisticsForEachWebsiteOption2" type="checkbox" name="value"> White<br>
+                    </div>
+                    <canvas id="chartArea" width="220" height="160"></canvas>
+
                 </div>
 
             </div>
