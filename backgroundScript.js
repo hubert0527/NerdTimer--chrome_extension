@@ -24,12 +24,8 @@ var needInit = true;
 
 var ignore = [
     "www",
-    "com",
-    "tw",
     "m",
-    "cn",
-    "us",
-    "jp"
+    "cn"
 ];
 
 var singleHardLock = [];
@@ -71,9 +67,9 @@ init();
 function purifyBlackAndWhite(callback){
     var i;
 
-    for(i=0;i<singleHardLock.length;i++){
-        singleHardLock[i] = cutOffHeadAndTail(singleHardLock[i]);
-    }
+    // for(i=0;i<singleHardLock.length;i++){
+    //     singleHardLock[i] = cutOffHeadAndTail(singleHardLock[i]);
+    // }
     for(i=0;i<singleSoftLock.length;i++){
         singleSoftLock[i] = cutOffHeadAndTail(singleSoftLock[i]);
     }
@@ -81,10 +77,10 @@ function purifyBlackAndWhite(callback){
         singleWhite[i] = cutOffHeadAndTail(singleWhite[i]);
     }
 
-    purifiedHardLock = new Array(hardLockList.length);
-    for(i=0;i<hardLockList.length;i++){
-        purifiedHardLock[i] = purifyUrl(hardLockList[i]);
-    }
+    // purifiedHardLock = new Array(hardLockList.length);
+    // for(i=0;i<hardLockList.length;i++){
+    //     purifiedHardLock[i] = purifyUrl(hardLockList[i]);
+    // }
     purifiedSoftLock = new Array(softLockList.length);
     for(i=0;i<softLockList.length;i++){
         purifiedSoftLock[i] = purifyUrl(softLockList[i]);
@@ -216,36 +212,36 @@ function dealingUrl(tab,callback){
 
         var isBad = checkBlock(purified,cutted);
 
-        console.log("block? " + isBad);
-        console.log("hardBlock: " + hardLockList.toString());
-        console.log("softBlock: " + softLockList.toString());
-        console.log("whites: " + whiteList.toString());
-
-        console.log("hardBlockSingle: " + singleHardLock.toString());
-        console.log("softBlockSingle: " + singleSoftLock.toString());
-        console.log("whitesSingle: " + singleWhite.toString());
+        // console.log("block? " + isBad);
+        // console.log("hardBlock: " + hardLockList.toString());
+        // console.log("softBlock: " + softLockList.toString());
+        // console.log("whites: " + whiteList.toString());
+        //
+        // console.log("hardBlockSingle: " + singleHardLock.toString());
+        // console.log("softBlockSingle: " + singleSoftLock.toString());
+        // console.log("whitesSingle: " + singleWhite.toString());
 
         if(isBad==1){
             chrome.tabs.sendMessage(tab.id, {block: "hard"}, function(response) {
-                console.log("send message to " + tab.url + " id = " + tab.id);
+                //console.log("send message to " + tab.url + " id = " + tab.id);
             });
         }
         else if(isBad==2){
 
             if(isWaitingTimer==true || isAppClosed==true){
                 chrome.tabs.sendMessage(tab.id, {block: "false"}, function(response) {
-                    console.log("send message to " + tab.url + " id = " + tab.id);
+                    //console.log("send message to " + tab.url + " id = " + tab.id);
                 });
                 return;
             }
 
             chrome.tabs.sendMessage(tab.id, {block: "soft"}, function(response) {
-                console.log("send message to " + tab.url + " id = " + tab.id);
+                //console.log("send message to " + tab.url + " id = " + tab.id);
             });
         }
         else{
             chrome.tabs.sendMessage(tab.id, {block: "false"}, function(response) {
-                console.log("send message to " + tab.url + " id = " + tab.id);
+                //console.log("send message to " + tab.url + " id = " + tab.id);
             });
         }
 
@@ -314,7 +310,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
      */
     else if(msg.getCurrentMainMessage!=undefined){
         sendResponse({mainMessage:mainMessage.toString()});
-        console.log("send main message : " + mainMessage.toString());
+        //console.log("send main message : " + mainMessage.toString());
     }
     else if(msg.checkIfInList){
         checkIfReload(function(needReload){
@@ -347,15 +343,17 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     else if(msg && msg.deleteRule){
         var sp = msg.deleteRule.split("::");
         var index;
+        purifyBlackAndWhite();
         if(sp[0]=="singleWhite"){
             index = singleWhite.indexOf(sp[1]);
             singleWhite.splice(index,1);
             saveFile(getCurrentTab(dealWithUrlMain));
         }
         else if(sp[0]=="whiteList"){
-            index = whiteList.indexOf(sp[1]);
+            index = purifiedWhite.indexOf(sp[1]);
             whiteList.splice(index,1);
             saveFile(getCurrentTab(dealWithUrlMain));
+            purifyBlackAndWhite();
         }
         else if(sp[0]=="singleSoftLock"){
             index = singleSoftLock.indexOf(sp[1]);
@@ -363,20 +361,21 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             saveFile(getCurrentTab(dealWithUrlMain));
         }
         else if(sp[0]=="softLockList"){
-            index = softLockList.indexOf(sp[1]);
+            index = purifiedSoftLock.indexOf(sp[1]);
             softLockList.splice(index,1);
             saveFile(getCurrentTab(dealWithUrlMain));
+            purifyBlackAndWhite();
         }
-        else if(sp[0]=="singleHardLock"){
-            index = singleHardLock.indexOf(sp[1]);
-            singleHardLock.splice(index,1);
-            saveFile(getCurrentTab(dealWithUrlMain));
-        }
-        else if(sp[0]=="hardLockList"){
-            index = hardLockList.indexOf(sp[1]);
-            hardLockList.splice(index,1);
-            saveFile(getCurrentTab(dealWithUrlMain));
-        }
+        // else if(sp[0]=="singleHardLock"){
+        //     index = singleHardLock.indexOf(sp[1]);
+        //     singleHardLock.splice(index,1);
+        //     saveFile(getCurrentTab(dealWithUrlMain));
+        // }
+        // else if(sp[0]=="hardLockList"){
+        //     index = hardLockList.indexOf(sp[1]);
+        //     hardLockList.splice(index,1);
+        //     saveFile(getCurrentTab(dealWithUrlMain));
+        // }
     }
     else if(msg && msg.timerSet){
         setTimer(msg.timerSet,function(){
@@ -409,6 +408,8 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             isAppClosed = true;
         }
     }
+        // only run this while user see chart
+        //   add time to current page cuz user will feel happy if they see the chart is moving
     else if(msg && msg.forceSaveFully){
         getCurrentTab(function(tab){
             doTimeRecord(tab);
@@ -424,6 +425,18 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         totalTimeRecord = 0;
         totalTimeRecordNew = 0;
         saveFileFully();
+    }
+    else if(msg && msg.leavePage){
+        doTimeRecord("tabUrl",msg.leavePage);
+        currentPage = "null";
+        sendResponse({none:"none"});
+
+    }
+    else if(msg && msg.resumePage){
+        // discard prev cuz user not using browser at that time
+        currentPageLoadTime = getCurrentTime();
+        currentPage = msg.resumePage;
+        sendResponse({none:"none"});
     }
 
     /**
@@ -476,21 +489,27 @@ function  dealWithUrlMain(tab,callback) {
     });
 }
 
-/**
- *  Fire on tab switch
- */
-chrome.tabs.onActivated.addListener(function (tabId, windowId) {
-    getCurrentTab(function(tab){
-        dealWithUrlMain(tab,function(){
-            doTimeRecord(tab);
-        })
-    });
-});
+// /**
+//  *  Fire on tab switch
+//  *
+//  *  Although check focus content script triggered, but it only store time slack between switching tab process
+//  *      i.e. 3~6 ms
+//  */
+// chrome.tabs.onActivated.addListener(function (tabId, windowId) {
+//     getCurrentTab(function(tab){
+//         dealWithUrlMain(tab,function(){
+//             doTimeRecord(tab);
+//         })
+//     });
+// });
 
-function doTimeRecord(tab){
+function doTimeRecord(tab,tabUrl){
 
     var url;
-    if(tab){
+    if(tab=="tabUrl"){
+        url = tabUrl;
+    }
+    else if(tab){
         url = tab.url;
     }
     else{
@@ -543,6 +562,9 @@ function getCurrentTime() {
     return date.getTime();
 }
 
+/**
+ * fire on browser close
+ */
 chrome.windows.onRemoved.addListener(function(){
     //saveCurrentTime(getCurrentTime());
     getCurrentTab(function (tab) {

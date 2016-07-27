@@ -1,11 +1,7 @@
 var ignore = [
     "www",
-    "com",
-    "tw",
     "m",
-    "cn",
-    "us",
-    "jp"
+    "cn"
 ];
 
 var chart;
@@ -174,9 +170,6 @@ function loadButtons() {
         chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
             loadFile(function(){
 
-                // get fist N data
-                var n = 10;
-                getFirstNInList(n);
                 // draw chart
                 drawChart(0);
 
@@ -207,7 +200,7 @@ function loadButtons() {
             });
         });
 
-        // refresh timer time if click 5min btn
+        // refresh timer time check if click 5min btn
         chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
             if(timer<=0 && parseInt(res.time)>0){
                 setPopupTimer(res.time);
@@ -253,19 +246,25 @@ function loadButtons() {
     });
 }
 
-var topWhiteValue = [];
-var topWhiteDomain = [];
-var topSoftValue = [];
-var topSoftDomain = [];
-
-function getFirstNInList(n) {
+/**
+ * parse N top from dual list and return a dual list
+ *
+ *  dual list is as form [ [value] , [domain] ]
+ *
+ * @param n
+ * @param li
+ */
+function getFirstNInList(n,li) {
     var i;
-    var dual,min;
+    var min;
     var temp = [];
-    for(i=0;i<whiteTimeRecord.length;i++){
-        dual = [whiteTimeRecord[i],whiteList[i]];
-        temp.push(dual);
+    var reD =[];
+    var reV = [];
+
+    for(i=0;i<li[0].length;i++){
+        temp[i] = [ li[0][i] , li[1][i] ];
     }
+
     temp.sort(function(aa,bb){
         if(aa[0]>bb[0]) return -1;
         else if (aa[0]<bb[0]) return 1;
@@ -275,94 +274,176 @@ function getFirstNInList(n) {
         }
     });
 
-    min = n < whiteTimeRecord.length ? n : whiteTimeRecord.length;
+    min = n < li[0].length ? n : li[0].length;
     for(i=0;i<min;i++){
-        topWhiteValue[i] = temp[i][0];
-        topWhiteDomain[i] = temp[i][1];
+        reV[i] = temp[i][0];
+        reD[i] = temp[i][1];
     }
 
-    temp = [];
+    return [reV,reD];
+}
 
-    for(i=0;i<softTimeRecord.length;i++){
-        dual = [softTimeRecord[i],softLockList[i]];
-        temp.push(dual);
+function formattingTimeArr(arr){
+    var i;
+    var re = [];
+    var sec, min, hr, day, month;
+    var temp;
+    for(i=0;i<arr.length;i++){
+        temp = arr[i];
+        temp = parseInt(temp/1000);
+        sec = temp%60;
+        temp = parseInt(temp/60);
+        min = temp%60;
+        temp = parseInt(temp/60);
+        hr = temp;
+
+        re[i] = hr+":"+min+":"+sec;
     }
-    temp.sort(function(aa,bb){
-        if(aa[0]>bb[0]) return -1;
-        else if (aa[0]<bb[0]) return 1;
-        else {
-            if(aa[1]>bb[1]) return 1;
-            else return -1;
+    return re;
+}
+
+function generateNColor(n){
+    var re = [];
+    var di = parseInt(120/n);
+    var degree;
+    for(var i=0;i<n;i++){
+        // r = 255 - di*i;
+        // g = di*i;
+        // if(r<0) r = 0;
+        // if(g>255) g=255;
+        degree = di*i;
+        re.push("hsl("+ degree +",100%,50%)");
+    }
+    return re;
+}
+
+function getWhiteIndex(arr) {
+    var re=[];
+    for(var i=0;i<arr.length;i++){
+        if(whiteList.indexOf(arr[i])!=-1){
+            re.push(i);
         }
-    });
-
-    min = n < softTimeRecord.length ? n : softTimeRecord.length;
-    for(i=0;i<min;i++){
-        topSoftValue[i] = temp[i][0];
-        topSoftDomain[i] = temp[i][1];
     }
-
+    return re;
 }
 
 /**
  * implement 4 modes, draw three kinds of chart
  *
- * 0: default, show top N most used domain excluding white list
- * 1: show top N most used domain including white list
+ * 0: default, show top N most used domain including white list
+ * 1: show top N most used domain excludes white list
  * 2.
  *
  */
 function drawChart(mode){
 
-    var label, value;
+    var label, value, labelW, valueW;
+    var formattedTime;
+    var li, colors, borders=[], category=[];
+    var barDist, borderWidth;
+    var n=10;
+    var i;
+
+    if(n<=10) {
+        borderWidth=3;
+        barDist = 0.8;
+    }
+    else if(n<15) {
+        borderWidth =1;
+        barDist = 0.9;
+    }
+    else {
+        borderWidth = 0;
+        barDist = 1;
+    }
 
     if(mode==0){
-        label = topSoftDomain;
-        value = topSoftValue;
+        // get fist N data
+
+        var t1 = softTimeRecord.concat(whiteTimeRecord);
+        var t2 = softLockList.concat(whiteList);
+
+        li = [ t1 , t2 ];
+        li = getFirstNInList(n,li);
+
+        value = li[0];
+        for(i=li[0].length;i<n;i++) value.push(0);
+        label = li[1];
+        for(i=li[1].length;i<n;i++) label.push(0);
+
+        formattedTime =formattingTimeArr(li[0]);
+        colors = generateNColor(n);
+        for(i=0;i<value.length;i++) borders.push("black");
+
+        // remove color of domain in white List
+        var whiteIndex = getWhiteIndex(label);
+        for(i=0;i<whiteIndex.length;i++){
+            colors[whiteIndex[i]] = "grey";
+        }
+
+        // deal with category
+        for(i=0;i<value.length;i++){
+            category[i]="blocked";
+        }
+        for(i=0;i<whiteIndex.length;i++){
+            category[whiteIndex[i]] = "white";
+        }
+    }
+    else if(mode==1){
+
+        // get fist N data
+        li = [ softTimeRecord , softLockList ];
+        li = getFirstNInList(n,li);
+
+        value = li[0];
+        label = li[1];
+
+        formattedTime =formattingTimeArr(li[0]);
+        colors = generateNColor(n);
+        for(i=0;i<value.length;i++) borders.push("black");
+
     }
 
     var ctx = $('#chartArea');
-    Chart.defaults.global.legend.display = false;
+
     var data = {
             labels: label,
             datasets: [{
                 label: '# of Votes',
                 data: value,
-                backgroundColor: [
-                    '#ff0300',
-                    '#ff5e03',
-                    '#ffc900',
-                    '#efff08',
-                    '#96ff08',
-                    '#04ff1f',
-                    '#00ffb4',
-                    '#00bcff',
-                    '#0058ff',
-                    '#1a00ff'
-                ],
-                borderColor: [
-                    'black',
-                    'black',
-                    'black',
-                    'black',
-                    'black',
-                    'black',
-                    'black',
-                    'black',
-                    'black',
-                    'black'
-                ],
-                borderWidth: 2
+                backgroundColor: colors,
+                borderColor: borders,
+                borderWidth: borderWidth
             }]
+
         };
 
     chart = new Chart(ctx,{
         type: "bar",
         data: data,
         options: {
+
+            legend: {
+                display: false
+            },
+
+            // hover pop up
+            tooltips:{
+                callbacks:{
+                    label : function(tooltipItem,data){
+                        var index = tooltipItem.index;
+                        return formattedTime[index];
+                    },
+                    afterLabel : function(tooltipItem,data){
+                        return category[tooltipItem.index];
+                    }
+                }
+            },
+
             scales: {
                 xAxes: [{
-                    display: false
+                    display: false,
+                    barPercentage: barDist
                 }],
                 yAxes: [{
                     display: false
@@ -370,7 +451,6 @@ function drawChart(mode){
             },
             defaultFontColor: '#000',
             responsive: false
-
         }
     });
 }
@@ -378,7 +458,7 @@ function drawChart(mode){
 function loadTimerBlock() {
     document.getElementById("startTimer").addEventListener("click",function(){
         if(timer>0) return;
-        var time = parseInt(document.getElementById("waitTime").value);
+        var time = parseInt(document.getElementById("waitTime").value)*60;
         if(time && time>0) {
             $("#timerNotYetSet").fadeOut("slow",function(){
                 $("#timerSet").fadeIn("slow");
@@ -394,7 +474,7 @@ function loadTimerBlock() {
         // press ENTER
         if(e.which==13){
             if(timer>0) return;
-            var time = parseInt(document.getElementById("waitTime").value);
+            var time = parseInt(document.getElementById("waitTime").value)*60;
             if(time && time>0) {
                 saveLastUsedTimer(time, function () {
                     chrome.runtime.sendMessage({timerSet: time});
@@ -470,10 +550,11 @@ function loadTopCol(){
         // find current domain
     getCurrentTabUrl(function (url) {
         // set domain
-        var pure = cutOffHeadAndTail(url);
-        if(pure.substring(0,3)=="www"){
-            pure = pure.substring(4);
-        }
+        // var pure = cutOffHeadAndTail(url);
+        // if(pure.substring(0,3)=="www"){
+        //     pure = pure.substring(4);
+        // }
+        var pure = purifyUrl(url);
         var res = pure.split("/");
         $(document.getElementById("currentDomain")).text(res[0]);
 
@@ -599,9 +680,10 @@ function createRemoveList(){
             // temporary eliminate "www" and sort
             var temp = singleWhite.slice(0);
             for(i=0;i<temp.length;i++){
-                if(temp[i].substring(0,3)=="www"){
-                    temp[i] = temp[i].substring(4);
-                }
+                // if(temp[i].substring(0,3)=="www"){
+                //     temp[i] = temp[i].substring(4);
+                // }
+                temp[i] = purifyUrl(temp[i]);
             }
             temp = sortList(temp);
             // create UI
@@ -633,10 +715,11 @@ function createRemoveList(){
             }
             // high light current tab
             getCurrentTabUrl(function(url){
-                url = cutOffHeadAndTail(url);
-                if(url.substring(0,3)=="www"){
-                    url = url.substring(4);
-                }
+                // url = cutOffHeadAndTail(url);
+                // if(url.substring(0,3)=="www"){
+                //     url = url.substring(4);
+                // }
+                url = purifyUrl(url);
                 var child = $('#removeWhiteListSingle').children();
                 if(child && child.length>0) {
                     for (i = 0; i < child.length; i++) {
@@ -663,9 +746,10 @@ function createRemoveList(){
             // temporary eliminate "www" and sort
             temp = whiteList.slice(0);
             for(i=0;i<temp.length;i++){
-                if(temp[i].substring(0,3)=="www"){
-                    temp[i] = temp[i].substring(4);
-                }
+                // if(temp[i].substring(0,3)=="www"){
+                //     temp[i] = temp[i].substring(4);
+                // }
+                temp[i] = purifyUrl(temp[i]);
             }
             temp = sortList(temp);
             //create UI
@@ -736,9 +820,10 @@ function createRemoveList(){
             // temporary eliminate "www" and sort
             var temp = singleSoftLock.slice(0);
             for(i=0;i<temp.length;i++){
-                if(temp[i].substring(0,3)=="www"){
-                    temp[i] = temp[i].substring(4);
-                }
+                // if(temp[i].substring(0,3)=="www"){
+                //     temp[i] = temp[i].substring(4);
+                // }
+                temp[i] = purifyUrl(temp[i]);
             }
             temp = sortList(temp);
             // create UI
@@ -770,10 +855,11 @@ function createRemoveList(){
             }
             // high light current tab
             getCurrentTabUrl(function(url){
-                url = cutOffHeadAndTail(url);
-                if(url.substring(0,3)=="www"){
-                    url = url.substring(4);
-                }
+                // url = cutOffHeadAndTail(url);
+                // if(url.substring(0,3)=="www"){
+                //     url = url.substring(4);
+                // }
+                url = purifyUrl(url);
                 var child = $('#removeSoftListSingle').children();
                 if(child && child.length>0) {
                     for (i = 0; i < child.length; i++) {
@@ -799,9 +885,10 @@ function createRemoveList(){
             // temporary eliminate "www" and sort
             temp = softLockList.slice(0);
             for (i = 0; i < temp.length; i++) {
-                if (temp[i].substring(0, 3) == "www") {
-                    temp[i] = temp[i].substring(4);
-                }
+                // if (temp[i].substring(0, 3) == "www") {
+                //     temp[i] = temp[i].substring(4);
+                // }
+                temp[i] = purifyUrl(temp[i]);
             }
             temp = sortList(temp);
             //create UI
@@ -833,10 +920,11 @@ function createRemoveList(){
             }
             // high light current tab
             getCurrentTabUrl(function (url) {
-                url = cutOffHeadAndTail(url);
-                if (url.substring(0, 3) == "www") {
-                    url = url.substring(4);
-                }
+                // url = cutOffHeadAndTail(url);
+                // if (url.substring(0, 3) == "www") {
+                //     url = url.substring(4);
+                // }
+                url = purifyUrl(url);
                 // get base domain
                 var temp;
                 while ((temp = clearLast(url)) != "") {
@@ -1051,6 +1139,7 @@ function addSinglePageToSoftLockList(){
         }
 
         singleSoftLock.push(url);
+        $(document.getElementById("isInList")).text(" soft block");
 
         saveFile(function(){
             getCurrentTab(function(tab){
@@ -1084,6 +1173,7 @@ function addBaseDomainToSoftLockList(){
         }
 
         softLockList.push(url);
+        $(document.getElementById("isInList")).text(" soft block");
 
         saveFile(function(){
             getCurrentTab(function(tab){
@@ -1111,6 +1201,7 @@ function addSubDomainToSoftLockList(rawUrl){
     }
 
     softLockList.push(url);
+    $(document.getElementById("isInList")).text(" soft block");
 
     saveFile(function(){
         getCurrentTab(function(tab){
@@ -1120,91 +1211,91 @@ function addSubDomainToSoftLockList(rawUrl){
 
 }
 
-function addSinglePageToHardLockList(){
-    getCurrentTabUrl(function(rawUrl){
-
-        var url = cutOffHeadAndTail(rawUrl);
-
-        // check if already exist
-        for(var i=0; i<singleSoftLock.length;i++){
-            if(singleSoftLock[i]==url) return;
-        }
-        for(var i=0; i<singleHardLock.length;i++){
-            if(singleHardLock[i]==url) return;
-        }
-        for(var i=0; i<singleWhite.length;i++){
-            if(singleWhite[i]==url) return;
-        }
-
-        singleHardLock.push(url);
-
-        saveFile(function(){
-            getCurrentTab(function(tab){
-                chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
-            });
-        });
-
-
-    });
-}
-
-function addBaseDomainToHardLockList(){
-    getCurrentTabUrl(function(rawUrl){
-
-        var url = cutOffHeadAndTail(rawUrl);
-
-        var temp;
-        while( (temp = clearLast(url))!=""){
-            url = temp;
-        }
-
-        // check if already exist
-        for(var i=0; i<softLockList.length;i++){
-            if(softLockList[i]==url) return;
-        }
-        for(var i=0; i<hardLockList.length;i++){
-            if(hardLockList[i]==url) return;
-        }
-        for(var i=0; i<whiteList.length;i++){
-            if(whiteList[i]==url) return;
-        }
-
-        hardLockList.push(url);
-
-        saveFile(function(){
-            getCurrentTab(function(tab){
-                chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
-            });
-        });
-
-
-    });
-}
-
-function addSubDomainToHardLockList(rawUrl){
-
-    var url = cutOffHeadAndTail(rawUrl);
-
-    // check if already exist
-    for(var i=0; i<softLockList.length;i++){
-        if(softLockList[i]==url) return;
-    }
-    for(var i=0; i<hardLockList.length;i++){
-        if(hardLockList[i]==url) return;
-    }
-    for(var i=0; i<whiteList.length;i++){
-        if(whiteList[i]==url) return;
-    }
-
-    hardLockList.push(url);
-
-    saveFile(function(){
-        getCurrentTab(function(tab){
-            chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
-        });
-    });
-
-}
+// function addSinglePageToHardLockList(){
+//     getCurrentTabUrl(function(rawUrl){
+//
+//         var url = cutOffHeadAndTail(rawUrl);
+//
+//         // check if already exist
+//         for(var i=0; i<singleSoftLock.length;i++){
+//             if(singleSoftLock[i]==url) return;
+//         }
+//         for(var i=0; i<singleHardLock.length;i++){
+//             if(singleHardLock[i]==url) return;
+//         }
+//         for(var i=0; i<singleWhite.length;i++){
+//             if(singleWhite[i]==url) return;
+//         }
+//
+//         singleHardLock.push(url);
+//
+//         saveFile(function(){
+//             getCurrentTab(function(tab){
+//                 chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
+//             });
+//         });
+//
+//
+//     });
+// }
+//
+// function addBaseDomainToHardLockList(){
+//     getCurrentTabUrl(function(rawUrl){
+//
+//         var url = cutOffHeadAndTail(rawUrl);
+//
+//         var temp;
+//         while( (temp = clearLast(url))!=""){
+//             url = temp;
+//         }
+//
+//         // check if already exist
+//         for(var i=0; i<softLockList.length;i++){
+//             if(softLockList[i]==url) return;
+//         }
+//         for(var i=0; i<hardLockList.length;i++){
+//             if(hardLockList[i]==url) return;
+//         }
+//         for(var i=0; i<whiteList.length;i++){
+//             if(whiteList[i]==url) return;
+//         }
+//
+//         hardLockList.push(url);
+//
+//         saveFile(function(){
+//             getCurrentTab(function(tab){
+//                 chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
+//             });
+//         });
+//
+//
+//     });
+// }
+//
+// function addSubDomainToHardLockList(rawUrl){
+//
+//     var url = cutOffHeadAndTail(rawUrl);
+//
+//     // check if already exist
+//     for(var i=0; i<softLockList.length;i++){
+//         if(softLockList[i]==url) return;
+//     }
+//     for(var i=0; i<hardLockList.length;i++){
+//         if(hardLockList[i]==url) return;
+//     }
+//     for(var i=0; i<whiteList.length;i++){
+//         if(whiteList[i]==url) return;
+//     }
+//
+//     hardLockList.push(url);
+//
+//     saveFile(function(){
+//         getCurrentTab(function(tab){
+//             chrome.tabs.sendMessage(tab.id,{blockListChange:"hard"});
+//         });
+//     });
+//
+// }
 
 function addSinglePageToWhiteList(){
     getCurrentTabUrl(function(rawUrl){
@@ -1223,6 +1314,7 @@ function addSinglePageToWhiteList(){
         }
 
         singleWhite.push(url);
+        $(document.getElementById("isInList")).text(" white list");
 
         saveFile(function(){
             getCurrentTab(function(tab){
@@ -1256,6 +1348,7 @@ function addBaseDomainToWhiteList(){
         }
 
         whiteList.push(url);
+        $(document.getElementById("isInList")).text(" white list");
 
         saveFile(function(){
             getCurrentTab(function(tab){
@@ -1283,6 +1376,7 @@ function addSubDomainToWhiteList(rawUrl){
     }
 
     whiteList.push(url);
+    $(document.getElementById("isInList")).text(" white list");
     
     saveFile(function(){
         getCurrentTab(function(tab){

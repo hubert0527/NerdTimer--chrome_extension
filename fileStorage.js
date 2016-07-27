@@ -326,6 +326,7 @@ function saveFileFully(callBack){
         }
         whiteTimeRecordNew[j] = 0;
     }
+    console.log("store : " + str);
     chrome.storage.local.set({'whiteListData': str},function(){
         str = "";
         for(j=0;j<hardLockList.length;j++) {
@@ -377,7 +378,8 @@ function saveFileFully(callBack){
                         chrome.storage.local.set({'singleHardLockData': str}, function () {
 
                             str = "";
-                            str = (totalTimeRecord+totalTimeRecordNew).toString();
+                            totalTimeRecord += totalTimeRecordNew;
+                            str = totalTimeRecord.toString();
                             totalTimeRecordNew = 0;
 
                             chrome.storage.local.set({'totalTimeRecord': str}, function () {

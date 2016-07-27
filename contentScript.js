@@ -149,3 +149,18 @@ function doSoftBlock(){
         //document.getElementById("main_message").textContent = "load!";
     });
 }
+
+
+// resume window
+window.addEventListener('focus', function() {
+    chrome.runtime.sendMessage({resumePage:window.location.href},function(){
+        console.log("resume to browser " + window.location.href + " at " + new Date());
+    });
+});
+
+// leave window
+window.addEventListener('blur', function() {
+    chrome.runtime.sendMessage({leavePage:window.location.href},function(){
+        console.log("leave browser " + window.location.href + " at " + new Date());
+    });
+});
