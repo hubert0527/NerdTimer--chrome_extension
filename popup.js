@@ -639,7 +639,7 @@ function drawChart(mode){
 function loadTimerBlock() {
     document.getElementById("startTimer").addEventListener("click",function(){
         if(timer>0) return;
-        var time = parseInt(document.getElementById("waitTime").value)*60;
+        var time = parseInt(document.getElementById("waitTime").value);
         if(time && time>0) {
             $("#timerNotYetSet").fadeOut("slow",function(){
                 $("#timerSet").fadeIn("slow");
@@ -655,7 +655,7 @@ function loadTimerBlock() {
         // press ENTER
         if(e.which==13){
             if(timer>0) return;
-            var time = parseInt(document.getElementById("waitTime").value)*60;
+            var time = parseInt(document.getElementById("waitTime").value);
             if(time && time>0) {
                 saveLastUsedTimer(time, function () {
                     chrome.runtime.sendMessage({timerSet: time});
@@ -781,6 +781,7 @@ function loadMainPageTimer(){
     // load last used timer
     loadLastUsedTimer(function(time){
         time = parseInt(time);
+        if(time>999) time=999;
         if(time) {
             document.getElementById("waitTime").value = time;
         }
@@ -804,7 +805,7 @@ function loadMainPageTimer(){
 
 function setPopupTimer(time){
 
-    timer = time;
+    timer = time*60;
     if(!timer || timer<=0) {
         document.getElementById("timeDisplay").textContent = "00:00:00";
         return;
@@ -835,7 +836,7 @@ function setPopupTimer(time){
 
         timer --;
         sec = (timer%60).toString();
-        min = (parseInt(timer/60)).toString();
+        min = (parseInt((timer/60)%60)).toString();
         hr = (parseInt((timer/3600))).toString();
         if(sec<10){
         sec = "0"+sec;
