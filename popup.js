@@ -28,6 +28,11 @@ var purifiedSoftLock;
 var purifiedHardLock;
 var purifiedWhite;
 
+var chartMode = 0;
+var chartMode0OptionRec = -1;
+var chartMode1OptionRec = -1;
+var chartMode2OptionRec = -1;
+
 /**
  * main thread, load almost everything except remove list
  */
@@ -135,8 +140,7 @@ function loadCloseButton() {
     });
 }
 
-var chartMode = 0;
-var chartMode1OptionRec = 0;
+var pastNDayTimerInst;
 
 function loadButtons() {
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
@@ -172,81 +176,78 @@ function loadButtons() {
         chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
             loadFile(function(){
 
-                // draw chart
-                drawChart(0);
-                $('#statisticsForEachWebsiteOption0').prop('checked',true);
-                $('#statisticsForEachWebsiteOption0').change(function(){
-                    if(this.checked){
-                        chartMode = 0;
-                        chartMode1OptionRec = 0;
-                        $($('#statisticsForEachWebsiteOptions').children()).prop('checked',false);
-                        $('#statisticsForEachWebsiteOption0').prop('checked',true);
-                        var me = $("#statistics");
-                        $('#chartArea').remove();
-                        me.append(
-                            '<canvas id="chartArea" width="225" height="160"></canvas>'
-                        );
-                        drawChart(0);
-                    }
-                });
-                $('#statisticsForEachWebsiteOption1').change(function(){
-                    if(this.checked){
-                        chartMode = 10;
-                        chartMode1OptionRec = 1;
-                        $($('#statisticsForEachWebsiteOptions').children()).prop('checked',false);
-                        $('#statisticsForEachWebsiteOption1').prop('checked',true);
-                        var me = $("#statistics");
-                        $('#chartArea').remove();
-                        me.append(
-                            '<canvas id="chartArea" width="225" height="160"></canvas>'
-                        );
-                        drawChart(10);
-                    }
-                });
-                $('#statisticsForEachWebsiteOption2').change(function(){
-                    if(this.checked){
-                        chartMode = 20;
-                        chartMode1OptionRec = 2;
-                        $($('#statisticsForEachWebsiteOptions').children()).prop('checked',false);
-                        $('#statisticsForEachWebsiteOption2').prop('checked',true);
-                        var me = $("#statistics");
-                        $('#chartArea').remove();
-                        me.append(
-                            '<canvas id="chartArea" width="225" height="160"></canvas>'
-                        );
-                        drawChart(20);
-                    }
-                });
+                // init
+                // force program to re load all components
+                chartMode = -1;
+                changeToMode(0);
 
-
-                // create chart mode buttons
+                // button for mode 0
                 $('#statisticsForEachWebsite').click(function(){
-                    if(chartMode==0 || chartMode==10 || chartMode==20) return;
-                    chartMode = chartMode1OptionRec*10;
-                    $('#statisticsForEachWebsiteOptions').fadeIn('fast');
-                    $($('#statisticsForEachWebsiteOptions').children()).prop('checked',false);
-                    $('#statisticsForEachWebsiteOption'+chartMode1OptionRec).prop('checked',true);
-                    var me = $("#statistics");
-                    $('#chartArea').remove();
-                    me.append(
-                        '<canvas id="chartArea" width="225" height="160"></canvas>'
-                    );
-                    drawChart(chartMode1OptionRec*10);
+                    if(chartMode!=0){
+                        clearInterval(pastNDayTimerInst);
+                        changeToMode(0);
+                    }
                 });
-                $('#statisticsForPast7Days').click(function(){
-                    if(chartMode==1) return;
-                    chartMode = 1;
-                    $('#statisticsForEachWebsiteOptions').fadeOut('fast');
-                    var me = $("#statistics");
-                    $('#chartArea').remove();
-                    me.append(
-                        '<canvas id="chartArea" width="225" height="160"></canvas>'
-                    );
-                    drawChart(1);
+
+                // button for mode 1
+                $('#statisticsPastNDays').click(function(){
+                    if(chartMode!=1){
+                        changeToMode(1);
+                    }
+                });
+
+                // button for mode 2
+                $('#statisticsUn').click(function(){
+                    if(chartMode!=2){
+                        clearInterval(pastNDayTimerInst);
+                        changeToMode(2);
+                    }
+                });
+
+                // create options for mode 0
+                $('#statisticsForEachWebsiteOptions').change(function(){
+                    if(this.value=="1"){
+                        changeToMode(10);
+                    }
+                    else if(this.value=="2"){
+                        changeToMode(20);
+                    }
+                    else if(this.value=="3"){
+                        changeToMode(30);
+                    }
+                });
+
+                // create options for mode 1
+                $('#statisticsPastNDaysInput').bind("input",function(){
+
+                    clearInterval(pastNDayTimerInst);
+
+                    var str = $(this).val();
+                    var lastChar = str.slice(-1);
+
+                    // not integer
+                    if(lastChar>'9' || lastChar<'0'){
+                        $(this).val( str.substring(0,str.length-1) );
+                        return;
+                    }
+                    else if(parseInt(str)>365){
+                        $(this).val( str.substring(0,str.length-1) );
+                    }
+                    else if(!parseInt(str)){
+                        $(this).val( str.substring(0,str.length-1) );
+                        return;
+                    }
+
+                    pastNDayTimerInst = setInterval(function(){
+                        // over 500ms no further input
+                        var day = parseInt($('#statisticsPastNDaysInput').val());
+                        changeToMode(day*10 + 1);
+
+                        clearInterval(pastNDayTimerInst);
+                    },500);
                 });
 
                 moveRightTo("#addToListType","#statistics");
-
 
             });
         });
@@ -319,6 +320,155 @@ function loadButtons() {
 }
 
 /**
+ * Notation: A + B , which B < 10
+ *
+ * A: options
+ *      0  :    if have prev value record, use that. Or, use init value.
+ *      1+ :    use this option
+ *
+ * B: mode
+ *      0: website top ranking mode
+ *      1: past N day flow
+ *
+ * @param changeToMode
+ */
+function changeToMode(changeToMode) {
+
+    var mode = changeToMode%10;
+    var option = Math.round(changeToMode/10);
+    var prevMode = chartMode%10;
+
+    // remove previous chart
+    $('#chartArea').remove();
+    $("#statistics").append('<canvas id="chartArea" width="225" height="160"></canvas>');
+
+
+    if(mode==0){
+        // run prev, or default
+        if(option==0) {
+            var selectBox = $('#statisticsForEachWebsiteOptions');
+            if(prevMode==1){
+                $('#statisticsPastNDaysBlock').fadeOut('fast',function(){selectBox.fadeIn('fast');});
+            }
+
+            // jump to target option if this chart was used before
+            if(chartMode0OptionRec!=-1) {
+                selectBox.val(chartMode0OptionRec.toString());
+            }
+            else{
+                selectBox.val('1');
+                chartMode0OptionRec = 1;
+            }
+            drawChart(chartMode0OptionRec*10);
+        }
+        else{
+            chartMode0OptionRec = option;
+            drawChart(changeToMode);
+        }
+    }
+    else if(mode==1){
+        // run prev, or default
+        if(option==0) {
+            var inputBox = $('#statisticsPastNDaysBlock');
+            if(prevMode==0){
+                $('#statisticsForEachWebsiteOptions').fadeOut('fast',function(){inputBox.fadeIn('fast');});
+            }
+
+            // jump to target option if this chart was used before
+            if(chartMode1OptionRec!=-1) {
+                inputBox.val(chartMode1OptionRec.toString());
+            }
+            else{
+                inputBox.val('7');
+                chartMode1OptionRec = 7;
+            }
+
+            drawChart(chartMode1OptionRec*10+1);
+        }
+        else{
+            chartMode1OptionRec = option;
+            drawChart(changeToMode);
+        }
+    }
+    else if(mode==2){
+        // run prev, or default
+        if(option==0) {
+
+        }
+        else{
+
+        }
+    }
+
+    chartMode = changeToMode;
+}
+
+/**
+ *
+ * type: 'white', 'locked'
+ *
+ * @param n
+ * @param pastNDays
+ */
+function getNDayData(n,pastNDays) {
+    // theoretically will listing date from oldest date to today
+    var pref = type+'-';
+    var reqStr;
+
+    for(var i=0;i<n;i++){
+        reqStr = pref+pastNDays[i];
+    }
+}
+
+function daysInMonth(month,year) {
+    // cuz month 0 is January in JS, this gets last month' last date
+    return new Date(year, month, 0).getDate();
+}
+
+function getPastNDays(n){
+
+    var i;
+    var re = [];
+
+    var today = new Date();
+    var year = today.getFullYear();
+    var month = today.getMonth()+1;
+    var date = today.getDate();
+    var dayCount, min;
+
+    var pref = year+'/'+month+'/';
+    for(i=n-1;i>=0;i--){
+        re.push(pref+(date-i));
+    }
+
+    // this month is enough
+    if(date>=n){
+        return re;
+    }
+
+    while(n>0){
+        if(month>1) month --;
+        else{
+            year --;
+            month = 12;
+        }
+
+        pref = year+'/'+month+'/';
+        dayCount = daysInMonth(month,year);
+
+        min = n > dayCount ? dayCount : n;
+        n -= min;
+
+        // if min is 1, means only require a day, which will only take the last day of month, so bound is 0
+        for(i=min-1;i>=0;i--){
+            re.push( pref+(dayCount-i) );
+        }
+    }
+
+    return re;
+}
+
+/**
  * parse N top from dual list and return a dual list
  *
  *  dual list is as form [ [value] , [domain] ]
@@ -376,7 +526,7 @@ function formattingTimeArr(arr){
 
 function generateNColor(n){
     var re = [];
-    var di = (120/n).toFixed();
+    var di = Math.round(120/n);
     var degree;
     for(var i=0;i<n;i++){
         // r = 255 - di*i;
@@ -408,10 +558,13 @@ function getWhiteIndex(arr) {
  * 1: past 7 days totalTime-Locked-white use time line
  *
  */
-function drawChart(mode){
+function drawChart(modeFull){
 
-    var days = 7;
+    var mode = modeFull%10;
+    var option = Math.round(modeFull/10);
+
     var n=10;
+    var days = option;
     var li, i;
 
     // chart must use
@@ -421,79 +574,83 @@ function drawChart(mode){
     // line prop
     var lineLocked, lineWhite, lineTotal;
 
-    // mixed top N
+
     if(mode==0){
-        // get fist N data
+        // mixed top N
+        if(option==1) {
+            // get fist N data
 
-        var t1 = softTimeRecord.concat(whiteTimeRecord);
-        var t2 = softLockList.concat(whiteList);
+            var t1 = softTimeRecord.concat(whiteTimeRecord);
+            var t2 = softLockList.concat(whiteList);
 
-        li = [ t1 , t2 ];
-        li = getFirstNInList(n,li);
+            li = [t1, t2];
+            li = getFirstNInList(n, li);
 
-        timeValue = li[0];
-        for(i=li[0].length;i<n;i++) timeValue.push(0);
-        for(i=0;i<li[1].length;i++){
-            domainName.push(purifyUrl(li[1][i]));
+            timeValue = li[0];
+            for (i = li[0].length; i < n; i++) timeValue.push(0);
+            for (i = 0; i < li[1].length; i++) {
+                domainName.push(purifyUrl(li[1][i]));
+            }
+            for (i = li[1].length; i < n; i++) domainName.push(0);
+
+            formattedTime = formattingTimeArr(li[0]);
+            colors = generateNColor(n);
+            for (i = 0; i < timeValue.length; i++) borderColors.push("black");
+
+            // remove color of domain in white List
+            var whiteIndex = getWhiteIndex(domainName);
+            for (i = 0; i < whiteIndex.length; i++) {
+                colors[whiteIndex[i]] = "grey";
+            }
+
+            // deal with category
+            for (i = 0; i < timeValue.length; i++) {
+                listCategory[i] = "blocked";
+            }
+            for (i = 0; i < whiteIndex.length; i++) {
+                listCategory[whiteIndex[i]] = "white list";
+            }
         }
-        for(i=li[1].length;i<n;i++) domainName.push(0);
 
-        formattedTime =formattingTimeArr(li[0]);
-        colors = generateNColor(n);
-        for(i=0;i<timeValue.length;i++) borderColors.push("black");
+        // only listed top N
+        else if(option==2){
 
-        // remove color of domain in white List
-        var whiteIndex = getWhiteIndex(domainName);
-        for(i=0;i<whiteIndex.length;i++){
-            colors[whiteIndex[i]] = "grey";
+            // get fist N data
+            li = [ softTimeRecord , softLockList ];
+            li = getFirstNInList(n,li);
+
+            timeValue = li[0];
+            for(i=0;i<li[1].length;i++){
+                domainName.push(purifyUrl(li[1][i]));
+            }
+            for(i=li[1].length;i<n;i++) domainName.push(0);
+
+            formattedTime =formattingTimeArr(li[0]);
+            colors = generateNColor(n);
+            for(i=0;i<timeValue.length;i++) borderColors.push("black");
+
         }
 
-        // deal with category
-        for(i=0;i<timeValue.length;i++){
-            listCategory[i]="blocked";
+        // only white top N
+        else if(option==3){
+
+            // get fist N data
+            li = [ whiteTimeRecord , whiteList ];
+            li = getFirstNInList(n,li);
+
+            timeValue = li[0];
+            for(i=0;i<li[1].length;i++){
+                domainName.push(purifyUrl(li[1][i]));
+            }
+            for(i=li[1].length;i<n;i++) domainName.push(0);
+
+            formattedTime =formattingTimeArr(li[0]);
+            colors = generateNColor(n);
+            for(i=0;i<timeValue.length;i++) borderColors.push("black");
         }
-        for(i=0;i<whiteIndex.length;i++){
-            listCategory[whiteIndex[i]] = "white list";
-        }
+
     }
-    // only listed top N
-    else if(mode==10){
-
-        // get fist N data
-        li = [ softTimeRecord , softLockList ];
-        li = getFirstNInList(n,li);
-
-        timeValue = li[0];
-        for(i=0;i<li[1].length;i++){
-            domainName.push(purifyUrl(li[1][i]));
-        }
-        for(i=li[1].length;i<n;i++) domainName.push(0);
-
-        formattedTime =formattingTimeArr(li[0]);
-        colors = generateNColor(n);
-        for(i=0;i<timeValue.length;i++) borderColors.push("black");
-
-    }
-    // only white top N
-    else if(mode==20){
-
-        // get fist N data
-        li = [ whiteTimeRecord , whiteList ];
-        li = getFirstNInList(n,li);
-
-        timeValue = li[0];
-        for(i=0;i<li[1].length;i++){
-            domainName.push(purifyUrl(li[1][i]));
-        }
-        for(i=li[1].length;i<n;i++) domainName.push(0);
-
-        formattedTime =formattingTimeArr(li[0]);
-        colors = generateNColor(n);
-        for(i=0;i<timeValue.length;i++) borderColors.push("black");
-    }
-
-
-    // past 7 days
+    // past N days
     else if(mode==1){
         lineLocked = [1,3,5,NaN,5,3,1];
         lineWhite = [3,5,7,5,3,1,2];
@@ -502,7 +659,7 @@ function drawChart(mode){
 
 
     // mode 0 prepare
-    if(mode%10==0) {
+    if(mode==0) {
         chartType="bar";
 
         // change border and bar dist types
@@ -563,10 +720,7 @@ function drawChart(mode){
     else if(mode==1){
         chartType="line";
 
-        var pastNDays=[];
-        for(i=0;i<days;i++){
-            pastNDays[i] = i+'';
-        }
+        var pastNDays=getPastNDays(days);
 
         var labelsLocked=[];
         for(i=0;i<days;i++) labelsLocked.push("Locked");

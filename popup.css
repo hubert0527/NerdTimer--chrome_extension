@@ -379,10 +379,28 @@ input:checked + .switchSlider:before {
 }
 
 #statisticsForEachWebsiteOptions{
-    position: absolute;
-    padding: 5px;
-    right: 5%;
-    top: 30%;
+    display: none;
+    float: right;
+    width: 70px;
+    height: 24px;
+    font-size: 0.8em;
+    padding: 2px;
     border: 2px black solid;
-    border-radius: 10px;
+    border-radius: 5px;
+}
+#statisticsForEachWebsiteOptions option{
+    font-size: 1.1em;
+}
+
+#statisticsPastNDaysBlock{
+    display: none;
+    float: right;
+    width: 70px;
+    height: 24px;
+    font-size: 0.8em;
+    border-radius: 5px;
+}
+
+#statisticsPastNDaysBlock input{
+    width: 70px;
 }

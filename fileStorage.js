@@ -45,10 +45,33 @@ function loadBlocker(callback){
     });
 }
 
+
+/**
+ * check if after last reload, whether the list has been saved and need another reload
+ * @param callBack
+ */
+function checkIfReload(callBack){
+
+    var needReload;
+
+    chrome.storage.local.get("needReload",function(data) {
+        var needReload = data.needReload;
+
+        chrome.storage.local.set({"needReload": false},function(){
+            isCheckingReload = false;
+        });
+
+        if(callBack) callBack(needReload);
+    });
+
+}
+
+
 function saveFile(callBack){
     // save lists
     var i,j;
     var str;
+    var storeData = {};
 
     str = "";
     for(j=0;j<whiteList.length;j++) {
@@ -57,33 +80,34 @@ function saveFile(callBack){
             str+= ("::"+whiteList[j] +"||"+whiteTimeRecord[j]);
         }
     }
-    chrome.storage.local.set({'whiteListData': str},function(){
-        str = "";
-        for(j=0;j<hardLockList.length;j++) {
-            if(str=="") str = hardLockList[j];
-            else{
-                str+= ("::"+hardLockList[j]);
-            }
+    storeData['whiteListData'] = str;
+
+    // str = "";
+    // for(j=0;j<hardLockList.length;j++) {
+    //     if(str=="") str = hardLockList[j];
+    //     else{
+    //         str+= ("::"+hardLockList[j]);
+    //     }
+    // }
+    // storeData['hardLockListData'] = str;
+
+    str = "";
+    for(j=0;j<softLockList.length;j++) {
+        if(str=="") str = softLockList[j] +"||"+softTimeRecord[j];
+        else{
+            str+= ("::"+softLockList[j] +"||"+softTimeRecord[j]);
         }
-        chrome.storage.local.set({'hardLockListData': str},function(){
+    }
+    storeData['softLockListData'] = str;
 
-            str = "";
-            for(j=0;j<softLockList.length;j++) {
-                if(str=="") str = softLockList[j] +"||"+softTimeRecord[j];
-                else{
-                    str+= ("::"+softLockList[j] +"||"+softTimeRecord[j]);
-                }
-            }
-            chrome.storage.local.set({'softLockListData': str},function() {
-
-                str = "";
-                for (j = 0; j < singleWhite.length; j++) {
-                    if (str == "") str = singleWhite[j];
-                    else {
-                        str += ("::" + singleWhite[j]);
-                    }
-                }
-                chrome.storage.local.set({'singleWhiteData': str}, function () {
+    str = "";
+    for (j = 0; j < singleWhite.length; j++) {
+        if (str == "") str = singleWhite[j];
+        else {
+            str += ("::" + singleWhite[j]);
+        }
+    }
+    storeData['singleWhiteData'] = str;
 
                     str = "";
                     for (j = 0; j < singleSoftLock.length; j++) {
@@ -92,28 +116,21 @@ function saveFile(callBack){
                             str += ("::" + singleSoftLock[j]);
                         }
                     }
-                    chrome.storage.local.set({'singleSoftLockData': str}, function () {
+    storeData['singleSoftLockData'] = str;
 
-                        str = "";
-                        for (j = 0; j < singleHardLock.length; j++) {
-                            if (str == "") str = singleHardLock[j];
-                            else {
-                                str += ("::" + singleHardLock[j]);
-                            }
-                        }
-                        chrome.storage.local.set({'singleHardLockData': str}, function () {
-                            chrome.storage.local.set({'needReload': true}, function () {
-                                if (callBack != undefined) callBack();
-                            });
-                        });
+    str = "";
+    for (j = 0; j < singleHardLock.length; j++) {
+        if (str == "") str = singleHardLock[j];
+        else {
+            str += ("::" + singleHardLock[j]);
+        }
+    }
+    storeData['singleHardLockData'] = str;
 
-                    });
+    storeData['needReload'] = true;
 
-                });
-            });
-
-        });
-
+    chrome.storage.local.set(storeData, function () {
+        if (callBack != undefined) callBack();
     });
 
 }
@@ -122,7 +139,16 @@ function saveFile(callBack){
 function loadFile(callBack,tab,callback2){
     // get list
     var i, sp2;
-    chrome.storage.local.get("whiteListData",function(data){
+
+    var requestArr = [
+        "whiteListData",
+        "softLockListData",
+        "singleSoftLockData",
+        "singleWhiteData",
+        "totalTimeRecord"
+    ];
+
+    chrome.storage.local.get(requestArr,function(data){
         var str = data.whiteListData;
         whiteList = [];
         whiteTimeRecord = [];
@@ -143,102 +169,89 @@ function loadFile(callBack,tab,callback2){
             }
         }
 
-        // load block
-        chrome.storage.local.get("hardLockListData",function(data){
-            var str = data.hardLockListData;
-            hardLockList = [];
-            if(str!=undefined && str!="") {
-                sp = [];
-                sp = str.split("::");
-                for (i = 0; i < sp.length; i++) {
-                    hardLockList.push(sp[i]);
+        // str = data.hardLockListData;
+        // hardLockList = [];
+        // if(str!=undefined && str!="") {
+        //     sp = [];
+        //     sp = str.split("::");
+        //     for (i = 0; i < sp.length; i++) {
+        //         hardLockList.push(sp[i]);
+        //     }
+        // }
+
+        str = data.softLockListData;
+        softLockList = [];
+        softTimeRecord = [];
+        if (str != undefined && str!="") {
+            sp = [];
+            sp = str.split("::");
+            for (i = 0; i < sp.length; i++) {
+                // split for time record
+                sp2 = sp[i].split("||");
+                softLockList.push(sp2[0]);
+                sp2[1] = parseInt(sp2[1]);
+                if(sp2[1]){
+                    softTimeRecord.push(sp2[1]);
+                }
+                else{
+                    softTimeRecord.push(0);
                 }
             }
-            chrome.storage.local.get("softLockListData",function(data) {
-                var str = data.softLockListData;
-                softLockList = [];
-                softTimeRecord = [];
-                if (str != undefined && str!="") {
-                    sp = [];
-                    sp = str.split("::");
-                    for (i = 0; i < sp.length; i++) {
-                        // split for time record
-                        sp2 = sp[i].split("||");
-                        softLockList.push(sp2[0]);
-                        sp2[1] = parseInt(sp2[1]);
-                        if(sp2[1]){
-                            softTimeRecord.push(sp2[1]);
-                        }
-                        else{
-                            softTimeRecord.push(0);
-                        }
-                    }
-                }
+        }
 
 
-                // purify just read lists
-                purifiedSoftLock = [];
-                for (i = 0; i < softLockList.length; i++) {
-                    purifiedSoftLock.push(purifyUrl(softLockList[i]));
-                }
-                purifiedHardLock = [];
-                for (i = 0; i < hardLockList.length; i++) {
-                    purifiedHardLock.push(purifyUrl(hardLockList[i]));
-                }
+        // purify just read lists
+        purifiedSoftLock = [];
+        for (i = 0; i < softLockList.length; i++) {
+            purifiedSoftLock.push(purifyUrl(softLockList[i]));
+        }
+        purifiedHardLock = [];
+        for (i = 0; i < hardLockList.length; i++) {
+            purifiedHardLock.push(purifyUrl(hardLockList[i]));
+        }
 
-                purifiedWhite = [];
-                for (i = 0; i < whiteList.length; i++) {
-                    purifiedWhite.push(purifyUrl(whiteList[i]));
-                }
+        purifiedWhite = [];
+        for (i = 0; i < whiteList.length; i++) {
+            purifiedWhite.push(purifyUrl(whiteList[i]));
+        }
 
-                chrome.storage.local.get("singleSoftLockData", function (data) {
-                    var str = data.singleSoftLockData;
-                    singleSoftLock = [];
-                    if (str != undefined && str!="") {
-                        var spsb = str.split("::");
-                        for (i = 0; i < spsb.length; i++) {
-                            singleSoftLock.push(spsb[i]);
-                        }
-                    }
-                    chrome.storage.local.get("singleHardLockData", function (data) {
-                        var str = data.singleHardLockData;
-                        singleHardLock = [];
-                        if (str != undefined && str!="") {
-                            var spsb = str.split("::");
-                            for (i = 0; i < spsb.length; i++) {
-                                singleHardLock.push(spsb[i]);
-                            }
-                        }
-                        chrome.storage.local.get("singleWhiteData", function (data) {
-                            var str = data.singleWhiteData;
-                            singleWhite = [];
-                            if (str != undefined && str!="") {
-                                var spsw = str.split("::");
-                                for (i = 0; i < spsw.length; i++) {
-                                    singleWhite.push(spsw[i]);
-                                }
-                            }
+        str = data.singleSoftLockData;
+        singleSoftLock = [];
+        if (str != undefined && str!="") {
+            var spsb = str.split("::");
+            for (i = 0; i < spsb.length; i++) {
+                singleSoftLock.push(spsb[i]);
+            }
+        }
 
-                            chrome.storage.local.get("singleWhiteData", function (data) {
+        // str = data.singleHardLockData;
+        // singleHardLock = [];
+        // if (str != undefined && str!="") {
+        //     var spsb = str.split("::");
+        //     for (i = 0; i < spsb.length; i++) {
+        //         singleHardLock.push(spsb[i]);
+        //     }
+        // }
 
-                                var p = parseInt(data.totalTimeRecord);
-                                if(p){
-                                    totalTimeRecord = p;
-                                }
-                                else{
-                                    totalTimeRecord = 0;
-                                }
+        str = data.singleWhiteData;
+        singleWhite = [];
+        if (str != undefined && str!="") {
+            var spsw = str.split("::");
+            for (i = 0; i < spsw.length; i++) {
+                singleWhite.push(spsw[i]);
+            }
+        }
 
-                                if (callBack && callback2) callBack(tab,callback2);
-                                else if (callBack) callBack(tab);
+        var p = parseInt(data.totalTimeRecord);
+        if(p){
+            totalTimeRecord = p;
+        }
+        else{
+            totalTimeRecord = 0;
+        }
 
-                            });
-                        });
-                    });
-                });
-            });
-
-        });
+        if (callBack && callback2) callBack(tab,callback2);
+        else if (callBack) callBack(tab);
 
     });
 
@@ -314,12 +327,17 @@ function loadFile(callBack,tab,callback2){
 function saveFileFully(callBack){
     // save lists
     var i,j;
-    var str;
+    var str,str2;
     var date = new Date();
     var formattedDate = date.getYear()+'/'+date.getMonth+'/'+date.getDate();
+    var storeDataArr={};
 
     str = "";
+    str2="";
+
+    // white and white time
     for(j=0;j<whiteList.length;j++) {
+        if(!whiteTimeRecord[j]) whiteTimeRecord[j] = 0;
         if(!whiteTimeRecordNew[j]) whiteTimeRecordNew[j] = 0;
         whiteTimeRecord[j] += whiteTimeRecordNew[j];
         if(str=="") str = whiteList[j] +"||"+whiteTimeRecord[j];
@@ -328,86 +346,92 @@ function saveFileFully(callBack){
         }
 
         // save to daily statistics
-        str="";
         todayWhiteTimeRecord[j]+=whiteTimeRecordNew[j];
-        if(str=="") str = whiteList[j]+'||'+todayWhiteTimeRecord[j];
-        else str+= '::'+whiteList[j]+'||'+todayWhiteTimeRecord[j];
+        if(str2=="") str2 = whiteList[j]+'||'+todayWhiteTimeRecord[j];
+        else str2+= '::'+whiteList[j]+'||'+todayWhiteTimeRecord[j];
         // no need to sync
-        chrome.storage.local.set({'whiteListData': str},function(){});
+        storeDataArr['white-'+formattedDate] = str2;
 
         whiteTimeRecordNew[j] = 0;
     }
-    //console.log("store : " + str);
-    chrome.storage.local.set({'whiteListData': str},function(){
-        str = "";
-        for(j=0;j<hardLockList.length;j++) {
-            if(str=="") str = hardLockList[j];
-            else{
-                str+= ("::"+hardLockList[j]);
-            }
+    if(storeDataArr!={}) chrome.storage.local.set(storeDataArr);
+    console.log("store : " + str);
+    storeDataArr['whiteListData'] = str;
+
+
+    // str = "";
+    // for(j=0;j<hardLockList.length;j++) {
+    //     if(str=="") str = hardLockList[j];
+    //     else{
+    //         str+= ("::"+hardLockList[j]);
+    //     }
+    // }
+    // storeDataArr['hardLockListData'] = str;
+
+    str = "";
+    str2="";
+    for(j=0;j<softLockList.length;j++) {
+        if(!softTimeRecord[j]) softTimeRecord[j] = 0;
+        if(!softTimeRecordNew[j]) softTimeRecordNew[j] = 0;
+        softTimeRecord[j] += softTimeRecordNew[j];
+        if(str=="") str = softLockList[j] +"||"+softTimeRecord[j];
+        else{
+            str+= ("::"+softLockList[j] +"||"+softTimeRecord[j]);
         }
-        chrome.storage.local.set({'hardLockListData': str},function(){
 
-            str = "";
-            for(j=0;j<softLockList.length;j++) {
-                if(!softTimeRecordNew[j]) softTimeRecordNew[j] = 0;
-                softTimeRecord[j] += softTimeRecordNew[j]
-                if(str=="") str = softLockList[j] +"||"+softTimeRecord[j];
-                else{
-                    str+= ("::"+softLockList[j] +"||"+softTimeRecord[j]);
-                }
-                softTimeRecordNew[j] = 0;
-            }
-            //console.log("store : " + str);
-            chrome.storage.local.set({'softLockListData': str},function() {
+        // save to daily statistics
+        todaySoftTimeRecord[j]+=softTimeRecordNew[j];
+        if(str2=="") str2 = softLockList[j]+'||'+todaySoftTimeRecord[j];
+        else str2+= '::'+softLockList[j]+'||'+todaySoftTimeRecord[j];
+        storeDataArr['locked-'+formattedDate] = str2;
 
-                str = "";
-                for (j = 0; j < singleWhite.length; j++) {
-                    if (str == "") str = singleWhite[j];
-                    else {
-                        str += ("::" + singleWhite[j]);
-                    }
-                }
-                chrome.storage.local.set({'singleWhiteData': str}, function () {
+        softTimeRecordNew[j] = 0;
+    }
+    console.log("store : " + str);
+    storeDataArr['softLockListData'] = str;
 
-                    str = "";
-                    for (j = 0; j < singleSoftLock.length; j++) {
-                        if (str == "") str = singleSoftLock[j];
-                        else {
-                            str += ("::" + singleSoftLock[j]);
-                        }
-                    }
-                    chrome.storage.local.set({'singleSoftLockData': str}, function () {
 
-                        str = "";
-                        for (j = 0; j < singleHardLock.length; j++) {
-                            if (str == "") str = singleHardLock[j];
-                            else {
-                                str += ("::" + singleHardLock[j]);
-                            }
-                        }
-                        chrome.storage.local.set({'singleHardLockData': str}, function () {
+    str = "";
+    for (j = 0; j < singleWhite.length; j++) {
+        if (str == "") str = singleWhite[j];
+        else {
+            str += ("::" + singleWhite[j]);
+        }
+    }
+    storeDataArr['singleWhiteData'] = str;
 
-                            str = "";
-                            totalTimeRecord += totalTimeRecordNew;
-                            str = totalTimeRecord.toString();
-                            totalTimeRecordNew = 0;
+    str = "";
+    for (j = 0; j < singleSoftLock.length; j++) {
+        if (str == "") str = singleSoftLock[j];
+        else {
+            str += ("::" + singleSoftLock[j]);
+        }
+    }
+    storeDataArr['singleSoftLockData'] = str;
 
-                            chrome.storage.local.set({'totalTimeRecord': str}, function () {
-                                chrome.storage.local.set({'needReload': true}, function () {
-                                        if (callBack != undefined) callBack();
-                                });
-                            });
+    str = "";
+    for (j = 0; j < singleHardLock.length; j++) {
+        if (str == "") str = singleHardLock[j];
+        else {
+            str += ("::" + singleHardLock[j]);
+        }
+    }
+    storeDataArr['singleHardLockData'] = str;
 
-                        });
+    totalTimeRecord += totalTimeRecordNew;
+    str = totalTimeRecord.toString();
+    totalTimeRecordNew = 0;
+    storeDataArr['totalTimeRecord'] = str;
 
-                    });
+    // save to daily statistics
+    todayTotalTimeRecord+=totalTimeRecordNew;
+    storeDataArr['locked-'+formattedDate] = todayTotalTimeRecord.toString();
 
-                });
-            });
+    storeDataArr['needReload'] = true;
 
-        });
 
+    chrome.storage.local.set(storeDataArr, function () {
+            if (callBack != undefined) callBack();
     });
 
 }

@@ -45,6 +45,10 @@ var totalTimeRecord=0;
 var softTimeRecordNew = [];
 var whiteTimeRecordNew = [];
 var totalTimeRecordNew=0;
+// store only today data
+var todayWhiteTimeRecord = [];
+var todaySoftTimeRecord = [];
+var todayTotalTimeRecord=0;
 
 
 var purifiedSoftLock;
@@ -57,9 +61,11 @@ function init(){
     var i;
     for(i=0;i<softLockList.length;i++){
         softTimeRecordNew.append(0);
+        todaySoftTimeRecord.append(0);
     }
     for(i=0;i<whiteList.length;i++){
         whiteTimeRecordNew.append(0);
+        todayWhiteTimeRecord.append(0);
     }
 }
 init();
@@ -248,26 +254,6 @@ function dealingUrl(tab,callback){
         if(callback) callback();
 
     //});
-}
-
-/**
- * check if after last reload, whether the list has been saved and need another reload
- * @param callBack
- */
-function checkIfReload(callBack){
-
-    var needReload;
-
-    chrome.storage.local.get("needReload",function(data) {
-        var needReload = data.needReload;
-
-        chrome.storage.local.set({'needReload': false},function(){
-            isCheckingReload = false;
-        });
-
-        callBack(needReload);
-    });
-
 }
 
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
@@ -570,6 +556,7 @@ chrome.windows.onRemoved.addListener(function(){
 });
 
 function searchDomain(purified, timeDiff) {
+    var i;
     do{
         // search white first
         for(i=0;i<purifiedWhite.length;i++){
