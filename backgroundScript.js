@@ -378,7 +378,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         // }
     }
     else if(msg && msg.timerSet){
-        setTimer(msg.timerSet,function(){
+        setTimer(msg.timerSet*60,function(){
             getCurrentTab(dealWithUrlMain);
         });
         getCurrentTab(dealWithUrlMain);

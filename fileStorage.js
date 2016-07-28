@@ -315,6 +315,8 @@ function saveFileFully(callBack){
     // save lists
     var i,j;
     var str;
+    var date = new Date();
+    var formattedDate = date.getYear()+'/'+date.getMonth+'/'+date.getDate();
 
     str = "";
     for(j=0;j<whiteList.length;j++) {
@@ -324,9 +326,18 @@ function saveFileFully(callBack){
         else{
             str+= ("::"+whiteList[j] +"||"+whiteTimeRecord[j]);
         }
+
+        // save to daily statistics
+        str="";
+        todayWhiteTimeRecord[j]+=whiteTimeRecordNew[j];
+        if(str=="") str = whiteList[j]+'||'+todayWhiteTimeRecord[j];
+        else str+= '::'+whiteList[j]+'||'+todayWhiteTimeRecord[j];
+        // no need to sync
+        chrome.storage.local.set({'whiteListData': str},function(){});
+
         whiteTimeRecordNew[j] = 0;
     }
-    console.log("store : " + str);
+    //console.log("store : " + str);
     chrome.storage.local.set({'whiteListData': str},function(){
         str = "";
         for(j=0;j<hardLockList.length;j++) {
@@ -347,7 +358,7 @@ function saveFileFully(callBack){
                 }
                 softTimeRecordNew[j] = 0;
             }
-            console.log("store : " + str);
+            //console.log("store : " + str);
             chrome.storage.local.set({'softLockListData': str},function() {
 
                 str = "";

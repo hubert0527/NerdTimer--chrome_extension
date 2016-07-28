@@ -362,11 +362,11 @@ function formattingTimeArr(arr){
     var temp;
     for(i=0;i<arr.length;i++){
         temp = arr[i];
-        temp = parseInt(temp/1000);
+        temp = Math.floor(temp/1000);
         sec = temp%60;
-        temp = parseInt(temp/60);
+        temp = Math.floor(temp/60);
         min = temp%60;
-        temp = parseInt(temp/60);
+        temp = Math.floor(temp/60);
         hr = temp;
 
         re[i] = hr+":"+min+":"+sec;
@@ -376,7 +376,7 @@ function formattingTimeArr(arr){
 
 function generateNColor(n){
     var re = [];
-    var di = parseInt(120/n);
+    var di = (120/n).toFixed();
     var degree;
     for(var i=0;i<n;i++){
         // r = 255 - di*i;
@@ -646,7 +646,7 @@ function loadTimerBlock() {
             });
             saveLastUsedTimer(time, function () {
                 chrome.runtime.sendMessage({timerSet: time});
-                setPopupTimer(time);
+                setPopupTimer(time*60);
             });
         }
     });
@@ -659,7 +659,7 @@ function loadTimerBlock() {
             if(time && time>0) {
                 saveLastUsedTimer(time, function () {
                     chrome.runtime.sendMessage({timerSet: time});
-                    setPopupTimer(time);
+                    setPopupTimer(time*60);
                 });
                 $("#timerNotYetSet").fadeOut("slow",function(){
                         $("#timerSet").fadeIn("slow");
@@ -803,16 +803,16 @@ function loadMainPageTimer(){
 
 }
 
-function setPopupTimer(time){
+function setPopupTimer(timeInSec){
 
-    timer = time*60;
+    timer = timeInSec;
     if(!timer || timer<=0) {
         document.getElementById("timeDisplay").textContent = "00:00:00";
         return;
     }
     var sec = (timer%60).toString();
-    var min = (parseInt((timer/60)%60)).toString();
-    var hr = (parseInt((timer/3600))).toString();
+    var min = (Math.floor(timer/60)%60).toString();
+    var hr = (Math.floor(timer/3600)).toString();
     if(sec<10){
         sec = "0"+sec;
     }
@@ -836,8 +836,8 @@ function setPopupTimer(time){
 
         timer --;
         sec = (timer%60).toString();
-        min = (parseInt((timer/60)%60)).toString();
-        hr = (parseInt((timer/3600))).toString();
+        min = (Math.floor(timer/60)%60).toString();
+        hr = (Math.floor(timer/3600)).toString();
         if(sec<10){
         sec = "0"+sec;
         }
