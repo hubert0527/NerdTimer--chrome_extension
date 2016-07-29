@@ -313,6 +313,11 @@ hr{
     bottom: 45px;
     z-index: 1;
 }
+#dayInputPop{
+    top: 65px;
+    right: 0;
+    z-index: 1;
+}
 
 
 
@@ -395,7 +400,6 @@ input:checked + .switchSlider:before {
 #statisticsPastNDaysBlock{
     display: none;
     float: right;
-    width: 70px;
     height: 24px;
     font-size: 0.8em;
     border-radius: 5px;

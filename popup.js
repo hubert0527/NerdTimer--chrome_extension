@@ -151,6 +151,7 @@ function loadCloseButton() {
 }
 
 var pastNDayTimerInst;
+var lastDayInput = "7";
 
 function loadButtons() {
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
@@ -227,26 +228,45 @@ function loadButtons() {
                     }
                 });
 
+                $(document.getElementById("statisticsPastNDaysInput")).keydown(function (e) {
+                    // Allow: backspace, delete, tab, escape, enter and .
+                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+                         // Allow: Ctrl+A
+                        (e.keyCode == 65 && e.ctrlKey === true) ||
+                         // Allow: Ctrl+C
+                        (e.keyCode == 67 && e.ctrlKey === true) ||
+                         // Allow: Ctrl+X
+                        (e.keyCode == 88 && e.ctrlKey === true) ||
+                         // Allow: home, end, left, right
+                        (e.keyCode >= 35 && e.keyCode <= 39)) {
+                             // let it happen, don't do anything
+                    }
+                    // Ensure that it is a number and stop the keypress
+                    else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+                        e.preventDefault();
+                    }
+                });
+
                 // create options for mode 1
                 $('#statisticsPastNDaysInput').bind("input",function(){
 
                     clearInterval(pastNDayTimerInst);
 
                     var str = $(this).val();
+                    var val = parseInt(str);
                     var lastChar = str.slice(-1);
 
-                    // not integer
-                    if(lastChar>'9' || lastChar<'0'){
-                        $(this).val( str.substring(0,str.length-1) );
+                    if(!val){
+                        if(lastChar!='') $(this).val('');
                         return;
                     }
-                    else if(parseInt(str)>365){
-                        $(this).val( str.substring(0,str.length-1) );
+                    else if(val>365){
+                        //$(this).val( str.substring(0,str.length-1) );
+                        $(this).val(lastDayInput);
+                        str = lastDayInput;
                     }
-                    else if(!parseInt(str)){
-                        $(this).val( str.substring(0,str.length-1) );
-                        return;
-                    }
+
+                    lastDayInput = str;
 
                     pastNDayTimerInst = setInterval(function(){
                         // over 500ms no further input
@@ -384,9 +404,9 @@ function changeToMode(changeToMode) {
     else if(mode==1){
         // run prev, or default
         if(option==0) {
-            var inputBox = $('#statisticsPastNDaysBlock');
+            var inputBox = $('#statisticsPastNDaysInput');
             if(prevMode==0){
-                $('#statisticsForEachWebsiteOptions').fadeOut('fast',function(){inputBox.fadeIn('fast');});
+                $('#statisticsForEachWebsiteOptions').fadeOut('fast',function(){$('#statisticsPastNDaysBlock').fadeIn('fast');});
             }
 
             // jump to target option if this chart was used before
@@ -846,10 +866,9 @@ function loadTimerBlock() {
                         $("#timerSet").fadeIn("slow");
                     });
             }
-            return;
         }
         // Allow: backspace, delete, tab, escape, enter and .
-        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+        else if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
              // Allow: Ctrl+A
             (e.keyCode == 65 && e.ctrlKey === true) ||
              // Allow: Ctrl+C
@@ -859,26 +878,41 @@ function loadTimerBlock() {
              // Allow: home, end, left, right
             (e.keyCode >= 35 && e.keyCode <= 39)) {
                  // let it happen, don't do anything
-                 return;
         }
         // Ensure that it is a number and stop the keypress
-        if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+        else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
             e.preventDefault();
         }
     });
     // timer can't have too-high number, MAX=999
     $(document.getElementById("waitTime")).bind("input",function(){
         var str = $(this).val();
-        if(parseInt(str)>1000){
-            $(this).val( str.substring(0,str.length-1) );
-        }
-        else if(!parseInt(str)){
-            $(this).val( str.substring(0,str.length-1) );
+        var val = parseInt(str);
+        var lastChar = str.slice(-1);
+
+        if(!val){
+            if(lastChar!='') $(this).val('');
             $("#startTimer").fadeOut('fast');
+            return;
         }
-        else if(isAppClosed==false){
-            $("#startTimer").fadeIn('fast');
+        else if(lastChar>'9' || lastChar<'0'){
+            if(!val){
+                $("#startTimer").fadeOut('fast');
+            }
+            else {
+                $(this).val(lastTimerInput);
+            }
+            return;
         }
+        else if(val>999){
+            //$(this).val( str.substring(0,str.length-1) );
+            $(this).val(lastTimerInput);
+            return;
+        }
+
+        if(!$("#startTimer").is(':visible')) $("#startTimer").fadeIn('fast');
+
+        lastTimerInput = str;
     });
 
     // cancel timer
@@ -905,6 +939,12 @@ function loadPops() {
     });
     document.getElementById("prompt1").addEventListener("mouseleave",function(){
         $('#prompt1Pop').fadeOut('fast');
+    });
+    document.getElementById("statisticsPastNDaysInput").addEventListener("focus",function(){
+        $('#dayInputPop').fadeIn('slow');
+    });
+    document.getElementById("statisticsPastNDaysInput").addEventListener("focusout",function(){
+        $('#dayInputPop').fadeOut('fast');
     });
 }
 
@@ -965,9 +1005,11 @@ function loadMainPageTimer(){
         if(time>999) time=999;
         if(time) {
             document.getElementById("waitTime").value = time;
+            lastTimerInput = time;
         }
         else{
             document.getElementById("waitTime").value = 10;
+            lastTimerInput = 10;
         }
     });
     // set timer status showing
@@ -1032,6 +1074,8 @@ function setPopupTimer(timeInSec){
     },1000);
 
 }
+
+var lastTimerInput;
 
 function createRemoveList(){
     document.getElementById("removeFromWhite").addEventListener("click", function(){
