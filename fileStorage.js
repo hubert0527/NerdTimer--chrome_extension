@@ -161,7 +161,7 @@ function saveFile(callBack){
             str += ("::" + singleWhite[j]);
         }
     }
-    storeData['singleWhiteData'] = str;
+    storeData['singleWhite'] = str;
 
     str = "";
     for (j = 0; j < singleSoftLock.length; j++) {
@@ -170,7 +170,7 @@ function saveFile(callBack){
             str += ("::" + singleSoftLock[j]);
         }
     }
-    storeData['singleSoftLockData'] = str;
+    storeData['singleSoftLock'] = str;
 
     // str = "";
     // for (j = 0; j < singleHardLock.length; j++) {
@@ -198,10 +198,12 @@ function loadFile(callBack,tab,callback2){
     var formattedDate = date.getYear()+'/'+date.getMonth+'/'+date.getDate();
 
     var requestArr = [
+        "whiteList",
         "whiteListData",
+        "softLockList",
         "softLockListData",
-        "singleSoftLockData",
-        "singleWhiteData",
+        "singleSoftLock",
+        "singleWhite",
         "totalTimeRecord",
         "locked-"+formattedDate, // use time of a single day of locked domain
         "white-"+formattedDate,
@@ -211,8 +213,20 @@ function loadFile(callBack,tab,callback2){
     ];
 
     chrome.storage.local.get(requestArr,function(data){
-        var str = data.whiteListData;
-        whiteList = [];
+
+        var str;
+
+        str = data.whiteList;
+        if(str!=undefined && str!="") {
+            whiteList = str.split("::");
+        }
+        // purify just read lists
+        purifiedWhite = [];
+        for (i = 0; i < whiteList.length; i++) {
+            purifiedWhite.push(purifyUrl(whiteList[i]));
+        }
+
+        str = data.whiteListData;
         whiteTimeRecord = {};
 
         if(str!=undefined && str!="") {
@@ -220,7 +234,6 @@ function loadFile(callBack,tab,callback2){
             for (i = 0; i < sp.length; i++) {
                 // split for time record
                 sp2 = sp[i].split("||");
-                whiteList.push(sp2[0]);
                 sp2[1] = parseInt(sp2[1]);
                 if(sp2[1]){
                     whiteTimeRecord[sp2[0]] = sp2[1];
@@ -238,8 +251,17 @@ function loadFile(callBack,tab,callback2){
         //     }
         // }
 
+        str = data.softLockList;
+        if(str!=undefined && str!="") {
+            softLockList = str.split("::");
+        }
+        // purify just read lists
+        purifiedSoftLock = [];
+        for (i = 0; i < softLockList.length; i++) {
+            purifiedSoftLock.push(purifyUrl(softLockList[i]));
+        }
+
         str = data.softLockListData;
-        softLockList = [];
         softTimeRecord = {};
         if (str != undefined && str!="") {
             sp = [];
@@ -247,7 +269,6 @@ function loadFile(callBack,tab,callback2){
             for (i = 0; i < sp.length; i++) {
                 // split for time record
                 sp2 = sp[i].split("||");
-                softLockList.push(sp2[0]);
                 sp2[1] = parseInt(sp2[1]);
                 if(sp2[1]){
                     softTimeRecord[sp2[0]] = sp2[1];
@@ -256,28 +277,16 @@ function loadFile(callBack,tab,callback2){
         }
 
 
-        // purify just read lists
-        purifiedSoftLock = [];
-        for (i = 0; i < softLockList.length; i++) {
-            purifiedSoftLock.push(purifyUrl(softLockList[i]));
-        }
         // purifiedHardLock = [];
         // for (i = 0; i < hardLockList.length; i++) {
         //     purifiedHardLock.push(purifyUrl(hardLockList[i]));
         // }
 
-        purifiedWhite = [];
-        for (i = 0; i < whiteList.length; i++) {
-            purifiedWhite.push(purifyUrl(whiteList[i]));
-        }
 
-        str = data.singleSoftLockData;
-        singleSoftLock = [];
+
+        str = data.singleSoftLock;
         if (str != undefined && str!="") {
-            var spsb = str.split("::");
-            for (i = 0; i < spsb.length; i++) {
-                singleSoftLock.push(spsb[i]);
-            }
+            singleSoftLock = str.split("::");
         }
 
         // str = data.singleHardLockData;
@@ -289,13 +298,9 @@ function loadFile(callBack,tab,callback2){
         //     }
         // }
 
-        str = data.singleWhiteData;
-        singleWhite = [];
+        str = data.singleWhite;
         if (str != undefined && str!="") {
-            var spsw = str.split("::");
-            for (i = 0; i < spsw.length; i++) {
-                singleWhite.push(spsw[i]);
-            }
+            singleWhite = str.split("::");
         }
 
         var sp1, sp2;
@@ -474,9 +479,9 @@ function saveFileFully(callBack){
             }
         }
     }
-    storeDataArr['locked-'+formattedDate] = str;
+    storeDataArr['white-'+formattedDate] = str;
 
-    storeDataArr['lockedTotal-'+formattedDate] = todayWhiteTotalTimeRecord;
+    storeDataArr['whiteTotal-'+formattedDate] = todayWhiteTotalTimeRecord;
 
     // str = "";
     // for(j=0;j<hardLockList.length;j++) {
@@ -548,7 +553,7 @@ function saveFileFully(callBack){
             str += ("::" + singleWhite[j]);
         }
     }
-    storeDataArr['singleWhiteData'] = str;
+    storeDataArr['singleWhite'] = str;
 
     // store single
     str = "";
@@ -558,7 +563,7 @@ function saveFileFully(callBack){
             str += ("::" + singleSoftLock[j]);
         }
     }
-    storeDataArr['singleSoftLockData'] = str;
+    storeDataArr['singleSoftLock'] = str;
 
     // str = "";
     // for (j = 0; j < singleHardLock.length; j++) {
