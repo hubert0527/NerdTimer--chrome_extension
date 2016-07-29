@@ -11,21 +11,31 @@ var isAppClosed = false;
 var timer = 0;
 var timerInst;
 
-var singleHardLock = [];
+// var singleHardLock = [];
 var singleSoftLock = [];
 var singleWhite = [];
 
 var softLockList = [];
-var hardLockList = [];
+// var hardLockList = [];
 var whiteList = [];
 
 // this only record time except this time you browse
-var softTimeRecord = [];
-var whiteTimeRecord = [];
+var softTimeRecord = {};
+var whiteTimeRecord = {};
 var totalTimeRecord=0;
 
+// store only today data
+/**
+ * this use dictionary cuz not guaranteed that every website will be surfed every day
+ */
+var todayWhiteTimeRecord = {};
+var todaySoftTimeRecord = {};
+var todayWhiteTotalTimeRecord=0;
+var todaySoftTotalTimeRecord=0;
+var todayTotalTimeRecord=0;
+
 var purifiedSoftLock;
-var purifiedHardLock;
+// var purifiedHardLock;
 var purifiedWhite;
 
 var chartMode = 0;
@@ -347,7 +357,12 @@ function changeToMode(changeToMode) {
         // run prev, or default
         if(option==0) {
             var selectBox = $('#statisticsForEachWebsiteOptions');
-            if(prevMode==1){
+
+            // init
+            if(prevMode==-1){
+                selectBox.css("display","block");
+            }
+            else if(prevMode==1){
                 $('#statisticsPastNDaysBlock').fadeOut('fast',function(){selectBox.fadeIn('fast');});
             }
 
@@ -407,17 +422,17 @@ function changeToMode(changeToMode) {
  *
  * type: 'white', 'locked'
  *
- * @param n
+ * return tri-array in form : [ [total] , [locked] , [white] ]
+ *
  * @param pastNDays
  */
-function getNDayData(n,pastNDays) {
+function getNDayData(pastNDays) {
     // theoretically will listing date from oldest date to today
-    var pref = type+'-';
-    var reqStr;
+    //loadPastNDaysStr(pastNDays,)
+}
 
-    for(var i=0;i<n;i++){
-        reqStr = pref+pastNDays[i];
-    }
+function parseTimeStr(str) {
+
 }
 
 function daysInMonth(month,year) {
@@ -471,7 +486,7 @@ function getPastNDays(n){
 /**
  * parse N top from dual list and return a dual list
  *
- *  dual list is as form [ [value] , [domain] ]
+ *  dual list is as form [ [domain] , [value] ]
  *
  * @param n
  * @param li
@@ -479,30 +494,25 @@ function getPastNDays(n){
 function getFirstNInList(n,li) {
     var i;
     var min;
-    var temp = [];
     var reD =[];
     var reV = [];
 
-    for(i=0;i<li[0].length;i++){
-        temp[i] = [ li[0][i] , li[1][i] ];
-    }
-
-    temp.sort(function(aa,bb){
-        if(aa[0]>bb[0]) return -1;
-        else if (aa[0]<bb[0]) return 1;
+    li.sort(function(aa,bb){
+        if(aa[1]>bb[1]) return -1;
+        else if (aa[1]<bb[1]) return 1;
         else {
-            if(aa[1]>bb[1]) return 1;
+            if(aa[0]>bb[0]) return 1;
             else return -1;
         }
     });
 
-    min = n < li[0].length ? n : li[0].length;
+    min = n < li.length ? n : li.length;
     for(i=0;i<min;i++){
-        reV[i] = temp[i][0];
-        reD[i] = temp[i][1];
+        reD[i] = li[i][0];
+        reV[i] = li[i][1];
     }
 
-    return [reV,reD];
+    return [reD,reV];
 }
 
 function formattingTimeArr(arr){
@@ -565,7 +575,8 @@ function drawChart(modeFull){
 
     var n=10;
     var days = option;
-    var li, i;
+    var li=[], i, key;
+    var tTime=[], tDomain=[];
 
     // chart must use
     var data, chartType, chartOption={};
@@ -579,21 +590,27 @@ function drawChart(modeFull){
         // mixed top N
         if(option==1) {
             // get fist N data
+            for(key in whiteTimeRecord ){
+                if(whiteTimeRecord.hasOwnProperty(key)){
+                    li.push([key,whiteTimeRecord[key]]);
+                }
+            }
+            for(key in softTimeRecord ){
+                if(softTimeRecord.hasOwnProperty(key)){
+                    li.push([key,softTimeRecord[key]]);
+                }
+            }
 
-            var t1 = softTimeRecord.concat(whiteTimeRecord);
-            var t2 = softLockList.concat(whiteList);
-
-            li = [t1, t2];
             li = getFirstNInList(n, li);
 
-            timeValue = li[0];
-            for (i = li[0].length; i < n; i++) timeValue.push(0);
-            for (i = 0; i < li[1].length; i++) {
-                domainName.push(purifyUrl(li[1][i]));
+            timeValue = li[1];
+            for (i = li[1].length; i < n; i++) timeValue.push(0);
+            for (i = 0; i < li[0].length; i++) {
+                domainName.push(purifyUrl(li[0][i]));
             }
-            for (i = li[1].length; i < n; i++) domainName.push(0);
+            for (i = li[0].length; i < n; i++) domainName.push("");
 
-            formattedTime = formattingTimeArr(li[0]);
+            formattedTime = formattingTimeArr(li[1]);
             colors = generateNColor(n);
             for (i = 0; i < timeValue.length; i++) borderColors.push("black");
 
@@ -616,16 +633,21 @@ function drawChart(modeFull){
         else if(option==2){
 
             // get fist N data
-            li = [ softTimeRecord , softLockList ];
+            for(key in softTimeRecord){
+                if(softTimeRecord.hasOwnProperty(key)){
+                    li.push([key,softTimeRecord[key]]);
+                }
+            }
             li = getFirstNInList(n,li);
 
-            timeValue = li[0];
-            for(i=0;i<li[1].length;i++){
-                domainName.push(purifyUrl(li[1][i]));
+            timeValue = li[1];
+            for(i=li[1].length;i<n;i++) timeValue.push(0);
+            for(i=0;i<li[0].length;i++){
+                domainName.push(purifyUrl(li[0][i]));
             }
-            for(i=li[1].length;i<n;i++) domainName.push(0);
+            for(i=li[0].length;i<n;i++) domainName.push("");
 
-            formattedTime =formattingTimeArr(li[0]);
+            formattedTime =formattingTimeArr(li[1]);
             colors = generateNColor(n);
             for(i=0;i<timeValue.length;i++) borderColors.push("black");
 
@@ -635,16 +657,21 @@ function drawChart(modeFull){
         else if(option==3){
 
             // get fist N data
-            li = [ whiteTimeRecord , whiteList ];
+            for(key in whiteTimeRecord){
+                if(whiteTimeRecord.hasOwnProperty(key)){
+                    li.push([key,whiteTimeRecord[key]]);
+                }
+            }
             li = getFirstNInList(n,li);
 
-            timeValue = li[0];
-            for(i=0;i<li[1].length;i++){
-                domainName.push(purifyUrl(li[1][i]));
+            timeValue = li[1];
+            for(i=li[1].length;i<n;i++) timeValue.push(0);
+            for(i=0;i<li[0].length;i++){
+                domainName.push(purifyUrl(li[0][i]));
             }
-            for(i=li[1].length;i<n;i++) domainName.push(0);
+            for(i=li[0].length;i<n;i++) domainName.push("");
 
-            formattedTime =formattingTimeArr(li[0]);
+            formattedTime =formattingTimeArr(li[1]);
             colors = generateNColor(n);
             for(i=0;i<timeValue.length;i++) borderColors.push("black");
         }
@@ -1467,9 +1494,9 @@ function addSinglePageToSoftLockList(){
         for(var i=0; i<singleSoftLock.length;i++){
             if(singleSoftLock[i]==url) return;
         }
-        for(var i=0; i<singleHardLock.length;i++){
-            if(singleHardLock[i]==url) return;
-        }
+        // for(var i=0; i<singleHardLock.length;i++){
+        //     if(singleHardLock[i]==url) return;
+        // }
         for(var i=0; i<singleWhite.length;i++){
             if(singleWhite[i]==url) return;
         }
@@ -1501,9 +1528,9 @@ function addBaseDomainToSoftLockList(){
         for(var i=0; i<softLockList.length;i++){
             if(softLockList[i]==url) return;
         }
-        for(var i=0; i<hardLockList.length;i++){
-            if(hardLockList[i]==url) return;
-        }
+        // for(var i=0; i<hardLockList.length;i++){
+        //     if(hardLockList[i]==url) return;
+        // }
         for(var i=0; i<whiteList.length;i++){
             if(whiteList[i]==url) return;
         }
@@ -1529,9 +1556,9 @@ function addSubDomainToSoftLockList(rawUrl){
     for(var i=0; i<softLockList.length;i++){
         if(softLockList[i]==url) return;
     }
-    for(var i=0; i<hardLockList.length;i++){
-        if(hardLockList[i]==url) return;
-    }
+    // for(var i=0; i<hardLockList.length;i++){
+    //     if(hardLockList[i]==url) return;
+    // }
     for(var i=0; i<whiteList.length;i++){
         if(whiteList[i]==url) return;
     }
@@ -1642,9 +1669,9 @@ function addSinglePageToWhiteList(){
         for(var i=0; i<singleSoftLock.length;i++){
             if(singleSoftLock[i]==url) return;
         }
-        for(var i=0; i<singleHardLock.length;i++){
-            if(singleHardLock[i]==url) return;
-        }
+        // for(var i=0; i<singleHardLock.length;i++){
+        //     if(singleHardLock[i]==url) return;
+        // }
         for(var i=0; i<singleWhite.length;i++){
             if(singleWhite[i]==url) return;
         }
@@ -1676,9 +1703,9 @@ function addBaseDomainToWhiteList(){
         for(var i=0; i<softLockList.length;i++){
             if(softLockList[i]==url) return;
         }
-        for(var i=0; i<hardLockList.length;i++){
-            if(hardLockList[i]==url) return;
-        }
+        // for(var i=0; i<hardLockList.length;i++){
+        //     if(hardLockList[i]==url) return;
+        // }
         for(var i=0; i<whiteList.length;i++){
             if(whiteList[i]==url) return;
         }
@@ -1707,9 +1734,9 @@ function addSubDomainToWhiteList(rawUrl){
     for(var i=0; i<softLockList.length;i++){
         if(softLockList[i]==url) return;
     }
-    for(var i=0; i<hardLockList.length;i++){
-        if(hardLockList[i]==url) return;
-    }
+    // for(var i=0; i<hardLockList.length;i++){
+    //     if(hardLockList[i]==url) return;
+    // }
 
     whiteList.push(url);
     $(document.getElementById("isInList")).text(" white list");

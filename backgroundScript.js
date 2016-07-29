@@ -28,45 +28,42 @@ var ignore = [
     "cn"
 ];
 
-var singleHardLock = [];
+// var singleHardLock = [];
 var singleSoftLock = [];
 var useTime = [];
 var singleWhite = [];
 
 var softLockList = [];
-var hardLockList = [];
+// var hardLockList = [];
 var whiteList = [];
 
 // this only record time except this time you browse
-var softTimeRecord = [];
-var whiteTimeRecord = [];
+var softTimeRecord = {};
+var whiteTimeRecord = {};
 var totalTimeRecord=0;
-// this only record this time browse
-var softTimeRecordNew = [];
-var whiteTimeRecordNew = [];
-var totalTimeRecordNew=0;
+
+// this only record this time browse, i.e. on-store stage
+var softTimeRecordNew = {};
+var whiteTimeRecordNew = {};
+
 // store only today data
-var todayWhiteTimeRecord = [];
-var todaySoftTimeRecord = [];
+/**
+ * this use dictionary cuz not guaranteed that every website will be surfed every day
+ */
+var todayWhiteTimeRecord = {};
+var todaySoftTimeRecord = {};
+var todayWhiteTotalTimeRecord=0;
+var todaySoftTotalTimeRecord=0;
 var todayTotalTimeRecord=0;
 
 
 var purifiedSoftLock;
-var purifiedHardLock;
+//var purifiedHardLock;
 var purifiedWhite;
 
 function init(){
     loadBlocker();
     loadFile();
-    var i;
-    for(i=0;i<softLockList.length;i++){
-        softTimeRecordNew.append(0);
-        todaySoftTimeRecord.append(0);
-    }
-    for(i=0;i<whiteList.length;i++){
-        whiteTimeRecordNew.append(0);
-        todayWhiteTimeRecord.append(0);
-    }
 }
 init();
 
@@ -176,9 +173,9 @@ function checkBlock(purified, cutted){
     for(i=0;i<singleWhite.length;i++){
         if(cutted==singleWhite[i]) return 0;
     }
-    for(i=0;i<singleHardLock.length;i++){
-        if(cutted == singleHardLock[i]) return 1;
-    }
+    // for(i=0;i<singleHardLock.length;i++){
+    //     if(cutted == singleHardLock[i]) return 1;
+    // }
     for(i=0;i<singleSoftLock.length;i++){
         if(cutted == singleSoftLock[i]) return 2;
     }
@@ -190,9 +187,9 @@ function checkBlock(purified, cutted){
             if(isInList(temp,purifiedWhite[i])==true) return 0;
         }
         // search block
-        for(i=0;i<purifiedHardLock.length;i++){
-            if(isInList(temp,purifiedHardLock[i])==true) return 1;
-        }
+        // for(i=0;i<purifiedHardLock.length;i++){
+        //     if(isInList(temp,purifiedHardLock[i])==true) return 1;
+        // }
         for(i=0;i<purifiedSoftLock.length;i++){
             if(isInList(temp,purifiedSoftLock[i])==true) return 2;
         }
@@ -227,12 +224,13 @@ function dealingUrl(tab,callback){
         // console.log("softBlockSingle: " + singleSoftLock.toString());
         // console.log("whitesSingle: " + singleWhite.toString());
 
-        if(isBad==1){
-            chrome.tabs.sendMessage(tab.id, {block: "hard"}, function(response) {
-                //console.log("send message to " + tab.url + " id = " + tab.id);
-            });
-        }
-        else if(isBad==2){
+        // if(isBad==1){
+        //     chrome.tabs.sendMessage(tab.id, {block: "hard"}, function(response) {
+        //         //console.log("send message to " + tab.url + " id = " + tab.id);
+        //     });
+        // }
+        // else 
+        if(isBad==2){
 
             if(isWaitingTimer==true || isAppClosed==true){
                 chrome.tabs.sendMessage(tab.id, {block: "false"}, function(response) {
@@ -402,16 +400,16 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             sendResponse({none:"none"});
         });
     }
-    else if(msg && msg.resetAllStatistics){
-        var i;
-        for(i=0;i<whiteTimeRecord.length;i++) whiteTimeRecord[i] = 0;
-        for(i=0;i<whiteTimeRecordNew.length;i++) whiteTimeRecordNew[i] = 0;
-        for(i=0;i<softTimeRecord.length;i++) softTimeRecord[i] = 0;
-        for(i=0;i<softTimeRecordNew.length;i++) softTimeRecordNew[i] = 0;
-        totalTimeRecord = 0;
-        totalTimeRecordNew = 0;
-        saveFileFully();
-    }
+    // else if(msg && msg.resetAllStatistics){
+    //     var i;
+    //     for(i=0;i<whiteTimeRecord.length;i++) whiteTimeRecord[i] = 0;
+    //     for(i=0;i<whiteTimeRecordNew.length;i++) whiteTimeRecordNew[i] = 0;
+    //     for(i=0;i<softTimeRecord.length;i++) softTimeRecord[i] = 0;
+    //     for(i=0;i<softTimeRecordNew.length;i++) softTimeRecordNew[i] = 0;
+    //     totalTimeRecord = 0;
+    //     totalTimeRecordNew = 0;
+    //     saveFileFully();
+    // }
     else if(msg && msg.leavePage){
         doTimeRecord("tabUrl",msg.leavePage);
         currentPage = "null";
@@ -452,7 +450,7 @@ function doCheckIfInList(url,sendResponse) {
     var isBad = checkBlock(purified,cutted);
     var str;
     if(isBad==0) str = "white";
-    else if(isBad==1) str = "hard";
+    // else if(isBad==1) str = "hard";
     else if(isBad==2) str = "soft";
     else str = "none";
     sendResponse({block:str});
@@ -500,11 +498,11 @@ function doTimeRecord(tab,tabUrl){
 
     // do time record
     if(currentPage!="" && currentPageLoadTime!=0){
-        var p = purifyUrl(currentPage);
+        var pur = purifyUrl(currentPage);
         // find which domain this page belongs to and store value
         var current = getCurrentTime();
         var diff = current-currentPageLoadTime;
-        searchDomain(p,diff);
+        searchDomain(pur, currentPage ,diff);
 
         saveFileFully(function(){
             console.log("temporary save " + url + " with time : " + diff + "ms");
@@ -555,18 +553,22 @@ chrome.windows.onRemoved.addListener(function(){
     })
 });
 
-function searchDomain(purified, timeDiff) {
+function searchDomain(purified, rawUrl,  timeDiff) {
     var i;
     do{
         // search white first
         for(i=0;i<purifiedWhite.length;i++){
             if(isInList(purified,purifiedWhite[i])==true){
-                whiteTimeRecordNew[i] += timeDiff;
+                var cutted = cutOffHeadAndTail(rawUrl);
+                if(!whiteTimeRecordNew[cutted]) whiteTimeRecordNew[cutted] = 0;
+                whiteTimeRecordNew[cutted] += timeDiff;
             }
         }
         for(i=0;i<purifiedSoftLock.length;i++){
             if(isInList(purified,purifiedSoftLock[i])==true){
-                softTimeRecordNew[i] += timeDiff;
+                var cutted = cutOffHeadAndTail(rawUrl);
+                if(!softTimeRecordNew[cutted]) softTimeRecordNew[cutted] = 0;
+                softTimeRecordNew[cutted] += timeDiff;
             }
         }
     }while( (purified = clearLast(purified))!="" );
