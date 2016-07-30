@@ -260,8 +260,8 @@ function loadFile(callBack,tab,callback2){
         "locked-"+formattedDate, // use time of a single day of locked domain
         "white-"+formattedDate,
         "total-"+formattedDate,
-        "lockedTotal"+formattedDate, // TOTAL use time of a single day of locked domain
-        "whiteTotal"+formattedDate
+        "lockedTotal-"+formattedDate, // TOTAL use time of a single day of locked domain
+        "whiteTotal-"+formattedDate
     ];
 
     chrome.storage.local.get(requestArr,function(data){

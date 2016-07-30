@@ -61,10 +61,47 @@ var purifiedSoftLock;
 var purifiedWhite;
 
 function init(){
+    
+    // get remain time of today, then force saveFully and set local data to 0 when times up.
+    setChangeDayTimer();
+    
     loadBlocker();
     loadFile();
 }
 init();
+
+var changeDayTimerInst;
+
+function setChangeDayTimer() {
+    var now = new Date();
+    var Tomorrow = new Date();
+    Tomorrow.setDate(now.getDate()+1);
+    Tomorrow.setHours(0);
+    Tomorrow.setMinutes(0);
+    Tomorrow.setSeconds(0);
+    Tomorrow.setMilliseconds(0);
+
+    var timeDiff = Tomorrow.getTime() - now.getTime();
+
+    // too close to change day, might be dangerous wait next time
+    if(timeDiff<1000){
+        changeDayTimerInst=setInterval(function () {
+            clearInterval(changeDayTimerInst);
+            setChangeDayTimer();
+        },1005);
+    }
+    else{
+        changeDayTimerInst=setInterval(function () {
+            clearInterval(changeDayTimerInst);
+            saveFileFully(function () {
+                clearLocalData();
+                loadFile();
+            });
+            setChangeDayTimer();
+        },timeDiff+5);
+    }
+
+}
 
 function purifyBlackAndWhite(callback){
     var i;
@@ -507,7 +544,9 @@ function doTimeRecord(tab,tabUrl){
         // find which domain this page belongs to and store value
         var current = getCurrentTime();
         var diff = current-currentPageLoadTime;
-        searchDomain(pur, currentPage ,diff);
+
+        // prevent from idiot change day and make his/her extension explode
+        if(diff>0) searchDomain(pur, currentPage ,diff);
 
         saveFileFully(function(){
             console.log("temporary save " + url + " with time : " + diff + "ms");
@@ -561,21 +600,30 @@ chrome.windows.onRemoved.addListener(function(){
 function searchDomain(purified, rawUrl,  timeDiff) {
     var i;
     var hit = false;
+
     do{
         // search white first
         for(i=0;i<purifiedWhite.length;i++){
             if(isInList(purified,purifiedWhite[i])==true){
-                var cutted = cutOffHeadAndTail(rawUrl);
-                if(!whiteTimeRecordNew[cutted]) whiteTimeRecordNew[cutted] = 0;
-                whiteTimeRecordNew[cutted] += timeDiff;
+                var url = cutOffHeadAndTail(rawUrl);
+                var temp;
+                while( (temp = clearLast(url))!=""){
+                    url = temp;
+                }
+                if(!whiteTimeRecordNew[url]) whiteTimeRecordNew[url] = 0;
+                whiteTimeRecordNew[url] += timeDiff;
                 hit = true;
             }
         }
         for(i=0;i<purifiedSoftLock.length;i++){
             if(isInList(purified,purifiedSoftLock[i])==true){
-                var cutted = cutOffHeadAndTail(rawUrl);
-                if(!softTimeRecordNew[cutted]) softTimeRecordNew[cutted] = 0;
-                softTimeRecordNew[cutted] += timeDiff;
+                var url = cutOffHeadAndTail(rawUrl);
+                var temp;
+                while( (temp = clearLast(url))!=""){
+                    url = temp;
+                }
+                if(!softTimeRecordNew[url]) softTimeRecordNew[url] = 0;
+                softTimeRecordNew[url] += timeDiff;
                 hit = true;
             }
         }

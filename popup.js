@@ -497,14 +497,20 @@ function getPastNDays(n){
     var dayCount, min;
 
     var pref = year+'/'+month+'/';
-    for(i=n-1;i>=0;i--){
-        re.push(pref+(date-i));
-    }
 
     // this month is enough
     if(date>=n){
+        for(i=n-1;i>=0;i--){
+            re.push(pref+(date-i));
+        }
         return re;
     }
+
+    for(i=0;i<date;i++){
+        re.push(pref+(date-i));
+    }
+
+    n-=date;
 
     while(n>0){
         if(month>1) month --;
@@ -520,12 +526,12 @@ function getPastNDays(n){
         n -= min;
 
         // if min is 1, means only require a day, which will only take the last day of month, so bound is 0
-        for(i=min-1;i>=0;i--){
+        for(i=0;i<min;i++){
             re.push( pref+(dayCount-i) );
         }
     }
 
-    return re;
+    return re.reverse();
 }
 
 /**
@@ -574,7 +580,7 @@ function formattingTimeArr(arr){
         temp = Math.floor(temp/60);
         hr = temp;
 
-        re[i] = hr+"h "+min+"m "+sec;
+        re[i] = hr+"h "+min+"m "+sec+"s";
     }
     return re;
 }
@@ -809,7 +815,7 @@ function drawChart(modeFull){
                     backgroundColor: 'rgba(255,0,0,0.7)',
                     borderColor: 'black',
                     borderWidth: 2,
-                    lineTension: 0,
+                    lineTension: 0.4,
                     spanGaps: true
                 },{
                     label: 'White',
@@ -817,7 +823,7 @@ function drawChart(modeFull){
                     backgroundColor: 'rgba(255,255,255,0.7)',
                     borderColor: 'black',
                     borderWidth: 2,
-                    lineTension: 0,
+                    lineTension: 0.4,
                     spanGaps: true
                 },{
                     label: 'Total',
@@ -825,7 +831,7 @@ function drawChart(modeFull){
                     backgroundColor: 'rgba(255,255,0,0.7)',
                     borderColor: 'black',
                     borderWidth: 2,
-                    lineTension: 0,
+                    lineTension: 0.4,
                     spanGaps: true
                 }]
 
@@ -847,11 +853,11 @@ function drawChart(modeFull){
                             else return "ERROR";
 
                             time/=1000;
-                            var sec = Math.round(time%60);
+                            var sec = Math.floor(time%60);
                             time/=60;
-                            var min = Math.round(time%60);
+                            var min = Math.floor(time%60);
                             time/=60;
-                            var hr = Math.round(time%60);
+                            var hr = Math.floor(time%60);
 
                             return hr+'h '+min+'m '+sec+'s';
                         }
