@@ -98,8 +98,7 @@
                         <div style="width: 50%;float: left;">
                             <h6 style="margin: 5px 0">檔案</h6>
                             <div style="margin-left: 20px;">
-                                <button class="optionBtn">匯入..</button>
-                                <button class="optionBtn">匯出..</button>
+                                <button id="clearAllData" class="optionBtn">清除</button>
                             </div>
                         </div>
                     </div>
@@ -234,6 +233,20 @@
                 created by <a id="mGH" style="color: blue;" href="https://goo.gl/oxFPKz" target="_blank">Hubert Lin</a>
             </p>
         </footer>
+
+        <div id="warningPop">
+            <div id="warningShadow"></div>
+            <div id="warningCheck" style="width: 70%;margin: 30% auto 0;">
+                <p id="warningContent1"></p>
+                <p id="warningContent2"></p>
+                <button id="warningYes" class="optionBtn warningBtn">YES</button>
+                <button id="warningNo" class="optionBtn warningBtn">NO</button>
+            </div>
+            <div id="warningFakeLoad" style="width: 70%;margin: 50% auto 0;">
+                <img id="waitGif" src="wait.svg">
+                <button id="warningCancel" class="optionBtn warningBtn">Cancel</button>
+            </div>
+        </div>
 
     </body>
 </html>

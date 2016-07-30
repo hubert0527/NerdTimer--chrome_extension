@@ -20,7 +20,6 @@ var mainMessage="You shall not pass!";
 
 var currentTab = undefined;
 var isCheckingReload = false;
-var needInit = true;
 
 var ignore = [
     "www",
@@ -30,7 +29,6 @@ var ignore = [
 
 // var singleHardLock = [];
 var singleSoftLock = [];
-var useTime = [];
 var singleWhite = [];
 
 var softLockList = [];
@@ -40,6 +38,7 @@ var whiteList = [];
 // this only record time except this time you browse
 var softTimeRecord = {};
 var whiteTimeRecord = {};
+var totalTimeRecordNew=0;
 var totalTimeRecord=0;
 
 // this only record this time browse, i.e. on-store stage
@@ -422,6 +421,12 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         currentPage = msg.resumePage;
         sendResponse({none:"none"});
     }
+    else if(msg && msg.clearAllData){
+        clearLocalData();
+        getCurrentTab(function (tab) {
+             chrome.tabs.sendMessage(tab.id, {block: "false"});
+        })
+    }
 
     /**
      * IMPORTANT
@@ -555,6 +560,7 @@ chrome.windows.onRemoved.addListener(function(){
 
 function searchDomain(purified, rawUrl,  timeDiff) {
     var i;
+    var hit = false;
     do{
         // search white first
         for(i=0;i<purifiedWhite.length;i++){
@@ -562,6 +568,7 @@ function searchDomain(purified, rawUrl,  timeDiff) {
                 var cutted = cutOffHeadAndTail(rawUrl);
                 if(!whiteTimeRecordNew[cutted]) whiteTimeRecordNew[cutted] = 0;
                 whiteTimeRecordNew[cutted] += timeDiff;
+                hit = true;
             }
         }
         for(i=0;i<purifiedSoftLock.length;i++){
@@ -569,8 +576,51 @@ function searchDomain(purified, rawUrl,  timeDiff) {
                 var cutted = cutOffHeadAndTail(rawUrl);
                 if(!softTimeRecordNew[cutted]) softTimeRecordNew[cutted] = 0;
                 softTimeRecordNew[cutted] += timeDiff;
+                hit = true;
             }
         }
     }while( (purified = clearLast(purified))!="" );
 
+    // although this url is not recorded, still counted in total use time
+    if(!hit){
+        if(!totalTimeRecordNew) totalTimeRecordNew = 0;
+        totalTimeRecordNew += timeDiff;
+    }
+
+}
+
+function clearLocalData() {
+    timer=0;
+    clearInterval(timerInst);
+    isWaitingTimer = false;
+    isAppClosed = false;
+
+    mainMessage="You shall not pass!";
+
+    currentTab = undefined;
+    isCheckingReload = false;
+
+    singleSoftLock = [];
+    singleWhite = [];
+
+    softLockList = [];
+    whiteList = [];
+
+    softTimeRecord = {};
+    whiteTimeRecord = {};
+    totalTimeRecordNew=0;
+    totalTimeRecord=0;
+
+    softTimeRecordNew = {};
+    whiteTimeRecordNew = {};
+
+    todayWhiteTimeRecord = {};
+    todaySoftTimeRecord = {};
+    todayWhiteTotalTimeRecord=0;
+    todaySoftTotalTimeRecord=0;
+    todayTotalTimeRecord=0;
+
+
+    purifiedSoftLock=[];
+    purifiedWhite=[];
 }

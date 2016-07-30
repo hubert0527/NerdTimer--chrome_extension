@@ -153,6 +153,8 @@ function loadCloseButton() {
 var pastNDayTimerInst;
 var lastDayInput = "7";
 
+var fakeLoadTimerInst;
+
 function loadButtons() {
     document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
     document.getElementById("addBaseDomainToSoftLockList").addEventListener("click", addBaseDomainToSoftLockList);
@@ -179,6 +181,42 @@ function loadButtons() {
             submitMainMessage('');
         }
     };
+    
+    $('#clearAllData').click(function () {
+        $('#warningContent1').text("確定清除所有資料？");
+        $('#warningContent2').text("(此操作無法回復)");
+        $('#warningCheck').css('display','block');
+        $('#warningFakeLoad').css('display','none');
+        $('#warningPop').fadeIn('fast',function () {
+            $('#warningYes').click(function () {
+                $('#warningYes').unbind( "click" );
+                $('#warningNo').unbind( "click" );
+                $('#warningCheck').fadeOut('fast',function () {
+                    $('#warningCancel').click(function(){
+                        clearInterval(fakeLoadTimerInst);
+                        $('#warningCancel').unbind( "click" );
+                        $('#warningPop').fadeOut('fast');
+                    });
+                    $('#warningFakeLoad').fadeIn('fast',function () {
+                        fakeLoadTimerInst = setInterval(function(){
+                            clearInterval(fakeLoadTimerInst);
+                            clearAllData();
+                            clearLocalData();
+                            chrome.runtime.sendMessage({clearAllData:"true"});
+                            resetMainPageStyles();
+                            $('#warningPop').fadeOut('fast');
+                            $('#warningCancel').unbind( "click" );
+                        },5000);
+                    });
+                });
+            });
+            $('#warningNo').click(function () {
+                $('#warningPop').fadeOut('fast');
+                $('#warningYes').unbind( "click" );
+                $('#warningNo').unbind( "click" );
+            });
+        })
+    });
 
     // create sliding button                                                                  // current        target
     document.getElementById("goToAddToListType").addEventListener("click", function(){moveRightTo("#mainPage","#addToListType");});
@@ -299,7 +337,7 @@ function loadButtons() {
                 if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
                 // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
                 else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
-                else if(response.block=="none") $(document.getElementById("isInList")).text(" not set");
+                else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
             });
         });
 
@@ -344,6 +382,9 @@ function loadButtons() {
             me.append(
                 '<canvas id="chartArea" width="225" height="160"></canvas>'
             );
+
+            $('#statisticsPastNDaysBlock').css('display','none');
+            $('#statisticsForEachWebsiteOptions').css('display','none');
 
         });
     });
@@ -438,22 +479,6 @@ function changeToMode(changeToMode) {
     chartMode = changeToMode;
 }
 
-/**
- *
- * type: 'white', 'locked'
- *
- * return tri-array in form : [ [total] , [locked] , [white] ]
- *
- * @param pastNDays
- */
-function getNDayData(pastNDays) {
-    // theoretically will listing date from oldest date to today
-    //loadPastNDaysStr(pastNDays,)
-}
-
-function parseTimeStr(str) {
-
-}
 
 function daysInMonth(month,year) {
     // cuz month 0 is January in JS, this gets last month' last date
@@ -549,7 +574,7 @@ function formattingTimeArr(arr){
         temp = Math.floor(temp/60);
         hr = temp;
 
-        re[i] = hr+":"+min+":"+sec;
+        re[i] = hr+"h "+min+"m "+sec;
     }
     return re;
 }
@@ -600,6 +625,7 @@ function drawChart(modeFull){
 
     // chart must use
     var data, chartType, chartOption={};
+    var ctx = $('#chartArea');
     // bar prop
     var barDist, borderColors=[], borderWidth, timeValue, domainName=[], colors, listCategory=[], formattedTime;
     // line prop
@@ -696,17 +722,7 @@ function drawChart(modeFull){
             for(i=0;i<timeValue.length;i++) borderColors.push("black");
         }
 
-    }
-    // past N days
-    else if(mode==1){
-        lineLocked = [1,3,5,NaN,5,3,1];
-        lineWhite = [3,5,7,5,3,1,2];
-        lineTotal = [6,12,18,17,10,8,4];
-    }
 
-
-    // mode 0 prepare
-    if(mode==0) {
         chartType="bar";
 
         // change border and bar dist types
@@ -763,78 +779,110 @@ function drawChart(modeFull){
             }]
 
         };
+
+        chart = new Chart(ctx,{
+            type: chartType,
+            data: data,
+            options: chartOption
+        });
+
     }
     else if(mode==1){
         chartType="line";
 
         var pastNDays=getPastNDays(days);
 
-        var labelsLocked=[];
-        for(i=0;i<days;i++) labelsLocked.push("Locked");
-        var labelsWhite=[];
-        for(i=0;i<days;i++) labelsWhite.push("White");
-        var labelsTotal=[];
-        for(i=0;i<days;i++) labelsTotal.push("Total");
+        loadPastNDaysTotalStr(pastNDays,function (lineTotal,lineLocked,lineWhite) {
 
-        data = {
-            labels: pastNDays,
-            datasets: [{
-                label: 'Locked',
-                data: lineLocked,
-                backgroundColor: 'rgba(255,0,0,0.7)',
-                borderColor: 'black',
-                borderWidth: 2,
-                lineTension: 0,
-                spanGaps: true
-            },{
-                label: 'White',
-                data: lineWhite,
-                backgroundColor: 'rgba(255,255,255,0.7)',
-                borderColor: 'black',
-                borderWidth: 2,
-                lineTension: 0,
-                spanGaps: true
-            },{
-                label: 'Total',
-                data: lineTotal,
-                backgroundColor: 'rgba(255,255,0,0.7)',
-                borderColor: 'black',
-                borderWidth: 2,
-                lineTension: 0,
-                spanGaps: true
-            }]
+            var labelsLocked=[];
+            for(i=0;i<days;i++) labelsLocked.push("Locked");
+            var labelsWhite=[];
+            for(i=0;i<days;i++) labelsWhite.push("White");
+            var labelsTotal=[];
+            for(i=0;i<days;i++) labelsTotal.push("Total");
 
-        };
-
-        chartOption= {
-            legend: {
-                display: false
-            },
-            scales: {
-                xAxes: [{
-                    ticks: {
-                        display: false,
-                        padding: 100
-                    }
-                }],
-                yAxes: [{
-                    // display: false
-                    ticks: {
-                        display: false
-                    }
+            data = {
+                labels: pastNDays,
+                datasets: [{
+                    label: 'Locked',
+                    data: lineLocked,
+                    backgroundColor: 'rgba(255,0,0,0.7)',
+                    borderColor: 'black',
+                    borderWidth: 2,
+                    lineTension: 0,
+                    spanGaps: true
+                },{
+                    label: 'White',
+                    data: lineWhite,
+                    backgroundColor: 'rgba(255,255,255,0.7)',
+                    borderColor: 'black',
+                    borderWidth: 2,
+                    lineTension: 0,
+                    spanGaps: true
+                },{
+                    label: 'Total',
+                    data: lineTotal,
+                    backgroundColor: 'rgba(255,255,0,0.7)',
+                    borderColor: 'black',
+                    borderWidth: 2,
+                    lineTension: 0,
+                    spanGaps: true
                 }]
-            }
-        };
+
+            };
+
+            chartOption= {
+                legend: {
+                    display: false
+                },
+                tooltips:{
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var index = tooltipItem.index;
+                            var dataSetsIndex = tooltipItem.datasetIndex;
+                            var time;
+                            if(dataSetsIndex==0) time = lineLocked[index];
+                            else if(dataSetsIndex==1) time = lineWhite[index];
+                            else if(dataSetsIndex==2) time = lineTotal[index];
+                            else return "ERROR";
+
+                            time/=1000;
+                            var sec = Math.round(time%60);
+                            time/=60;
+                            var min = Math.round(time%60);
+                            time/=60;
+                            var hr = Math.round(time%60);
+
+                            return hr+'h '+min+'m '+sec+'s';
+                        }
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            display: false,
+                            padding: 100
+                        }
+                    }],
+                    yAxes: [{
+                        // display: false
+                        ticks: {
+                            display: false
+                        }
+                    }]
+                }
+            };
+
+            chart = new Chart(ctx,{
+                type: chartType,
+                data: data,
+                options: chartOption
+            });
+        });
     }
 
 
-    var ctx = $('#chartArea');
 
-    chart = new Chart(ctx,{
-        type: chartType,
-        data: data,
-        options: chartOption
-    });
 }
 
 function loadTimerBlock() {
@@ -1792,3 +1840,36 @@ function addSubDomainToWhiteList(rawUrl){
     });
 }
 
+function clearLocalData() {
+    isAppClosed = false;
+    timer = 0;
+    clearInterval(timerInst);
+
+    singleSoftLock = [];
+    singleWhite = [];
+    softLockList = [];
+    whiteList = [];
+
+    softTimeRecord = {};
+    whiteTimeRecord = {};
+    totalTimeRecord=0;
+
+    todayWhiteTimeRecord = {};
+    todaySoftTimeRecord = {};
+    todayWhiteTotalTimeRecord=0;
+    todaySoftTotalTimeRecord=0;
+    todayTotalTimeRecord=0;
+
+    purifiedSoftLock=[];
+    purifiedWhite=[];
+}
+
+function resetMainPageStyles() {
+    $('body').css("background-color","lightseagreen");
+    document.getElementById("switchBtn").checked = false;
+    $('#waitTime').val("10");
+    $('#startTimer').fadeIn('fast');
+    $('.subPage').css("background-color","lightseagreen");
+    $("#isInList").text(" none");
+    $('#mainMessageInput').val("You shall not pass!");
+}

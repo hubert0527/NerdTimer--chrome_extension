@@ -1,3 +1,55 @@
+/**
+ * return in a array of time integer
+ *
+ * @param pastNDays
+ * @param callback
+ */
+function loadPastNDaysTotalStr(pastNDays,callback){
+    var i,j;
+    var pref = ['total-','lockedTotal-','whiteTotal-'];
+    var reqArr=[];
+    var str, temp;
+    var strRec = [];
+
+    var rT=[];
+    var rL=[];
+    var rW=[];
+
+    for(i=0;i<pref.length;i++){
+        strRec[i] = [];
+    }
+
+    for(i=0;i<pref.length;i++) {
+        for (j = 0; j < pastNDays.length; j++) {
+            str = pref[i] + pastNDays[j];
+            reqArr.push(str);
+            strRec[i][j] = str;
+        }
+    }
+
+    chrome.storage.local.get(reqArr,function(data){
+        for(j=0;j<pastNDays.length;j++){
+            temp = parseInt(data[strRec[0][j]]);
+            if(!temp) rT[j] = 0;
+            else rT[j] = temp;
+
+            temp = parseInt(data[strRec[1][j]]);
+            if(!temp) rL[j] = 0;
+            else rL[j] = temp;
+
+            temp = parseInt(data[strRec[2][j]]);
+            if(!temp) rW[j] = 0;
+            else rW[j] = temp;
+        }
+
+
+        if(callback){
+            callback(rT,rL,rW);
+        }
+
+    });
+
+}
 
 function loadPastNDaysStr(pastNDays,callback){
     var i,j;
@@ -195,7 +247,7 @@ function loadFile(callBack,tab,callback2){
     var i, sp2;
 
     var date = new Date();
-    var formattedDate = date.getYear()+'/'+date.getMonth+'/'+date.getDate();
+    var formattedDate = date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate();
 
     var requestArr = [
         "whiteList",
@@ -236,7 +288,7 @@ function loadFile(callBack,tab,callback2){
                 sp2 = sp[i].split("||");
                 sp2[1] = parseInt(sp2[1]);
                 if(sp2[1]){
-                    whiteTimeRecord[sp2[0]] = sp2[1];
+                    whiteTimeRecord[sp2[0]] = parseInt(sp2[1]);
                 }
             }
         }
@@ -271,7 +323,7 @@ function loadFile(callBack,tab,callback2){
                 sp2 = sp[i].split("||");
                 sp2[1] = parseInt(sp2[1]);
                 if(sp2[1]){
-                    softTimeRecord[sp2[0]] = sp2[1];
+                    softTimeRecord[sp2[0]] = parseInt(sp2[1]);
                 }
             }
         }
@@ -310,7 +362,7 @@ function loadFile(callBack,tab,callback2){
             sp1 = str.split("::");
             for (i = 0; i < sp1.length; i++) {
                 sp2 = sp1[i].split('||');
-                todaySoftTimeRecord[sp2[0]] = sp2[1];
+                todaySoftTimeRecord[sp2[0]] = parseInt(sp2[1]);
             }
         }
 
@@ -319,11 +371,9 @@ function loadFile(callBack,tab,callback2){
             sp1 = str.split("::");
             for (i = 0; i < sp1.length; i++) {
                 sp2 = sp1[i].split('||');
-                todayWhiteTimeRecord[sp2[0]] = sp2[1];
+                todayWhiteTimeRecord[sp2[0]] = parseInt(sp2[1]);
             }
         }
-
-        todayTotalTimeRecord = parseInt(data["total-"+formattedDate]);
 
         var p = parseInt(data.totalTimeRecord);
         if(p){
@@ -347,6 +397,14 @@ function loadFile(callBack,tab,callback2){
         }
         else{
             todaySoftTotalTimeRecord = 0;
+        }
+
+        p = parseInt(data["total-"+formattedDate]);
+        if(p){
+            todayTotalTimeRecord = p;
+        }
+        else{
+            todayTotalTimeRecord = 0;
         }
 
         if (callBack && callback2) callBack(tab,callback2);
@@ -428,7 +486,7 @@ function saveFileFully(callBack){
     var i,j;
     var str,str2;
     var date = new Date();
-    var formattedDate = date.getYear()+'/'+date.getMonth+'/'+date.getDate();
+    var formattedDate = date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate();
     var storeDataArr={};
 
     str = "";
@@ -574,6 +632,11 @@ function saveFileFully(callBack){
     // }
     // storeDataArr['singleHardLockData'] = str;
 
+    if(totalTimeRecordNew){
+        totalTimeRecord += totalTimeRecordNew;
+        todayTotalTimeRecord += totalTimeRecordNew;
+        totalTimeRecordNew = 0;
+    }
 
     // save total time use
     storeDataArr['total'] = totalTimeRecord;
@@ -588,4 +651,13 @@ function saveFileFully(callBack){
             if (callBack != undefined) callBack();
     });
 
+}
+
+function clearAllData(){
+    chrome.storage.local.clear(function() {
+        var error = chrome.runtime.lastError;
+        if (error) {
+            console.error(error);
+        }
+    });
 }
