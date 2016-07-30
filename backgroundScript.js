@@ -74,14 +74,14 @@ var changeDayTimerInst;
 
 function setChangeDayTimer() {
     var now = new Date();
-    var Tomorrow = new Date();
-    Tomorrow.setDate(now.getDate()+1);
-    Tomorrow.setHours(0);
-    Tomorrow.setMinutes(0);
-    Tomorrow.setSeconds(0);
-    Tomorrow.setMilliseconds(0);
+    var tomorrow = new Date();
+    tomorrow.setDate(now.getDate()+1);
+    tomorrow.setHours(0);
+    tomorrow.setMinutes(0);
+    tomorrow.setSeconds(0);
+    tomorrow.setMilliseconds(0);
 
-    var timeDiff = Tomorrow.getTime() - now.getTime();
+    var timeDiff = tomorrow.getTime() - now.getTime();
 
     // too close to change day, might be dangerous wait next time
     if(timeDiff<1000){
@@ -93,12 +93,15 @@ function setChangeDayTimer() {
     else{
         changeDayTimerInst=setInterval(function () {
             clearInterval(changeDayTimerInst);
+            var day = new Date();
+            console.log("saveFully at "+day.getMonth()+"/"+day.getDate()+'||'+day.getSeconds()+'.'+day.getMilliseconds());
             saveFileFully(function () {
+                console.log("saveFully complete at "+day.getMonth()+"/"+day.getDate()+'||'+day.getSeconds()+'.'+day.getMilliseconds());
                 clearLocalData();
                 loadFile();
             });
             setChangeDayTimer();
-        },timeDiff+5);
+        },timeDiff-5);
     }
 
 }
@@ -432,6 +435,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         //   add time to current page cuz user will feel happy if they see the chart is moving
     else if(msg && msg.forceSaveFully){
         getCurrentTab(function(tab){
+            console.log("force");
             doTimeRecord(tab);
             sendResponse({none:"none"});
         });
@@ -447,6 +451,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     //     saveFileFully();
     // }
     else if(msg && msg.leavePage){
+        console.log("on leave");
         doTimeRecord("tabUrl",msg.leavePage);
         currentPage = "null";
         sendResponse({none:"none"});
@@ -572,6 +577,7 @@ chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
     if (changeInfo.status == 'complete') {
         // check block
         dealWithUrlMain(tab,function(){
+            console.log("on update");
             doTimeRecord(tab);
         });
     }
@@ -590,6 +596,7 @@ function getCurrentTime() {
  * fire on browser close
  */
 chrome.windows.onRemoved.addListener(function(){
+    console.log("on remove");
     //saveCurrentTime(getCurrentTime());
     getCurrentTab(function (tab) {
         // no value cuz no need
@@ -668,7 +675,8 @@ function clearLocalData() {
     todaySoftTotalTimeRecord=0;
     todayTotalTimeRecord=0;
 
-
     purifiedSoftLock=[];
     purifiedWhite=[];
+
+    currentPageLoadTime = getCurrentTime();
 }

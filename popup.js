@@ -860,6 +860,13 @@ function drawChart(modeFull){
                             var hr = Math.floor(time%60);
 
                             return hr+'h '+min+'m '+sec+'s';
+                        },
+                        afterLabel : function(tooltipItem,data){
+                            var dataSetsIndex = tooltipItem.datasetIndex;
+                            if(dataSetsIndex==0) return "Locked";
+                            else if(dataSetsIndex==1) return "White";
+                            else if(dataSetsIndex==2) return "Total";
+                            else return "ERROR";
                         }
                     }
                 },
