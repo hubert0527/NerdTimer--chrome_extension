@@ -106,34 +106,34 @@ function setChangeDayTimer() {
 
 }
 
-function purifyBlackAndWhite(callback){
-    var i;
-
-    // for(i=0;i<singleHardLock.length;i++){
-    //     singleHardLock[i] = cutOffHeadAndTail(singleHardLock[i]);
-    // }
-    for(i=0;i<singleSoftLock.length;i++){
-        singleSoftLock[i] = cutOffHeadAndTail(singleSoftLock[i]);
-    }
-    for(i=0;i<singleWhite.length;i++){
-        singleWhite[i] = cutOffHeadAndTail(singleWhite[i]);
-    }
-
-    // purifiedHardLock = new Array(hardLockList.length);
-    // for(i=0;i<hardLockList.length;i++){
-    //     purifiedHardLock[i] = purifyUrl(hardLockList[i]);
-    // }
-    purifiedSoftLock = new Array(softLockList.length);
-    for(i=0;i<softLockList.length;i++){
-        purifiedSoftLock[i] = purifyUrl(softLockList[i]);
-    }
-    purifiedWhite = new Array(whiteList.length);
-    for(i=0;i<whiteList.length;i++){
-        purifiedWhite[i] = purifyUrl(whiteList[i]);
-    }
-
-    if(callback) callback();
-}
+// function purifyBlackAndWhite(callback){
+//     var i;
+//
+//     // for(i=0;i<singleHardLock.length;i++){
+//     //     singleHardLock[i] = cutOffHeadAndTail(singleHardLock[i]);
+//     // }
+//     for(i=0;i<singleSoftLock.length;i++){
+//         singleSoftLock[i] = cutOffHeadAndTail(singleSoftLock[i]);
+//     }
+//     for(i=0;i<singleWhite.length;i++){
+//         singleWhite[i] = cutOffHeadAndTail(singleWhite[i]);
+//     }
+//
+//     // purifiedHardLock = new Array(hardLockList.length);
+//     // for(i=0;i<hardLockList.length;i++){
+//     //     purifiedHardLock[i] = purifyUrl(hardLockList[i]);
+//     // }
+//     purifiedSoftLock = new Array(softLockList.length);
+//     for(i=0;i<softLockList.length;i++){
+//         purifiedSoftLock[i] = purifyUrl(softLockList[i]);
+//     }
+//     purifiedWhite = new Array(whiteList.length);
+//     for(i=0;i<whiteList.length;i++){
+//         purifiedWhite[i] = purifyUrl(whiteList[i]);
+//     }
+//
+//     if(callback) callback();
+// }
 
 function isInList(mstr, lstr){
     // l=list, m=mine
@@ -247,7 +247,7 @@ function dealingUrl(tab,callback){
         if(tab==undefined || tab.url==undefined) return false;
         var url = tab.url;
 
-        purifyBlackAndWhite();
+        //purifyBlackAndWhite();
 
         var purified = purifyUrl(url);
         var cutted = cutOffHeadAndTail(url);
@@ -366,7 +366,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     else if(msg && msg.deleteRule){
         var sp = msg.deleteRule.split("::");
         var index;
-        purifyBlackAndWhite();
+        //purifyBlackAndWhite();
         if(sp[0]=="singleWhite"){
             index = singleWhite.indexOf(sp[1]);
             singleWhite.splice(index,1);
@@ -376,7 +376,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             index = purifiedWhite.indexOf(sp[1]);
             whiteList.splice(index,1);
             saveFile(getCurrentTab(dealWithUrlMain));
-            purifyBlackAndWhite();
+            //purifyBlackAndWhite();
         }
         else if(sp[0]=="singleSoftLock"){
             index = singleSoftLock.indexOf(sp[1]);
@@ -387,7 +387,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             index = purifiedSoftLock.indexOf(sp[1]);
             softLockList.splice(index,1);
             saveFile(getCurrentTab(dealWithUrlMain));
-            purifyBlackAndWhite();
+            //purifyBlackAndWhite();
         }
         // else if(sp[0]=="singleHardLock"){
         //     index = singleHardLock.indexOf(sp[1]);
@@ -491,7 +491,7 @@ function setTimer(time,callback){
 }
 
 function doCheckIfInList(url,sendResponse) {
-    purifyBlackAndWhite();
+    //purifyBlackAndWhite();
     var purified = purifyUrl(url);
     var cutted = cutOffHeadAndTail(url);
     var isBad = checkBlock(purified,cutted);

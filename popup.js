@@ -658,7 +658,7 @@ function drawChart(modeFull){
             timeValue = li[1];
             for (i = li[1].length; i < n; i++) timeValue.push(0);
             for (i = 0; i < li[0].length; i++) {
-                domainName.push(purifyUrl(li[0][i]));
+                domainName.push(li[0][i]);
             }
             for (i = li[0].length; i < n; i++) domainName.push("");
 
@@ -674,10 +674,10 @@ function drawChart(modeFull){
 
             // deal with category
             for (i = 0; i < timeValue.length; i++) {
-                listCategory[i] = "blocked";
+                listCategory[i] = "鎖定";
             }
             for (i = 0; i < whiteIndex.length; i++) {
-                listCategory[whiteIndex[i]] = "white list";
+                listCategory[whiteIndex[i]] = "白名單";
             }
         }
 
@@ -695,7 +695,7 @@ function drawChart(modeFull){
             timeValue = li[1];
             for(i=li[1].length;i<n;i++) timeValue.push(0);
             for(i=0;i<li[0].length;i++){
-                domainName.push(purifyUrl(li[0][i]));
+                domainName.push(li[0][i]);
             }
             for(i=li[0].length;i<n;i++) domainName.push("");
 
@@ -719,7 +719,7 @@ function drawChart(modeFull){
             timeValue = li[1];
             for(i=li[1].length;i<n;i++) timeValue.push(0);
             for(i=0;i<li[0].length;i++){
-                domainName.push(purifyUrl(li[0][i]));
+                domainName.push(li[0][i]);
             }
             for(i=li[0].length;i<n;i++) domainName.push("");
 
@@ -863,9 +863,9 @@ function drawChart(modeFull){
                         },
                         afterLabel : function(tooltipItem,data){
                             var dataSetsIndex = tooltipItem.datasetIndex;
-                            if(dataSetsIndex==0) return "Locked";
-                            else if(dataSetsIndex==1) return "White";
-                            else if(dataSetsIndex==2) return "Total";
+                            if(dataSetsIndex==0) return "鎖定網站總計";
+                            else if(dataSetsIndex==1) return "白名單網站總計";
+                            else if(dataSetsIndex==2) return "總瀏覽時間";
                             else return "ERROR";
                         }
                     }
@@ -1151,7 +1151,7 @@ function createRemoveList(){
                 // if(temp[i].substring(0,3)=="www"){
                 //     temp[i] = temp[i].substring(4);
                 // }
-                temp[i] = purifyUrl(temp[i]);
+                //temp[i] = purifyUrl(temp[i]);
             }
             temp = sortList(temp);
             // create UI
@@ -1217,7 +1217,7 @@ function createRemoveList(){
                 // if(temp[i].substring(0,3)=="www"){
                 //     temp[i] = temp[i].substring(4);
                 // }
-                temp[i] = purifyUrl(temp[i]);
+                //temp[i] = purifyUrl(temp[i]);
             }
             temp = sortList(temp);
             //create UI
@@ -1291,7 +1291,7 @@ function createRemoveList(){
                 // if(temp[i].substring(0,3)=="www"){
                 //     temp[i] = temp[i].substring(4);
                 // }
-                temp[i] = purifyUrl(temp[i]);
+                //temp[i] = purifyUrl(temp[i]);
             }
             temp = sortList(temp);
             // create UI
@@ -1356,7 +1356,7 @@ function createRemoveList(){
                 // if (temp[i].substring(0, 3) == "www") {
                 //     temp[i] = temp[i].substring(4);
                 // }
-                temp[i] = purifyUrl(temp[i]);
+                //temp[i] = purifyUrl(temp[i]);
             }
             temp = sortList(temp);
             //create UI
@@ -1593,7 +1593,8 @@ function moveLeftTo(cur, tar, callback) {
 function addSinglePageToSoftLockList(){
     getCurrentTabUrl(function(rawUrl){
 
-        var url = cutOffHeadAndTail(rawUrl);
+        // var url = cutOffHeadAndTail(rawUrl);
+        var url = purifyUrl(rawUrl);
 
         // check if already exist
         for(var i=0; i<singleSoftLock.length;i++){
@@ -1622,7 +1623,8 @@ function addSinglePageToSoftLockList(){
 function addBaseDomainToSoftLockList(){
     getCurrentTabUrl(function(rawUrl){
 
-        var url = cutOffHeadAndTail(rawUrl);
+        // var url = cutOffHeadAndTail(rawUrl);
+        var url = purifyUrl(rawUrl);
 
         var temp;
         while( (temp = clearLast(url))!=""){
@@ -1655,7 +1657,8 @@ function addBaseDomainToSoftLockList(){
 
 function addSubDomainToSoftLockList(rawUrl){
 
-    var url = cutOffHeadAndTail(rawUrl);
+    //var url = cutOffHeadAndTail(rawUrl);
+    var url = purifyUrl(rawUrl);
 
     // check if already exist
     for(var i=0; i<softLockList.length;i++){
@@ -1768,7 +1771,8 @@ function addSubDomainToSoftLockList(rawUrl){
 function addSinglePageToWhiteList(){
     getCurrentTabUrl(function(rawUrl){
 
-        var url = cutOffHeadAndTail(rawUrl);
+        //var url = cutOffHeadAndTail(rawUrl);
+        var url = purifyUrl(rawUrl);
 
         // check if already exist
         for(var i=0; i<singleSoftLock.length;i++){
@@ -1797,7 +1801,8 @@ function addSinglePageToWhiteList(){
 function addBaseDomainToWhiteList(){
     getCurrentTabUrl(function(rawUrl){
 
-        var url = cutOffHeadAndTail(rawUrl);
+        //var url = cutOffHeadAndTail(rawUrl);
+        var url = purifyUrl(rawUrl);
 
         var temp;
         while( (temp = clearLast(url))!=""){
@@ -1830,7 +1835,8 @@ function addBaseDomainToWhiteList(){
 
 function addSubDomainToWhiteList(rawUrl){
 
-    var url = cutOffHeadAndTail(rawUrl);
+    //var url = cutOffHeadAndTail(rawUrl);
+    var url = purifyUrl(rawUrl);
 
     // check if already exist
     for(var i=0; i<whiteList.length;i++){

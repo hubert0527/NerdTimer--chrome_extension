@@ -3,7 +3,7 @@ body{
     width: 250px;
     height: 355px;
     margin:0;
-    font-family: "Adobe 宋体 Std L",Georgia, serif;
+    font-family: Georgia, serif,"Adobe 宋体 Std L";
     background-color: lightseagreen;
 }
 
@@ -166,6 +166,7 @@ hr{
     margin: 5px 0;
 }
 .remove li{
+    /*text-align: center;*/
     border:1px black solid;
     border-radius: 5px;
     margin: 3px;
@@ -198,19 +199,19 @@ hr{
     border-radius: 10%;
     font-size: 10px;
     font-weight: bolder;
-    background-color: white;
+    background-color: transparent;
     color: black;
-    box-shadow: 0 0 5px #444444;
+    /*box-shadow: 0 0 5px #444444;*/
     margin: 5px;
 }
-.removeCheckWrapper button:hover{
-    transition-duration: 0.4s;
-    background-color: #ffac1b;
-}
+/*.removeCheckWrapper button:hover{*/
+    /*transition-duration: 0.4s;*/
+    /*!*background-color: #ffac1b;*!*/
+/*}*/
 .removeCheckWrapper button:active{
     transition-duration: 0.4s;
     box-shadow:0 0 10px #444444 inset;
-    background-color: red;
+    /*background-color: red;*/
 }
 .removeCheckWrapper button p{
     text-align: center;
