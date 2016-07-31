@@ -135,67 +135,75 @@ function setChangeDayTimer() {
 //     if(callback) callback();
 // }
 
-function isInList(mstr, lstr){
-    // l=list, m=mine
-    var sL = lstr.split("/");
-    var sM = mstr.split("/");
-    var i,j,k;
 
-    if(sL.length==sM.length){
-        if(sL[0]!=sM[0]){
-            return false;
-        }
-        for(i=1;i<sL.length;i++){
-            var conL = [];
-            var conM = [];
-            var cursor;
-            // split item by special characters which is not Eng_char or number
-            cursor = 0;
-            for(j=0;j<sL[i].length;j++){
-                if( (sL[i][j]>='a'&&sL[i][j]<='z') ||
-                    (sL[i][j]>='A'&&sL[i][j]<='Z') ||
-                    (sL[i][j]>='0'&&sL[i][j]<='9')){
-                    // not special;
-                }
-                else{
-                    conL.push(sL[i].substring(cursor,j));
-                    cursor = j+1;
-                }
-            }
-            conL.push(sL[i].substring(cursor,j));
-            cursor = 0;
-            for(j=0;j<sM[i].length;j++){
-                if( (sM[i][j]>='a'&&sM[i][j]<='z') ||
-                    (sM[i][j]>='A'&&sM[i][j]<='Z') ||
-                    (sM[i][j]>='0'&&sM[i][j]<='9')){
-                    // not special;
-                }
-                else{
-                    conM.push(sM[i].substring(cursor,j));
-                    cursor = j+1;
-                }
-            }
-            conM.push(sM[i].substring(cursor,j));
-
-            // if M contains all L item, then match count ++
-            // Or, they are different
-            var isIn;
-            for(j=0;j<conL.length;j++){
-                isIn = false;
-                for(k=0;k<conM.length;k++){
-                    if(conL[j]==conM[k]) isIn = true;
-                }
-                if(isIn==false) return false;
-            }
-        }
-
-        // exactly match without interruption
-        return true;
-
-    }
-    // not about time to judge
-    return false;
+/**
+ * New implement cuz seems no need for special blocking rule(?)
+ */
+function isInList(mstr, lstr) {
+    return mstr==lstr;
 }
+
+// function isInList(mstr, lstr){
+//     // l=list, m=mine
+//     var sL = lstr.split("/");
+//     var sM = mstr.split("/");
+//     var i,j,k;
+//
+//     if(sL.length==sM.length){
+//         if(sL[0]!=sM[0]){
+//             return false;
+//         }
+//         for(i=1;i<sL.length;i++){
+//             var conL = [];
+//             var conM = [];
+//             var cursor;
+//             // split item by special characters which is not Eng_char or number
+//             cursor = 0;
+//             for(j=0;j<sL[i].length;j++){
+//                 if( (sL[i][j]>='a'&&sL[i][j]<='z') ||
+//                     (sL[i][j]>='A'&&sL[i][j]<='Z') ||
+//                     (sL[i][j]>='0'&&sL[i][j]<='9')){
+//                     // not special;
+//                 }
+//                 else{
+//                     conL.push(sL[i].substring(cursor,j));
+//                     cursor = j+1;
+//                 }
+//             }
+//             conL.push(sL[i].substring(cursor,j));
+//             cursor = 0;
+//             for(j=0;j<sM[i].length;j++){
+//                 if( (sM[i][j]>='a'&&sM[i][j]<='z') ||
+//                     (sM[i][j]>='A'&&sM[i][j]<='Z') ||
+//                     (sM[i][j]>='0'&&sM[i][j]<='9')){
+//                     // not special;
+//                 }
+//                 else{
+//                     conM.push(sM[i].substring(cursor,j));
+//                     cursor = j+1;
+//                 }
+//             }
+//             conM.push(sM[i].substring(cursor,j));
+//
+//             // if M contains all L item, then match count ++
+//             // Or, they are different
+//             var isIn;
+//             for(j=0;j<conL.length;j++){
+//                 isIn = false;
+//                 for(k=0;k<conM.length;k++){
+//                     if(conL[j]==conM[k]) isIn = true;
+//                 }
+//                 if(isIn==false) return false;
+//             }
+//         }
+//
+//         // exactly match without interruption
+//         return true;
+//
+//     }
+//     // not about time to judge
+//     return false;
+// }
 
 /**
  * cut current searching URL and compare to each stored list item
@@ -204,33 +212,33 @@ function isInList(mstr, lstr){
  * @returns {boolean}
  */
 
-function checkBlock(purified, cutted){
+function checkBlock(purified){
     var temp = purified;
     var i;
 
     // search single page first
     for(i=0;i<singleWhite.length;i++){
-        if(cutted==singleWhite[i]) return 0;
+        if(temp==singleWhite[i]) return 0;
     }
     // for(i=0;i<singleHardLock.length;i++){
-    //     if(cutted == singleHardLock[i]) return 1;
+    //     if(temp == singleHardLock[i]) return 1;
     // }
     for(i=0;i<singleSoftLock.length;i++){
-        if(cutted == singleSoftLock[i]) return 2;
+        if(temp == singleSoftLock[i]) return 2;
     }
 
     // search in domain
     do{
         // search white first
-        for(i=0;i<purifiedWhite.length;i++){
-            if(isInList(temp,purifiedWhite[i])==true) return 0;
+        for(i=0;i<whiteList.length;i++){
+            if(isInList(temp,whiteList[i])==true) return 0;
         }
         // search block
         // for(i=0;i<purifiedHardLock.length;i++){
         //     if(isInList(temp,purifiedHardLock[i])==true) return 1;
         // }
-        for(i=0;i<purifiedSoftLock.length;i++){
-            if(isInList(temp,purifiedSoftLock[i])==true) return 2;
+        for(i=0;i<softLockList.length;i++){
+            if(isInList(temp,softLockList[i])==true) return 2;
         }
     }while( (temp = clearLast(temp))!="" );
 
@@ -250,9 +258,9 @@ function dealingUrl(tab,callback){
         //purifyBlackAndWhite();
 
         var purified = purifyUrl(url);
-        var cutted = cutOffHeadAndTail(url);
+        //var cutted = cutOffHeadAndTail(url);
 
-        var isBad = checkBlock(purified,cutted);
+        var isBad = checkBlock(purified);
 
         // console.log("block? " + isBad);
         // console.log("hardBlock: " + hardLockList.toString());
@@ -336,6 +344,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         //console.log("send main message : " + mainMessage.toString());
     }
     else if(msg.checkIfInList){
+        if(timer>0) sendResponse({block:"false"});
         checkIfReload(function(needReload){
             if(needReload){
                 loadFile(function () {
@@ -373,7 +382,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             saveFile(getCurrentTab(dealWithUrlMain));
         }
         else if(sp[0]=="whiteList"){
-            index = purifiedWhite.indexOf(sp[1]);
+            index = whiteList.indexOf(sp[1]);
             whiteList.splice(index,1);
             saveFile(getCurrentTab(dealWithUrlMain));
             //purifyBlackAndWhite();
@@ -384,7 +393,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             saveFile(getCurrentTab(dealWithUrlMain));
         }
         else if(sp[0]=="softLockList"){
-            index = purifiedSoftLock.indexOf(sp[1]);
+            index = softLockList.indexOf(sp[1]);
             softLockList.splice(index,1);
             saveFile(getCurrentTab(dealWithUrlMain));
             //purifyBlackAndWhite();
@@ -610,8 +619,8 @@ function searchDomain(purified, rawUrl,  timeDiff) {
 
     do{
         // search white first
-        for(i=0;i<purifiedWhite.length;i++){
-            if(isInList(purified,purifiedWhite[i])==true){
+        for(i=0;i<whiteList.length;i++){
+            if(isInList(purified,whiteList[i])==true){
                 var url = cutOffHeadAndTail(rawUrl);
                 var temp;
                 while( (temp = clearLast(url))!=""){
@@ -622,8 +631,8 @@ function searchDomain(purified, rawUrl,  timeDiff) {
                 hit = true;
             }
         }
-        for(i=0;i<purifiedSoftLock.length;i++){
-            if(isInList(purified,purifiedSoftLock[i])==true){
+        for(i=0;i<softLockList.length;i++){
+            if(isInList(purified,softLockList[i])==true){
                 var url = cutOffHeadAndTail(rawUrl);
                 var temp;
                 while( (temp = clearLast(url))!=""){
