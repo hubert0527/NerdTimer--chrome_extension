@@ -150,20 +150,114 @@ function loadCloseButton() {
     });
 }
 
+function listPossibleAddDomain(type) {
+    var i ;
+    if(type=="white"){
+        $('#addToDomainType').text("加入白名單");
+    }
+    else if(type=="locked"){
+        $('#addToDomainType').text("加入鎖定");
+    }
+
+    getCurrentTabUrl(function (url) {
+        url = purifyUrl(url);
+
+        var possibleList = [];
+        while(url!=""){
+            possibleList.push(url);
+            url = clearLast(url);
+        }
+
+        var ul = $("#possibleList");
+        for(i=possibleList.length-1;i>=0;i--){
+            ul.append("<li class='possibleListItem'></li>");
+        }
+        var children = ul.children();
+        for(i=possibleList.length-1;i>=0;i--){
+            var targetChild = $(children[i]);
+            targetChild.text(possibleList[possibleList.length-i-1]);
+            if(type=="white"){
+                targetChild.click(function () {
+                    var res = addSubDomainToWhiteList($(this).text());
+                    var tar = $('#addToListError');
+                    if(res=="white"){
+                        tar.text("目標已屬於 白名單");
+                        tar.fadeIn('fast',function () {
+                            var t = setInterval(function () {
+                                clearInterval(t);
+                                tar.fadeOut('fast');
+                            },3000);
+                        });
+                        return;
+                    }
+                    else if(res=="white"){
+                        tar.text("目標已屬於 白名單");
+                        tar.fadeIn('slow',function () {
+                            var t = setInterval(function () {
+                                clearInterval(t);
+                                tar.fadeOut('slow');
+                            },1000);
+                        });
+                        return;
+                    }
+                    moveLeftTo("#possibleDomain","#addToListType",function(){
+                        $($("#possibleList").children()).remove();
+                    });
+                });
+            }
+            else if(type=="locked"){
+                targetChild.click(function () {
+                    var res = addSubDomainToSoftLockList($(this).text());
+                    var tar = $('#addToListError');
+                    if(res=="white"){
+                        tar.text("目標已屬於 白名單");
+                        tar.fadeIn('slow',function () {
+                            var t = setInterval(function () {
+                                clearInterval(t);
+                                tar.fadeOut('slow');
+                            },1000);
+                        });
+                        return;
+                    }
+                    else if(res=="white"){
+                        tar.text("目標已屬於 白名單");
+                        tar.fadeIn('fast',function () {
+                            var t = setInterval(function () {
+                                clearInterval(t);
+                                tar.fadeOut('fast');
+                            },3000);
+                        });
+                        return;
+                    }
+                    moveLeftTo("#possibleDomain","#addToListType",function(){
+                        $($("#possibleList").children()).remove();
+                    });
+                });
+            }
+        }
+    });
+}
+
 var pastNDayTimerInst;
 var lastDayInput = "7";
 
 var fakeLoadTimerInst;
 
 function loadButtons() {
-    document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
-    document.getElementById("addBaseDomainToSoftLockList").addEventListener("click", addBaseDomainToSoftLockList);
+    // document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
+    document.getElementById("addDomainToSoftLockList").addEventListener("click", function () {
+        listPossibleAddDomain("locked");
+        moveRightTo("#addToListType","#possibleDomain");
+    });
     document.getElementById("fastAdd").addEventListener("click", addBaseDomainToSoftLockList);
     // document.getElementById("addSinglePageToHardLockList").addEventListener("click", addSinglePageToHardLockList);
     // document.getElementById("addBaseDomainToHardLockList").addEventListener("click", addBaseDomainToHardLockList);
     // document.getElementById("addSinglePageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
     document.getElementById("fastWhite").addEventListener("click", addSinglePageToWhiteList);
-    document.getElementById("addBaseDomainToWhiteList").addEventListener("click", addBaseDomainToWhiteList);
+    document.getElementById("addDomainToWhiteList").addEventListener("click", function () {
+        listPossibleAddDomain("white");
+        moveRightTo("#addToListType","#possibleDomain");
+    });
     // document.getElementById("submitMainMessage").addEventListener("click", function(){
     //     var v = $("#mainMessageInput").val();
     //     console.log("receive event : "+v.toString());
@@ -331,7 +425,7 @@ function loadButtons() {
         // refresh status
         getCurrentTabUrl(function (url) {
             // check in list
-            chrome.runtime.sendMessage({"checkIfInList":url}, function(response) {
+            chrome.runtime.sendMessage({"getStatus":url}, function(response) {
                 if(response==undefined || response.block==undefined)
                     $(document.getElementById("isInList")).text(" error");
                 if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
@@ -352,20 +446,21 @@ function loadButtons() {
     });
     document.getElementById("goToMainPage6").addEventListener("click", function(){
         moveLeftTo("#removeWhite","#mainPage",function () {
-            var ul = $('#removeWhiteListSingle');
-            $(ul.children()).remove();
-            ul = $('#removeWhiteListDomain');
+            // var ul = $('#removeWhiteListSingle');
+            // $(ul.children()).remove();
+            var ul = $('#removeWhiteListDomain');
             $(ul.children()).remove();
         });
     });
     document.getElementById("goToMainPage7").addEventListener("click", function(){
         moveLeftTo("#removeSoft","#mainPage",function(){
-            var ul = $('#removeSoftListSingle');
-            $(ul.children()).remove();
-            ul = $('#removeSoftListDomain');
+            // var ul = $('#removeSoftListSingle');
+            // $(ul.children()).remove();
+            var ul = $('#removeSoftListDomain');
             $(ul.children()).remove();
         });
     });
+
     // document.getElementById("goToMainPage8").addEventListener("click", function(){
     //     moveLeftTo("#removeHard","#addToListType",function(){
     //         var ul = $('#removeHardListSingle');
@@ -388,6 +483,13 @@ function loadButtons() {
 
         });
     });
+
+    document.getElementById("goToMainPage10").addEventListener("click", function(){
+        moveLeftTo("#possibleDomain","#addToListType",function(){
+            $($("#possibleList").children()).remove();
+        });
+    });
+
 }
 
 /**
@@ -1040,7 +1142,7 @@ function loadTopCol(){
         }
 
         // check in list
-        chrome.runtime.sendMessage({"checkIfInList":url}, function(response) {
+        chrome.runtime.sendMessage({"getStatus":url}, function(response) {
             if(response==undefined || response.block==undefined)
                 $(document.getElementById("isInList")).text(" error");
             if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
@@ -1141,75 +1243,75 @@ var lastTimerInput;
 function createRemoveList(){
     document.getElementById("removeFromWhite").addEventListener("click", function(){
         moveRightTo("#addToListType","#removeWhite");
-        var ul = $('#removeWhiteListSingle');
-        var i;
+        // var ul = $('#removeWhiteListSingle');
+        // var i;
+        //
+        // if(singleWhite.length>0){
+        //     // temporary eliminate "www" and sort
+        //     var temp = singleWhite.slice(0);
+        //     for(i=0;i<temp.length;i++){
+        //         // if(temp[i].substring(0,3)=="www"){
+        //         //     temp[i] = temp[i].substring(4);
+        //         // }
+        //         //temp[i] = purifyUrl(temp[i]);
+        //     }
+        //     temp = sortList(temp);
+        //     // create UI
+        //     for(i=0; i<temp.length;i++){
+        //         if(temp[i]!="") ul.append([
+        //                 '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+        //                     '<button><p>X</p></button>',
+        //                     '<div>'+temp[i]+'</div>',
+        //                 '</li>'
+        //             ].join("\n")
+        //         );
+        //     }
+        //     // create button function
+        //     var child = ul.children();
+        //     if(child && child.length>0) {
+        //         for (i = 0; i < child.length; i++) {
+        //             $($(child[i]).children("button")).click(function(){
+        //                 var tar = $(this).siblings()[0].textContent;
+        //                 // send delete message
+        //                 chrome.runtime.sendMessage({deleteRule:"singleWhite::"+tar});
+        //                 // remove from local
+        //                 var index = singleWhite.indexOf(tar);
+        //                 singleWhite.splice(index,1);
+        //
+        //                 // disappear
+        //                 $($(this).parent()).fadeOut('fast');
+        //             });
+        //         }
+        //     }
+        //     // high light current tab
+        //     getCurrentTabUrl(function(url){
+        //         // url = cutOffHeadAndTail(url);
+        //         // if(url.substring(0,3)=="www"){
+        //         //     url = url.substring(4);
+        //         // }
+        //         url = purifyUrl(url);
+        //         var child = $('#removeWhiteListSingle').children();
+        //         if(child && child.length>0) {
+        //             for (i = 0; i < child.length; i++) {
+        //                 var sib = $($(child[i]).children("button")).siblings()[0];
+        //                 var t = sib.textContent;
+        //                 if(sib.textContent==url){
+        //                     $(child[i]).css("background-color","yellow");
+        //                 }
+        //             }
+        //         }
+        //     });
+        // }
+        // else{
+        //     ul.append([
+        //             '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+        //             '<div style="text-align: center;width: 100%;">(empty)</div>',
+        //             '</li>'
+        //         ].join("\n")
+        //     );
+        // }
 
-        if(singleWhite.length>0){
-            // temporary eliminate "www" and sort
-            var temp = singleWhite.slice(0);
-            for(i=0;i<temp.length;i++){
-                // if(temp[i].substring(0,3)=="www"){
-                //     temp[i] = temp[i].substring(4);
-                // }
-                //temp[i] = purifyUrl(temp[i]);
-            }
-            temp = sortList(temp);
-            // create UI
-            for(i=0; i<temp.length;i++){
-                if(temp[i]!="") ul.append([
-                        '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                            '<button><p>X</p></button>',
-                            '<div>'+temp[i]+'</div>',
-                        '</li>'
-                    ].join("\n")
-                );
-            }
-            // create button function
-            var child = ul.children();
-            if(child && child.length>0) {
-                for (i = 0; i < child.length; i++) {
-                    $($(child[i]).children("button")).click(function(){
-                        var tar = $(this).siblings()[0].textContent;
-                        // send delete message
-                        chrome.runtime.sendMessage({deleteRule:"singleWhite::"+tar});
-                        // remove from local
-                        var index = singleWhite.indexOf(tar);
-                        singleWhite.splice(index,1);
-
-                        // disappear
-                        $($(this).parent()).fadeOut('fast');
-                    });
-                }
-            }
-            // high light current tab
-            getCurrentTabUrl(function(url){
-                // url = cutOffHeadAndTail(url);
-                // if(url.substring(0,3)=="www"){
-                //     url = url.substring(4);
-                // }
-                url = purifyUrl(url);
-                var child = $('#removeWhiteListSingle').children();
-                if(child && child.length>0) {
-                    for (i = 0; i < child.length; i++) {
-                        var sib = $($(child[i]).children("button")).siblings()[0];
-                        var t = sib.textContent;
-                        if(sib.textContent==url){
-                            $(child[i]).css("background-color","yellow");
-                        }
-                    }
-                }
-            });
-        }
-        else{
-            ul.append([
-                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                    '<div style="text-align: center;width: 100%;">(empty)</div>',
-                    '</li>'
-                ].join("\n")
-            );
-        }
-
-        ul = $('#removeWhiteListDomain');
+        var ul = $('#removeWhiteListDomain');
         if(whiteList.length>0){
             // temporary eliminate "www" and sort
             temp = whiteList.slice(0);
@@ -1249,22 +1351,17 @@ function createRemoveList(){
             }
             // high light current tab
             getCurrentTabUrl(function(url){
-                url = cutOffHeadAndTail(url);
-                if(url.substring(0,3)=="www"){
-                    url = url.substring(4);
-                }
-                // get base domain
-                var temp;
-                while( (temp = clearLast(url))!=""){
-                    url = temp;
-                }
+                url = purifyUrl(url);
                 var child = $('#removeWhiteListDomain').children();
-                if(child && child.length>0) {
-                    for (i = 0; i < child.length; i++) {
-                        var sib = $($(child[i]).children("button")).siblings()[0];
-                        if(sib.textContent==url){
-                            $(child[i]).css("background-color","yellow");
+                if (child && child.length > 0) {
+                    while (url != "") {
+                        for (i = 0; i < child.length; i++) {
+                            var sib = $($(child[i]).children("button")).siblings()[0];
+                            if (sib.textContent == url) {
+                                $(child[i]).css("background-color", "yellow");
+                            }
                         }
+                        url = clearLast(url)
                     }
                 }
             });
@@ -1281,74 +1378,75 @@ function createRemoveList(){
 
     document.getElementById("removeFromSoft").addEventListener("click", function(){
         moveRightTo("#addToListType","#removeSoft");
-        var ul = $('#removeSoftListSingle');
-        var i;
+        // var ul = $('#removeSoftListSingle');
+        // var i;
+        //
+        // if(singleSoftLock.length>0){
+        //     // temporary eliminate "www" and sort
+        //     var temp = singleSoftLock.slice(0);
+        //     for(i=0;i<temp.length;i++){
+        //         // if(temp[i].substring(0,3)=="www"){
+        //         //     temp[i] = temp[i].substring(4);
+        //         // }
+        //         //temp[i] = purifyUrl(temp[i]);
+        //     }
+        //     temp = sortList(temp);
+        //     // create UI
+        //     for(i=0; i<temp.length;i++){
+        //         if(temp[i]!="") ul.append([
+        //                 '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+        //                     '<button><p>X</p></button>',
+        //                     '<div>'+temp[i]+'</div>',
+        //                 '</li>'
+        //             ].join("\n")
+        //         );
+        //     }
+        //     // create button function
+        //     var child = ul.children();
+        //     if(child && child.length>0) {
+        //         for (i = 0; i < child.length; i++) {
+        //             $($(child[i]).children("button")).click(function(){
+        //                 var tar = $(this).siblings()[0].textContent;
+        //                 // send delete message
+        //                 chrome.runtime.sendMessage({deleteRule:"singleSoftLock::"+tar});
+        //                 // remove from local
+        //                 var index = singleSoftLock.indexOf(tar);
+        //                 singleSoftLock.splice(index,1);
+        //
+        //                 // disappear
+        //                 $($(this).parent()).fadeOut('fast');
+        //             });
+        //         }
+        //     }
+        //     // high light current tab
+        //     getCurrentTabUrl(function(url){
+        //         // url = cutOffHeadAndTail(url);
+        //         // if(url.substring(0,3)=="www"){
+        //         //     url = url.substring(4);
+        //         // }
+        //         url = purifyUrl(url);
+        //         var child = $('#removeSoftListSingle').children();
+        //         if(child && child.length>0) {
+        //             for (i = 0; i < child.length; i++) {
+        //                 var sib = $($(child[i]).children("button")).siblings()[0];
+        //                 if(sib.textContent==url){
+        //                     $(child[i]).css("background-color","yellow");
+        //                 }
+        //             }
+        //         }
+        //     });
+        // }
+        // else{
+        //     ul.append([
+        //             '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
+        //             '<div style="text-align: center;width: 100%;">(empty)</div>',
+        //             '</li>'
+        //         ].join("\n")
+        //     );
+        // }
 
-        if(singleSoftLock.length>0){
-            // temporary eliminate "www" and sort
-            var temp = singleSoftLock.slice(0);
-            for(i=0;i<temp.length;i++){
-                // if(temp[i].substring(0,3)=="www"){
-                //     temp[i] = temp[i].substring(4);
-                // }
-                //temp[i] = purifyUrl(temp[i]);
-            }
-            temp = sortList(temp);
-            // create UI
-            for(i=0; i<temp.length;i++){
-                if(temp[i]!="") ul.append([
-                        '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                            '<button><p>X</p></button>',
-                            '<div>'+temp[i]+'</div>',
-                        '</li>'
-                    ].join("\n")
-                );
-            }
-            // create button function
-            var child = ul.children();
-            if(child && child.length>0) {
-                for (i = 0; i < child.length; i++) {
-                    $($(child[i]).children("button")).click(function(){
-                        var tar = $(this).siblings()[0].textContent;
-                        // send delete message
-                        chrome.runtime.sendMessage({deleteRule:"singleSoftLock::"+tar});
-                        // remove from local
-                        var index = singleSoftLock.indexOf(tar);
-                        singleSoftLock.splice(index,1);
-
-                        // disappear
-                        $($(this).parent()).fadeOut('fast');
-                    });
-                }
-            }
-            // high light current tab
-            getCurrentTabUrl(function(url){
-                // url = cutOffHeadAndTail(url);
-                // if(url.substring(0,3)=="www"){
-                //     url = url.substring(4);
-                // }
-                url = purifyUrl(url);
-                var child = $('#removeSoftListSingle').children();
-                if(child && child.length>0) {
-                    for (i = 0; i < child.length; i++) {
-                        var sib = $($(child[i]).children("button")).siblings()[0];
-                        if(sib.textContent==url){
-                            $(child[i]).css("background-color","yellow");
-                        }
-                    }
-                }
-            });
-        }
-        else{
-            ul.append([
-                    '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                    '<div style="text-align: center;width: 100%;">(empty)</div>',
-                    '</li>'
-                ].join("\n")
-            );
-        }
-
-        ul = $('#removeSoftListDomain');
+        var ul = $('#removeSoftListDomain');
+        var i, temp;
         if(softLockList.length>0) {
             // temporary eliminate "www" and sort
             temp = softLockList.slice(0);
@@ -1393,18 +1491,16 @@ function createRemoveList(){
                 //     url = url.substring(4);
                 // }
                 url = purifyUrl(url);
-                // get base domain
-                var temp;
-                while ((temp = clearLast(url)) != "") {
-                    url = temp;
-                }
                 var child = $('#removeSoftListDomain').children();
                 if (child && child.length > 0) {
-                    for (i = 0; i < child.length; i++) {
-                        var sib = $($(child[i]).children("button")).siblings()[0];
-                        if (sib.textContent == url) {
-                            $(child[i]).css("background-color", "yellow");
+                    while (url != "") {
+                        for (i = 0; i < child.length; i++) {
+                            var sib = $($(child[i]).children("button")).siblings()[0];
+                            if (sib.textContent == url) {
+                                $(child[i]).css("background-color", "yellow");
+                            }
                         }
+                        url = clearLast(url)
                     }
                 }
             });
@@ -1418,6 +1514,7 @@ function createRemoveList(){
             );
         }
     });
+    
     // document.getElementById("removeFromHard").addEventListener("click", function(){
     //     moveRightTo("#addToListType","#removeHard");
     //     var ul = $('#removeHardListSingle');
@@ -1633,13 +1730,13 @@ function addBaseDomainToSoftLockList(){
 
         // check if already exist
         for(var i=0; i<softLockList.length;i++){
-            if(softLockList[i]==url) return;
+            if(softLockList[i]==url) return "locked";
         }
         // for(var i=0; i<hardLockList.length;i++){
         //     if(hardLockList[i]==url) return;
         // }
         for(var i=0; i<whiteList.length;i++){
-            if(whiteList[i]==url) return;
+            if(whiteList[i]==url) return "white";
         }
 
         softLockList.push(url);
@@ -1655,20 +1752,20 @@ function addBaseDomainToSoftLockList(){
     });
 }
 
-function addSubDomainToSoftLockList(rawUrl){
+function addSubDomainToSoftLockList(url){
 
     //var url = cutOffHeadAndTail(rawUrl);
-    var url = purifyUrl(rawUrl);
+    //var url = purifyUrl(rawUrl);
 
     // check if already exist
     for(var i=0; i<softLockList.length;i++){
-        if(softLockList[i]==url) return;
+        if(softLockList[i]==url) return "locked";
     }
     // for(var i=0; i<hardLockList.length;i++){
     //     if(hardLockList[i]==url) return;
     // }
     for(var i=0; i<whiteList.length;i++){
-        if(whiteList[i]==url) return;
+        if(whiteList[i]==url) return "white";
     }
 
     softLockList.push(url);
@@ -1768,6 +1865,36 @@ function addSubDomainToSoftLockList(rawUrl){
 //
 // }
 
+// function addSinglePageToWhiteList(){
+//     getCurrentTabUrl(function(rawUrl){
+//
+//         //var url = cutOffHeadAndTail(rawUrl);
+//         var url = purifyUrl(rawUrl);
+//
+//         // check if already exist
+//         for(var i=0; i<singleSoftLock.length;i++){
+//             if(singleSoftLock[i]==url) return;
+//         }
+//         // for(var i=0; i<singleHardLock.length;i++){
+//         //     if(singleHardLock[i]==url) return;
+//         // }
+//         for(var i=0; i<singleWhite.length;i++){
+//             if(singleWhite[i]==url) return;
+//         }
+//
+//         singleWhite.push(url);
+//         $(document.getElementById("isInList")).text(" white list");
+//
+//         saveFile(function(){
+//             getCurrentTab(function(tab){
+//                 chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
+//             });
+//         });
+//
+//
+//     });
+// }
+
 function addSinglePageToWhiteList(){
     getCurrentTabUrl(function(rawUrl){
 
@@ -1775,49 +1902,11 @@ function addSinglePageToWhiteList(){
         var url = purifyUrl(rawUrl);
 
         // check if already exist
-        for(var i=0; i<singleSoftLock.length;i++){
-            if(singleSoftLock[i]==url) return;
-        }
-        // for(var i=0; i<singleHardLock.length;i++){
-        //     if(singleHardLock[i]==url) return;
-        // }
-        for(var i=0; i<singleWhite.length;i++){
-            if(singleWhite[i]==url) return;
-        }
-
-        singleWhite.push(url);
-        $(document.getElementById("isInList")).text(" white list");
-
-        saveFile(function(){
-            getCurrentTab(function(tab){
-                chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
-            });
-        });
-
-
-    });
-}
-
-function addBaseDomainToWhiteList(){
-    getCurrentTabUrl(function(rawUrl){
-
-        //var url = cutOffHeadAndTail(rawUrl);
-        var url = purifyUrl(rawUrl);
-
-        var temp;
-        while( (temp = clearLast(url))!=""){
-            url = temp;
-        }
-
-        // check if already exist
         for(var i=0; i<softLockList.length;i++){
-            if(softLockList[i]==url) return;
+            if(softLockList[i]==url) return "locked";
         }
-        // for(var i=0; i<hardLockList.length;i++){
-        //     if(hardLockList[i]==url) return;
-        // }
         for(var i=0; i<whiteList.length;i++){
-            if(whiteList[i]==url) return;
+            if(whiteList[i]==url) return "white";
         }
 
         whiteList.push(url);
@@ -1833,17 +1922,52 @@ function addBaseDomainToWhiteList(){
     });
 }
 
-function addSubDomainToWhiteList(rawUrl){
+// function addBaseDomainToWhiteList(){
+//     getCurrentTabUrl(function(rawUrl){
+//
+//         //var url = cutOffHeadAndTail(rawUrl);
+//         var url = purifyUrl(rawUrl);
+//
+//         var temp;
+//         while( (temp = clearLast(url))!=""){
+//             url = temp;
+//         }
+//
+//         // check if already exist
+//         for(var i=0; i<softLockList.length;i++){
+//             if(softLockList[i]==url) return;
+//         }
+//         // for(var i=0; i<hardLockList.length;i++){
+//         //     if(hardLockList[i]==url) return;
+//         // }
+//         for(var i=0; i<whiteList.length;i++){
+//             if(whiteList[i]==url) return;
+//         }
+//
+//         whiteList.push(url);
+//         $(document.getElementById("isInList")).text(" white list");
+//
+//         saveFile(function(){
+//             getCurrentTab(function(tab){
+//                 chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
+//             });
+//         });
+//
+//
+//     });
+// }
+
+function addSubDomainToWhiteList(url){
 
     //var url = cutOffHeadAndTail(rawUrl);
-    var url = purifyUrl(rawUrl);
+    //var url = purifyUrl(rawUrl);
 
     // check if already exist
     for(var i=0; i<whiteList.length;i++){
-        if(whiteList[i]==url) return;
+        if(whiteList[i]==url) return "white";
     }
     for(var i=0; i<softLockList.length;i++){
-        if(softLockList[i]==url) return;
+        if(softLockList[i]==url) return "locked";
     }
     // for(var i=0; i<hardLockList.length;i++){
     //     if(hardLockList[i]==url) return;

@@ -372,6 +372,34 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             }
         });
     }
+    else if(msg.getStatus){
+        checkIfReload(function(needReload){
+            if(needReload){
+                loadFile(function () {
+                    if(msg.getStatus=="none"){
+                        getCurrentTabUrl(function(url){
+                            doCheckIfInList(url,sendResponse);
+                        });
+                    }
+                    else{
+                        var url = msg.getStatus;
+                        doCheckIfInList(url,sendResponse);
+                    }
+                });
+            }
+            else{
+                if(msg.getStatus=="none"){
+                    getCurrentTabUrl(function(url){
+                        doCheckIfInList(url,sendResponse);
+                    });
+                }
+                else{
+                    var url = msg.getStatus;
+                    doCheckIfInList(url,sendResponse);
+                }
+            }
+        });
+    }
     else if(msg && msg.deleteRule){
         var sp = msg.deleteRule.split("::");
         var index;
@@ -502,8 +530,7 @@ function setTimer(time,callback){
 function doCheckIfInList(url,sendResponse) {
     //purifyBlackAndWhite();
     var purified = purifyUrl(url);
-    var cutted = cutOffHeadAndTail(url);
-    var isBad = checkBlock(purified,cutted);
+    var isBad = checkBlock(purified);
     var str;
     if(isBad==0) str = "white";
     // else if(isBad==1) str = "hard";
@@ -621,7 +648,7 @@ function searchDomain(purified, rawUrl,  timeDiff) {
         // search white first
         for(i=0;i<whiteList.length;i++){
             if(isInList(purified,whiteList[i])==true){
-                var url = cutOffHeadAndTail(rawUrl);
+                var url = purifyUrl(rawUrl);
                 var temp;
                 while( (temp = clearLast(url))!=""){
                     url = temp;
@@ -633,7 +660,7 @@ function searchDomain(purified, rawUrl,  timeDiff) {
         }
         for(i=0;i<softLockList.length;i++){
             if(isInList(purified,softLockList[i])==true){
-                var url = cutOffHeadAndTail(rawUrl);
+                var url = purifyUrl(rawUrl);
                 var temp;
                 while( (temp = clearLast(url))!=""){
                     url = temp;
