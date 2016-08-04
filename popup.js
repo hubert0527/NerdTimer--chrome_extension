@@ -816,7 +816,7 @@ function drawChart(modeFull){
 
             // deal with category
             for(i=0;i<timeValue.length;i++){
-                listCategory[i] = "未加入";
+                listCategory[i] = "未加入"; 
             }
             for (i = 0; i < softIndex.length; i++) {
                 listCategory[softIndex[i]] = "鎖定";
