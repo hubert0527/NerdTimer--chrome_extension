@@ -520,7 +520,7 @@ function saveFileFully(designatedDate,callBack){
     var str,str2;
     var date;
 
-    if(designatedDate){
+    if(designatedDate instanceof Date){
         date = designatedDate;
     }
     else{
