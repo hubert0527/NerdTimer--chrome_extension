@@ -243,6 +243,9 @@ function listPossibleAddDomain(type) {
 var pastNDayTimerInst;
 var lastDayInput = "7";
 
+var pastNWebsiteTimerInst;
+var lastWebsiteInput = "10";
+
 var fakeLoadTimerInst;
 
 function loadButtons() {
@@ -319,7 +322,7 @@ function loadButtons() {
     document.getElementById("moreSettings").addEventListener("click", function(){moveRightTo("#mainPage","#settingPage");});
     document.getElementById("goToStatistics").addEventListener("click", function(){
 
-        chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
+        //chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
             loadFile(function(){
 
                 // init
@@ -338,6 +341,7 @@ function loadButtons() {
                 // button for mode 1
                 $('#statisticsPastNDays').click(function(){
                     if(chartMode!=1){
+                        clearInterval(pastNWebsiteTimerInst);
                         changeToMode(1);
                     }
                 });
@@ -346,76 +350,19 @@ function loadButtons() {
                 $('#statisticsUn').click(function(){
                     if(chartMode!=2){
                         clearInterval(pastNDayTimerInst);
+                        clearInterval(pastNWebsiteTimerInst);
                         changeToMode(2);
                     }
                 });
 
-                // create options for mode 0
-                $('#statisticsForEachWebsiteOptions').change(function(){
-                    if(this.value=="1"){
-                        changeToMode(10);
-                    }
-                    else if(this.value=="2"){
-                        changeToMode(20);
-                    }
-                    else if(this.value=="3"){
-                        changeToMode(30);
-                    }
-                });
+                createNWebsiteInput();
 
-                $(document.getElementById("statisticsPastNDaysInput")).keydown(function (e) {
-                    // Allow: backspace, delete, tab, escape, enter and .
-                    if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
-                         // Allow: Ctrl+A
-                        (e.keyCode == 65 && e.ctrlKey === true) ||
-                         // Allow: Ctrl+C
-                        (e.keyCode == 67 && e.ctrlKey === true) ||
-                         // Allow: Ctrl+X
-                        (e.keyCode == 88 && e.ctrlKey === true) ||
-                         // Allow: home, end, left, right
-                        (e.keyCode >= 35 && e.keyCode <= 39)) {
-                             // let it happen, don't do anything
-                    }
-                    // Ensure that it is a number and stop the keypress
-                    else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
-                        e.preventDefault();
-                    }
-                });
-
-                // create options for mode 1
-                $('#statisticsPastNDaysInput').bind("input",function(){
-
-                    clearInterval(pastNDayTimerInst);
-
-                    var str = $(this).val();
-                    var val = parseInt(str);
-                    var lastChar = str.slice(-1);
-
-                    if(!val){
-                        if(lastChar!='') $(this).val('');
-                        return;
-                    }
-                    else if(val>365){
-                        //$(this).val( str.substring(0,str.length-1) );
-                        $(this).val(lastDayInput);
-                        str = lastDayInput;
-                    }
-
-                    lastDayInput = str;
-
-                    pastNDayTimerInst = setInterval(function(){
-                        // over 500ms no further input
-                        var day = parseInt($('#statisticsPastNDaysInput').val());
-                        changeToMode(day*10 + 1);
-
-                        clearInterval(pastNDayTimerInst);
-                    },500);
-                });
+                createNDayInput();
 
                 moveRightTo("#addToListType","#statistics");
 
             });
-        });
+        //});
 
     });
 
@@ -521,6 +468,108 @@ function loadButtons() {
 
 }
 
+function createNWebsiteInput() {
+    $(document.getElementById("statisticsNWebsiteInput")).keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+             // Allow: Ctrl+A
+            (e.keyCode == 65 && e.ctrlKey === true) ||
+             // Allow: Ctrl+C
+            (e.keyCode == 67 && e.ctrlKey === true) ||
+             // Allow: Ctrl+X
+            (e.keyCode == 88 && e.ctrlKey === true) ||
+             // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+                 // let it happen, don't do anything
+        }
+        // Ensure that it is a number and stop the keypress
+        else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+
+    // create options for mode 1
+    $('#statisticsNWebsiteInput').bind("input",function(){
+
+        clearInterval(pastNWebsiteTimerInst);
+
+        var str = $(this).val();
+        var val = parseInt(str);
+        var lastChar = str.slice(-1);
+
+        if(!val){
+            if(lastChar!='') $(this).val('');
+            return;
+        }
+        else if(val>100){
+            //$(this).val( str.substring(0,str.length-1) );
+            $(this).val(lastWebsiteInput);
+            str = lastWebsiteInput;
+        }
+
+        lastWebsiteInput = str;
+
+        pastNWebsiteTimerInst = setInterval(function(){
+            // over 500ms no further input
+            var web = parseInt($('#statisticsNWebsiteInput').val());
+            changeToMode(web*10);
+
+            clearInterval(pastNWebsiteTimerInst);
+        },500);
+    });
+}
+
+function createNDayInput() {
+    $(document.getElementById("statisticsPastNDaysInput")).keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+             // Allow: Ctrl+A
+            (e.keyCode == 65 && e.ctrlKey === true) ||
+             // Allow: Ctrl+C
+            (e.keyCode == 67 && e.ctrlKey === true) ||
+             // Allow: Ctrl+X
+            (e.keyCode == 88 && e.ctrlKey === true) ||
+             // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+                 // let it happen, don't do anything
+        }
+        // Ensure that it is a number and stop the keypress
+        else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+
+    // create options for mode 1
+    $('#statisticsPastNDaysInput').bind("input",function(){
+
+        clearInterval(pastNDayTimerInst);
+
+        var str = $(this).val();
+        var val = parseInt(str);
+        var lastChar = str.slice(-1);
+
+        if(!val){
+            if(lastChar!='') $(this).val('');
+            return;
+        }
+        else if(val>365){
+            //$(this).val( str.substring(0,str.length-1) );
+            $(this).val(lastDayInput);
+            str = lastDayInput;
+        }
+
+        lastDayInput = str;
+
+        pastNDayTimerInst = setInterval(function(){
+            // over 500ms no further input
+            var day = parseInt($('#statisticsPastNDaysInput').val());
+            changeToMode(day*10 + 1);
+
+            clearInterval(pastNDayTimerInst);
+        },500);
+    });
+}
+
 /**
  * Notation: A + B , which B < 10
  *
@@ -549,6 +598,7 @@ function changeToMode(changeToMode) {
         // run prev, or default
         if(option==0) {
             var selectBox = $('#statisticsForEachWebsiteOptions');
+            var inputBox = $('#statisticsNWebsiteInput');
 
             // init
             if(prevMode==-1){
@@ -558,14 +608,23 @@ function changeToMode(changeToMode) {
                 $('#statisticsPastNDaysBlock').fadeOut('fast',function(){selectBox.fadeIn('fast');});
             }
 
+            // // jump to target option if this chart was used before
+            // if(chartMode0OptionRec!=-1) {
+            //     selectBox.val(chartMode0OptionRec.toString());
+            // }
+            // else{
+            //     selectBox.val('1');
+            //     chartMode0OptionRec = 1;
+            // }
             // jump to target option if this chart was used before
             if(chartMode0OptionRec!=-1) {
-                selectBox.val(chartMode0OptionRec.toString());
+                inputBox.val(chartMode0OptionRec.toString());
             }
             else{
-                selectBox.val('1');
-                chartMode0OptionRec = 1;
+                inputBox.val('10');
+                chartMode0OptionRec = 10;
             }
+
             drawChart(chartMode0OptionRec*10);
         }
         else{
@@ -755,7 +814,7 @@ function drawChart(modeFull){
     var mode = modeFull%10;
     var option = Math.round(modeFull/10);
 
-    var n=10;
+    var n;
     var days = option;
     var li=[], i, key;
     var tTime=[], tDomain=[];
@@ -771,7 +830,15 @@ function drawChart(modeFull){
 
     if(mode==0){
         // mixed top N
-        if(option==1) {
+        // if(option==1) {
+
+            n = option;
+
+            if(Object.keys(timeRecord).length==0){
+                notifyNoData();
+                return;
+            }
+
             // get fist N data
             for(key in timeRecord ){
                 if(timeRecord.hasOwnProperty(key)){
@@ -816,7 +883,7 @@ function drawChart(modeFull){
 
             // deal with category
             for(i=0;i<timeValue.length;i++){
-                listCategory[i] = "未加入"; 
+                listCategory[i] = "未加入";
             }
             for (i = 0; i < softIndex.length; i++) {
                 listCategory[softIndex[i]] = "鎖定";
@@ -824,54 +891,62 @@ function drawChart(modeFull){
             for (i = 0; i < whiteIndex.length; i++) {
                 listCategory[whiteIndex[i]] = "白名單";
             }
-        }
+        // }
 
-        // only listed top N
-        else if(option==2){
-
-            // get fist N data
-            for(key in timeRecord){
-                if(timeRecord.hasOwnProperty(key) && softLockList.indexOf(key)>=0){
-                    li.push([key,timeRecord[key]]);
-                }
-            }
-            li = getFirstNInList(n,li);
-
-            timeValue = li[1];
-            for(i=li[1].length;i<n;i++) timeValue.push(0);
-            for(i=0;i<li[0].length;i++){
-                domainName.push(li[0][i]);
-            }
-            for(i=li[0].length;i<n;i++) domainName.push("");
-
-            formattedTime =formattingTimeArr(li[1]);
-            colors = generateNColor(n);
-            for(i=0;i<timeValue.length;i++) borderColors.push("black");
-
-        }
-
-        // only white top N
-        else if(option==3){
-
-            // get fist N data
-            for(key in timeRecord){
-                if(timeRecord.hasOwnProperty(key) && whiteList.indexOf(key)>=0){
-                    li.push([key,timeRecord[key]]);
-                }
-            }
-            li = getFirstNInList(n,li);
-
-            timeValue = li[1];
-            for(i=li[1].length;i<n;i++) timeValue.push(0);
-            for(i=0;i<li[0].length;i++){
-                domainName.push(li[0][i]);
-            }
-            for(i=li[0].length;i<n;i++) domainName.push("");
-
-            formattedTime =formattingTimeArr(li[1]);
-            colors = generateNColor(n);
-            for(i=0;i<timeValue.length;i++) borderColors.push("black");
-        }
+        // // only listed top N
+        // else if(option==2){
+        //
+        //     // get fist N data
+        //     for(key in timeRecord){
+        //         if(timeRecord.hasOwnProperty(key) && softLockList.indexOf(key)>=0){
+        //             li.push([key,timeRecord[key]]);
+        //         }
+        //     }
+        //     if(li.length==0){
+        //         notifyNoData();
+        //         return;
+        //     }
+        //     li = getFirstNInList(n,li);
+        //
+        //     timeValue = li[1];
+        //     for(i=li[1].length;i<n;i++) timeValue.push(0);
+        //     for(i=0;i<li[0].length;i++){
+        //         domainName.push(li[0][i]);
+        //     }
+        //     for(i=li[0].length;i<n;i++) domainName.push("");
+        //
+        //     formattedTime =formattingTimeArr(li[1]);
+        //     colors = generateNColor(n);
+        //     for(i=0;i<timeValue.length;i++) borderColors.push("black");
+        //
+        // }
+        //
+        // // only white top N
+        // else if(option==3){
+        //
+        //     // get fist N data
+        //     for(key in timeRecord){
+        //         if(timeRecord.hasOwnProperty(key) && whiteList.indexOf(key)>=0){
+        //             li.push([key,timeRecord[key]]);
+        //         }
+        //     }
+        //     if(li.length==0){
+        //         notifyNoData();
+        //         return;
+        //     }
+        //     li = getFirstNInList(n,li);
+        //
+        //     timeValue = li[1];
+        //     for(i=li[1].length;i<n;i++) timeValue.push(0);
+        //     for(i=0;i<li[0].length;i++){
+        //         domainName.push(li[0][i]);
+        //     }
+        //     for(i=li[0].length;i<n;i++) domainName.push("");
+        //
+        //     formattedTime =formattingTimeArr(li[1]);
+        //     colors = generateNColor(n);
+        //     for(i=0;i<timeValue.length;i++) borderColors.push("black");
+        // }
 
 
         chartType="bar";
@@ -881,9 +956,13 @@ function drawChart(modeFull){
             borderWidth = 3;
             barDist = 0.8;
         }
-        else if (n < 15) {
-            borderWidth = 1;
+        else if (n < 20) {
+            borderWidth = 2;
             barDist = 0.9;
+        }
+        else if(n<50){
+            borderWidth = 1;
+            barDist = 0.95;
         }
         else {
             borderWidth = 0;
@@ -1041,6 +1120,12 @@ function drawChart(modeFull){
 
 
 
+}
+
+function notifyNoData() {
+    var ctx = $('#chartArea')[0].getContext('2d');
+    ctx.font = "30px serif";
+    ctx.fillText("No Data",60,80);
 }
 
 function loadTimerBlock() {

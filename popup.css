@@ -415,12 +415,9 @@ input:checked + .switchSlider:before {
 #statisticsForEachWebsiteOptions{
     display: none;
     float: right;
-    width: 70px;
     height: 24px;
     font-size: 0.8em;
     padding: 2px;
-    border: 2px black solid;
-    border-radius: 5px;
 }
 #statisticsForEachWebsiteOptions option{
     font-size: 1.1em;
@@ -431,7 +428,7 @@ input:checked + .switchSlider:before {
     float: right;
     height: 24px;
     font-size: 0.8em;
-    border-radius: 5px;
+    padding: 2px;
 }
 
 #statisticsPastNDaysBlock input{

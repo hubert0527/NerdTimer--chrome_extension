@@ -223,14 +223,19 @@
                         </div>
                     </div>
                     <div style="height: 30px;width: 100%;margin-top: 7px;">
-                        <button id="statisticsForEachWebsite" class="optionBtn" style="margin-top: 2px;">網站</button>
-                        <button id="statisticsPastNDays" class="optionBtn" style="margin-top: 2px;">總計</button>
+                        <button id="statisticsForEachWebsite" class="optionBtn" style="margin-top: 2px;">排名</button>
                         <button id="statisticsUn" class="optionBtn" style="margin-top: 2px;">時間軸</button>
-                        <select id="statisticsForEachWebsiteOptions">
-                            <option value="1"> 綜合</option>
-                            <option value="2"> 僅鎖定</option>
-                            <option value="3"> 白名單</option>
-                        </select>
+                        <button id="statisticsPastNDays" class="optionBtn" style="margin-top: 2px;">類別</button>
+                        <!--<select id="statisticsForEachWebsiteOptions">-->
+                            <!--<option value="1"> 綜合</option>-->
+                            <!--<option value="2"> 僅鎖定</option>-->
+                            <!--<option value="3"> 白名單</option>-->
+                        <!--</select>-->
+                        <div id="statisticsForEachWebsiteOptions">
+                            <p style="display: inline-block;line-height: 21px;margin: 0;">總數:</p>
+                            <input id="statisticsNWebsiteInput" type="text" style="margin-top: 2px;height: 15px;text-align: right;width: 23px;">
+                            <div id="websiteCountInputPop" class="arrow_box">0 ~ 365</div>
+                        </div>
                         <div id="statisticsPastNDaysBlock">
                             <p style="display: inline-block;line-height: 21px;margin: 0;">天數:</p>
                             <input id="statisticsPastNDaysInput" type="text" style="margin-top: 2px;height: 15px;text-align: right;width: 23px;">

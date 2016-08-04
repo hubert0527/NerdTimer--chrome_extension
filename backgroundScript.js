@@ -27,6 +27,16 @@ var ignore = [
     "cn"
 ];
 
+var recordException = [
+    'null',
+    'newtab'
+];
+
+var prefixException = [
+    'file',
+    'chrome'
+];
+
 // var singleHardLock = [];
 var singleSoftLock = [];
 var singleWhite = [];
@@ -687,7 +697,10 @@ function searchDomain(purified, rawUrl,  timeDiff) {
     // }while( (purified = clearLast(purified))!="" );
 
     // might be bg page or popup page
-    if(!rawUrl || rawUrl=="null") return;
+    if(!rawUrl || recordException.indexOf(rawUrl)>=0) return;
+    var testSp = rawUrl.split('://');
+    var prefix = testSp[0];
+    if(prefixException.indexOf(prefix)>=0) return;
 
     url = purifyUrl(rawUrl);
     var sp = url.split('/');
