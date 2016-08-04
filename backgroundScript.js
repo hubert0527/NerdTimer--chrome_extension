@@ -109,8 +109,7 @@ function setChangeDayTimer() {
             clearInterval(changeDayTimerInst);
             var day = new Date();
 
-            console.log("saveFully at "+(day.getMonth()+1)+"/"+day.getDate()+'||'+day.getSeconds()+'.'+day.getMilliseconds());
-            saveFileFully(function () {
+            saveFileFully(day,function () {
 
                 var lastDay = day.getDate();
                 var next = new Date();
@@ -121,9 +120,7 @@ function setChangeDayTimer() {
                     nextDay = new Date().getDate();
                 }
                 lockSaveFile = false;
-
-                console.log("saveFully complete at "+(next.getMonth()+1)+"/"+next.getDate()+'||'+next.getSeconds()+'.'+next.getMilliseconds());
-
+                
                 clearLocalData();
                 loadFile();
             });
