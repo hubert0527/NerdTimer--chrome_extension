@@ -563,6 +563,9 @@ function createNDayInput() {
 
         lastDayInput = str;
 
+        // 1 is an exception which cannot complete a graph
+        if(val==1) return;
+
         pastNDayTimerInst = setInterval(function(){
             // over 500ms no further input
             var day = parseInt($('#statisticsPastNDaysInput').val());
@@ -1337,6 +1340,12 @@ function loadPops() {
     });
     document.getElementById("statisticsPastNDaysInput").addEventListener("focusout",function(){
         $('#dayInputPop').fadeOut('fast');
+    });
+    document.getElementById("statisticsNWebsiteInput").addEventListener("focus",function(){
+        $('#websiteCountInputPop').fadeIn('slow');
+    });
+    document.getElementById("statisticsNWebsiteInput").addEventListener("focusout",function(){
+        $('#websiteCountInputPop').fadeOut('fast');
     });
 }
 
