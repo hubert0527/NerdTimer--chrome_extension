@@ -422,6 +422,9 @@ function loadButtons() {
     // });
     document.getElementById("goToMainPage9").addEventListener("click", function(){
         moveLeftTo("#statistics","#addToListType",function(){
+
+            $('#chartPopupTop').css('display','none');
+
             var me = $("#statistics");
             $('#chartArea').remove();
             me.append(
@@ -625,7 +628,8 @@ function changeToMode(changeToMode) {
                 chartMode0OptionRec = 10;
             }
 
-            drawChart(chartMode0OptionRec*10);
+            changeToMode = chartMode0OptionRec*10
+            drawChart(changeToMode);
         }
         else{
             chartMode0OptionRec = option;
@@ -649,7 +653,8 @@ function changeToMode(changeToMode) {
                 chartMode1OptionRec = 7;
             }
 
-            drawChart(chartMode1OptionRec*10+1);
+            changeToMode = chartMode1OptionRec*10+1;
+            drawChart(changeToMode);
         }
         else{
             chartMode1OptionRec = option;
@@ -1016,6 +1021,15 @@ function drawChart(modeFull){
             options: chartOption
         });
 
+        document.getElementById('chartArea').onclick = function(evt){
+            var activePoints = chart.getElementsAtEvent(evt);
+            if(activePoints && activePoints[0]) {
+                var label = activePoints[0]._model.label;
+                console.log("clicked on " + label);
+                createTopPopup(label);
+            }
+        };
+
     }
     else if(mode==1){
         chartType="line";
@@ -1120,6 +1134,93 @@ function drawChart(modeFull){
 
 
 
+}
+
+function createTopPopup(url) {
+
+    var top = $('#chartPopupTop');
+
+    var lastChild = $('#chartPopupTopActions').children();
+    if(lastChild){
+        $(lastChild).remove();
+    }
+
+    if(top.is(':visible')){
+        top.fadeOut('fast',function () {
+            prepareTopPopupContent(url);
+            top.fadeIn('fast');
+        });
+    }
+    else{
+        prepareTopPopupContent(url);
+        top.fadeIn('fast');
+    }
+
+}
+function prepareTopPopupContent(url) {
+    var top = $('#chartPopupTop');
+
+    top.css('display','flex').hide();
+
+    var actions = $('#chartPopupTopActions');
+
+    $('#closePopupTop').click(function () {
+        $('#chartPopupTop').fadeOut('fast');
+    });
+    $('#addingDomainName').text(url);
+
+    if(whiteList.indexOf(url)>=0){
+        actions.append('<button id="removeFromWhiteListBtnJustCreated" class="popupTopBtn">自白名單移除</button>');
+        $('#removeFromWhiteListBtnJustCreated').click(function () {
+            var index = whiteList.indexOf(url);
+            whiteList.splice(index,1);
+            saveFile(function(){
+                getCurrentTab(function(tab){
+                    chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
+                });
+                drawChart(chartMode);
+            });
+            top.fadeOut('fast');
+        });
+    }
+    else if(softLockList.indexOf(url)>=0){
+        actions.append('<button id="removeFromSoftLockListBtnJustCreated" class="popupTopBtn">自鎖定移除</button>');
+        $('#removeFromSoftLockListBtnJustCreated').click(function () {
+            var index = softLockList.indexOf(url);
+            softLockList.splice(index,1);
+            saveFile(function(){
+                getCurrentTab(function(tab){
+                    chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
+                });
+                drawChart(chartMode);
+            });
+            top.fadeOut('fast');
+        });
+    }
+    else{
+        actions.append('<button id="addToWhiteListBtnJustCreated" class="popupTopBtn">白名單</button>');
+        actions.append('<button id="addToSoftLockListBtnJustCreated" class="popupTopBtn">鎖定</button>');
+        $('#addToSoftLockListBtnJustCreated').click(function () {
+            softLockList.push(url);
+            saveFile(function(){
+                getCurrentTab(function(tab){
+                    chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
+                });
+                drawChart(chartMode);
+            });
+            top.fadeOut('fast');
+        });
+        $('#addToWhiteListBtnJustCreated').click(function () {
+            whiteList.push(url);
+            saveFile(function(){
+                getCurrentTab(function(tab){
+                    chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
+                });
+                drawChart(chartMode);
+            });
+            top.fadeOut('fast');
+        });
+    }
 }
 
 function notifyNoData() {

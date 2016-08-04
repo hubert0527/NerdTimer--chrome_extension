@@ -12,7 +12,7 @@ body, html, button, input, div, footer, a{
 }
 
 button{
-    font-weight: 600;
+    font-weight: 400;
 }
 
 footer{
@@ -434,6 +434,41 @@ input:checked + .switchSlider:before {
 #statisticsPastNDaysBlock input{
     width: 70px;
 }
+
+#chartPopupTop{
+    display: none;
+    position: absolute;
+    top:65px;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    background-color: black;
+    opacity: 0.7;
+    align-items : center;
+}
+#addingDomainName{
+    color: white;
+    margin: 0 4px;
+    max-width: 48%;
+    overflow: hidden;
+}
+#chartPopupTop .popupTopBtn{
+    padding: 1px 4px;
+    border: 2px white solid;
+    border-radius: 3px;
+    background-color: black;
+    opacity: 1.5;
+    color: white;
+    transition-duration: 0.4s;
+    float: right;
+    margin: 0 1px;
+}
+#chartPopupTop .popupTopBtn:hover{
+    opacity: 1.5;
+    background-color: white;
+    color: black;
+}
+
 
 #warningPop{
     text-align: center;
