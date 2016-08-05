@@ -511,6 +511,10 @@ function createNWebsiteInput() {
             (e.keyCode >= 35 && e.keyCode <= 39)) {
                  // let it happen, don't do anything
         }
+        // enable chinese to notify user use wrong input type
+        else if(e.which==229){
+
+        }
         // Ensure that it is a number and stop the keypress
         else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
             e.preventDefault();
@@ -527,7 +531,7 @@ function createNWebsiteInput() {
         var lastChar = str.slice(-1);
 
         if(!val){
-            if(lastChar!='') $(this).val('');
+            if(lastChar!='' && (lastChar<'ㄅ'||lastChar>'ㄦ')) $(this).val('');
             return;
         }
         else if(val>100){
@@ -562,6 +566,10 @@ function createNDayInput() {
             (e.keyCode >= 35 && e.keyCode <= 39)) {
                  // let it happen, don't do anything
         }
+        // enable chinese to notify user use wrong input type
+        else if(e.which==229){
+
+        }
         // Ensure that it is a number and stop the keypress
         else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
             e.preventDefault();
@@ -578,7 +586,7 @@ function createNDayInput() {
         var lastChar = str.slice(-1);
 
         if(!val){
-            if(lastChar!='') $(this).val('');
+            if(lastChar!='' && (lastChar<'ㄅ'||lastChar>'ㄦ')) $(this).val('');
             return;
         }
         else if(val>365){
@@ -1326,23 +1334,27 @@ function loadTimerBlock() {
             (e.keyCode >= 35 && e.keyCode <= 39)) {
                  // let it happen, don't do anything
         }
+        // enable chinese to notify user use wrong input type
+        else if(e.which==229){
+
+        }
         // Ensure that it is a number and stop the keypress
         else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
             e.preventDefault();
         }
     });
     // timer can't have too-high number, MAX=999
-    $(document.getElementById("waitTime")).bind("input",function(){
+    $(document.getElementById("waitTime")).bind("input",function(e){
         var str = $(this).val();
         var val = parseInt(str);
         var lastChar = str.slice(-1);
 
         if(!val){
-            if(lastChar!='') $(this).val('');
+            if(lastChar!='' && (lastChar<'ㄅ'||lastChar>'ㄦ')) $(this).val('');
             $("#startTimer").fadeOut('fast');
             return;
         }
-        else if(lastChar>'9' || lastChar<'0'){
+        else if( (lastChar>'9'||lastChar<'0') && (lastChar<'ㄅ'||lastChar>'ㄦ') ){
             if(!val){
                 $("#startTimer").fadeOut('fast');
             }
