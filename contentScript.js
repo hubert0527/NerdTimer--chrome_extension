@@ -12,6 +12,8 @@ if (!chrome.runtime) {
     chrome.runtime.connect = chrome.extension.connect;
 }
 
+var isFadingOut = false;
+
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
     if(msg && msg.block=="hard"){
@@ -22,6 +24,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg && msg.block=="false"){
         $('#blockerWrapper').fadeOut("slow");
+        isFadingOut = true;
     }
     else if(msg.modifyMainMessage!=undefined){
         var tar = document.getElementById("main_message");
@@ -97,7 +100,7 @@ function doSoftBlock(){
     console.log("got soft block");
     var tar = document.getElementById("blockerWrapper");
     if(tar!=undefined){
-        if($(tar).is(":visible")) {
+        if($(tar).is(":visible") && !isFadingOut) {
             // already blocked
             // still need to check text
             chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
@@ -114,6 +117,7 @@ function doSoftBlock(){
             return;
         }
         else{
+            isFadingOut = false;
             $('#blockerWrapper').fadeIn("slow");
             console.log("turn unvisible to visible");
             return;

@@ -638,7 +638,7 @@ chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
         // check block
         dealWithUrlMain(tab,function(){
             console.log("on update");
-            doTimeRecord(tab);
+            //doTimeRecord(tab);
         });
     }
 });
