@@ -431,6 +431,14 @@ input:checked + .switchSlider:before {
     padding: 2px;
 }
 
+#statisticsTimeLineBlock{
+    display: none;
+    float: right;
+    height: 24px;
+    font-size: 0.8em;
+    padding: 2px;
+}
+
 #statisticsPastNDaysBlock input{
     width: 70px;
 }
@@ -467,6 +475,15 @@ input:checked + .switchSlider:before {
     opacity: 1.5;
     background-color: white;
     color: black;
+}
+
+#timeLineOptions{
+    height: 30px;
+    width: 90%;
+    position: absolute;
+    top: 70px;
+    left: 5%;
+    display: none;
 }
 
 
@@ -524,6 +541,7 @@ input:checked + .switchSlider:before {
     position: relative;
     display: block;
     opacity: 0.8;
+    transition-duration: 1s;
 }
 
 .tooltipRight .tooltipText {
@@ -538,7 +556,7 @@ input:checked + .switchSlider:before {
     left: 105%;
     position: absolute;
     z-index: 1;
-    transition-duration: .4s;
+    transition-duration: 1s;
 }
 
 .tooltipBottom .tooltipText {
@@ -554,10 +572,12 @@ input:checked + .switchSlider:before {
     margin-left: -60px;
     position: absolute;
     z-index: 1;
+    transition-duration: 1s;
 }
 
 .tooltip:hover .tooltipText {
     display: inline-block;
+    transition-duration: 1s;
 }
 
 .singleBottomTooltipText{

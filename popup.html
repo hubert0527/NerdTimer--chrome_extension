@@ -107,9 +107,8 @@
                         <div style="width: 50%;float: left;">
                             <h6 style="margin:0">暫停鎖定</h6>
                             <!--<img id="prompt1" src="question.png" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 58px;left: 68px;">-->
-                            <div class="tooltip tooltipRight" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 57px;left: 64px;">
+                            <div class="hover-tooltip" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 57px;left: 64px;" title="關閉直到下次瀏覽">
                                 <img src="question.png" style="width: 100%;height: 100%;">
-                                <span class="tooltipText" style="font-size: 0.66em;padding: 2px 4px;">關閉直到下次瀏覽</span>
                             </div>
 
                             <!--<div style="margin-left: 20px;">-->
@@ -246,7 +245,7 @@
                     </div>
                     <div style="height: 30px;width: 100%;margin-top: 7px;">
                         <button id="statisticsForEachWebsite" class="optionBtn" style="margin-top: 2px;">排名</button>
-                        <button id="statisticsUn" class="optionBtn" style="margin-top: 2px;">時間軸</button>
+                        <button id="statisticsWebsiteTimeLine" class="optionBtn" style="margin-top: 2px;">時間軸</button>
                         <button id="statisticsPastNDays" class="optionBtn" style="margin-top: 2px;">類別</button>
                         <!--<select id="statisticsForEachWebsiteOptions">-->
                             <!--<option value="1"> 綜合</option>-->
@@ -258,6 +257,10 @@
                             <input id="statisticsNWebsiteInput" class="focus-tooltip" type="text" style="margin-top: 2px;height: 15px;text-align: right;width: 23px;" title="1 ~ 100">
                             <!--<div id="websiteCountInputPop" class="arrow_box">0 ~ 365</div>-->
                             <!--<div id="websiteCountInputPop" class="singleBottomTooltipText" style="width: 60px;left: 100%;">1~100</div>-->
+                        </div>
+                        <div id="statisticsTimeLineBlock" style="position: relative;">
+                            <p style="display: inline-block;line-height: 21px;margin: 0;">天數:</p>
+                            <input id="statisticsTimeLineInput" class="focus-tooltip" type="text" style="margin-top: 2px;height: 15px;text-align: right;width: 23px;" title="2 ~ 365">
                         </div>
                         <div id="statisticsPastNDaysBlock" style="position: relative;">
                             <p style="display: inline-block;line-height: 21px;margin: 0;">天數:</p>
@@ -271,10 +274,17 @@
 
                     <div id="chartPopupTop">
                         <button id="closePopupTop" style="color: white;border: none;background-color: transparent;margin: 0 0 0 3px;padding:2px 5px;">✕</button>
-                        <p id="addingDomainName">testing.com</p>
+                        <p id="addingDomainName">ERROR.com</p>
                         <div id="chartPopupTopActions" style="margin-left: auto;">
 
                         </div>
+                    </div>
+
+                    <div id="timeLineOptions">
+                        <select id="timeLineOptionsSelect" style="width: 100%;max-height: 100px;">
+                            <optgroup id="timeLineOptionsSelectLocked" label="鎖定"></optgroup>
+                            <optgroup id="timeLineOptionsSelectWhite" label="白名單"></optgroup>
+                        </select>
                     </div>
 
                 </div>

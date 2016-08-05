@@ -64,6 +64,8 @@ var purifiedSoftLock;
 // var purifiedHardLock;
 var purifiedWhite;
 
+var fakeLoadTimerInst;
+
 /**
  * main thread, load almost everything except remove list
  */
@@ -259,14 +261,6 @@ function listPossibleAddDomain(type) {
     });
 }
 
-var pastNDayTimerInst;
-var lastDayInput = "7";
-
-var pastNWebsiteTimerInst;
-var lastWebsiteInput = "10";
-
-var fakeLoadTimerInst;
-
 function loadButtons() {
     // document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
     document.getElementById("addDomainToSoftLockListMore").addEventListener("click", function () {
@@ -351,29 +345,29 @@ function loadButtons() {
     createRemoveList();
 
     document.getElementById("goToMainPage1").addEventListener("click", function(){
-        loadFile();
-
-        // refresh status
-        getCurrentTabUrl(function (url) {
-            // check in list
-            chrome.runtime.sendMessage({"getStatus":url}, function(response) {
-                if(response==undefined || response.block==undefined)
-                    $(document.getElementById("isInList")).text(" error");
-                if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
-                // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
-                else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
-                else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
+        loadFile(function () {
+            // refresh status
+            getCurrentTabUrl(function (url) {
+                // check in list
+                chrome.runtime.sendMessage({"getStatus":url}, function(response) {
+                    if(response==undefined || response.block==undefined)
+                        $(document.getElementById("isInList")).text(" error");
+                    if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
+                    // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
+                    else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
+                    else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
+                });
             });
-        });
 
-        // refresh timer time check if click 5min btn
-        chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
-            if(timer<=0 && parseInt(res.time)>0){
-                setPopupTimer(res.time);
-            }
-        });
+            // refresh timer time check if click 5min btn
+            chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
+                if(timer<=0 && parseInt(res.time)>0){
+                    setPopupTimer(res.time);
+                }
+            });
 
-        moveLeftTo("#addToListType","#mainPage");
+            moveLeftTo("#addToListType","#mainPage");
+        });
     });
     document.getElementById("goToMainPage6").addEventListener("click", function(){
         moveLeftTo("#removeWhite","#addToListType",function () {
@@ -425,29 +419,29 @@ function loadButtons() {
     });
 
     document.getElementById("goToMainPage11").addEventListener("click", function(){
-        loadFile();
-
-        // refresh status
-        getCurrentTabUrl(function (url) {
-            // check in list
-            chrome.runtime.sendMessage({"getStatus":url}, function(response) {
-                if(response==undefined || response.block==undefined)
-                    $(document.getElementById("isInList")).text(" error");
-                if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
-                // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
-                else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
-                else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
+        loadFile(function () {
+            // refresh status
+            getCurrentTabUrl(function (url) {
+                // check in list
+                chrome.runtime.sendMessage({"getStatus":url}, function(response) {
+                    if(response==undefined || response.block==undefined)
+                        $(document.getElementById("isInList")).text(" error");
+                    if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
+                    // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
+                    else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
+                    else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
+                });
             });
-        });
 
-        // refresh timer time check if click 5min btn
-        chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
-            if(timer<=0 && parseInt(res.time)>0){
-                setPopupTimer(res.time);
-            }
-        });
+            // refresh timer time check if click 5min btn
+            chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
+                if(timer<=0 && parseInt(res.time)>0){
+                    setPopupTimer(res.time);
+                }
+            });
 
-        moveLeftTo("#settingPage","#mainPage");
+            moveLeftTo("#settingPage","#mainPage");
+        });
     });
 
 }

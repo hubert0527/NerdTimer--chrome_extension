@@ -5,9 +5,18 @@ var chartMode0OptionRec = -1;
 var chartMode1OptionRec = -1;
 var chartMode2OptionRec = -1;
 
+var pastNDayTimerInst;
+var lastDayInput = "7";
+
+var pastTimeLineTimerInst;
+var lastTimeLineInput = "7";
+
+var pastNWebsiteTimerInst;
+var lastWebsiteInput = "10";
+
 function prepareChart(callback) {
     //chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
-        loadFile(function(){
+    //     loadFile(function(){
 
             // init
             // force program to re load all components
@@ -18,6 +27,7 @@ function prepareChart(callback) {
             $('#statisticsForEachWebsite').click(function(){
                 if(chartMode!=0){
                     clearInterval(pastNDayTimerInst);
+                    clearInterval(pastTimeLineTimerInst);
                     changeToMode(0);
                 }
             });
@@ -26,12 +36,13 @@ function prepareChart(callback) {
             $('#statisticsPastNDays').click(function(){
                 if(chartMode!=1){
                     clearInterval(pastNWebsiteTimerInst);
+                    clearInterval(pastTimeLineTimerInst);
                     changeToMode(1);
                 }
             });
 
             // button for mode 2
-            $('#statisticsUn').click(function(){
+            $('#statisticsWebsiteTimeLine').click(function(){
                 if(chartMode!=2){
                     clearInterval(pastNDayTimerInst);
                     clearInterval(pastNWebsiteTimerInst);
@@ -45,7 +56,7 @@ function prepareChart(callback) {
 
             if(callback) callback();
 
-        });
+        // });
     //});
 }
 
@@ -69,33 +80,33 @@ function changeToMode(changeToMode) {
     var prevMode = chartMode%10;
 
     // remove previous chart
+    $('iframe.chartjs-hidden-iframe').remove();
     $('#chartArea').remove();
     $("#statistics").append('<canvas id="chartArea" width="225" height="160"></canvas>');
+
+    var mode0Box = $('#statisticsForEachWebsiteOptions');
+    var mode1Box = $('#statisticsPastNDaysBlock');
+    var mode2Box = $('#statisticsTimeLineBlock');
+    var mode2Select = $('#timeLineOptions');
 
 
     if(mode==0){
         // run prev, or default
         if(option==0) {
-            var selectBox = $('#statisticsForEachWebsiteOptions');
             var inputBox = $('#statisticsNWebsiteInput');
+
+            var kill = $([mode1Box[0],mode2Box[0],mode2Select[0]]);
+            var c=0;
+            kill.fadeOut('fast',function(){
+                c++;
+                if(c==kill.length) mode0Box.fadeIn('fast');
+            });
 
             // init
             if(prevMode==-1){
-                selectBox.css("display","block");
-            }
-            else if(prevMode==1){
-                $('#statisticsPastNDaysBlock').fadeOut('fast',function(){selectBox.fadeIn('fast');});
+                mode0Box.css("display","block");
             }
 
-            // // jump to target option if this chart was used before
-            // if(chartMode0OptionRec!=-1) {
-            //     selectBox.val(chartMode0OptionRec.toString());
-            // }
-            // else{
-            //     selectBox.val('1');
-            //     chartMode0OptionRec = 1;
-            // }
-            // jump to target option if this chart was used before
             if(chartMode0OptionRec!=-1) {
                 inputBox.val(chartMode0OptionRec.toString());
             }
@@ -111,14 +122,29 @@ function changeToMode(changeToMode) {
             chartMode0OptionRec = option;
             drawChart(changeToMode);
         }
+
+        // if(mode1Box.is(':visible')){
+        //     mode1Box.fadeOut('fast',function(){mode0Box.fadeIn('fast');});
+        // }
+        // if(mode2Box.is(':visible')){
+        //     mode2Box.fadeOut('fast',function(){mode0Box.fadeIn('fast');});
+        // }
+        // if(mode2Select.is(':visible')){
+        //     mode2Box.fadeOut('fast',function(){mode0Box.fadeIn('fast');});
+        // }
+
     }
     else if(mode==1){
         // run prev, or default
         if(option==0) {
             var inputBox = $('#statisticsPastNDaysInput');
-            if(prevMode==0){
-                $('#statisticsForEachWebsiteOptions').fadeOut('fast',function(){$('#statisticsPastNDaysBlock').fadeIn('fast');});
-            }
+
+            var kill = $([mode0Box[0],mode2Box[0],mode2Select[0]]);
+            var c = 0;
+            kill.fadeOut('fast',function(){
+                c++;
+                if(c==kill.length) mode1Box.fadeIn('fast');
+            });
 
             // jump to target option if this chart was used before
             if(chartMode1OptionRec!=-1) {
@@ -136,15 +162,73 @@ function changeToMode(changeToMode) {
             chartMode1OptionRec = option;
             drawChart(changeToMode);
         }
+
+        // if(mode0Box.is(':visible')){
+        //     mode0Box.fadeOut('fast',function(){mode1Box.fadeIn('fast');});
+        // }
+        // if(mode2Box.is(':visible')){
+        //     mode2Box.fadeOut('fast',function(){mode1Box.fadeIn('fast');});
+        // }
+        // if(mode2Select.is(':visible')){
+        //     mode2Box.fadeOut('fast',function(){mode1Box.fadeIn('fast');});
+        // }
+
     }
     else if(mode==2){
+
+        // this mode specifically use narrower space
+        var me = $("#statistics");
+        $('iframe.chartjs-hidden-iframe').remove();
+        $('#chartArea').remove();
+        me.append(
+            '<canvas id="chartArea" width="225" height="130" style="margin-top: 30px;"></canvas>'
+        );
+
         // run prev, or default
         if(option==0) {
+            var inputBox = $('#statisticsPastNDaysInput');
+
+            var kill = $([mode0Box[0],mode1Box[0]]);
+            var c=0;
+            kill.fadeOut('fast',function(){
+                c++;
+                if(c==kill.length) {
+                    mode2Box.fadeIn('fast');
+                    mode2Select.fadeIn('fast');
+                }
+            });
+
+            // jump to target option if this chart was used before
+            if(chartMode2OptionRec!=-1) {
+                inputBox.val(chartMode2OptionRec.toString());
+            }
+            else{
+                inputBox.val('7');
+                chartMode2OptionRec = 7;
+            }
+
+            changeToMode = chartMode2OptionRec*10+2;
+            drawChart(changeToMode);
 
         }
         else{
-
+            chartMode2OptionRec = option;
+            drawChart(changeToMode);
         }
+
+        // if(mode0Box.is(':visible')){
+        //     mode0Box.fadeOut('fast',function(){
+        //         mode2Box.fadeIn('fast');
+        //         mode2Select.fadeIn('fast');
+        //     });
+        // }
+        // if(mode1Box.is(':visible')){
+        //     mode1Box.fadeOut('fast',function(){
+        //         mode2Box.fadeIn('fast');
+        //         mode2Select.fadeIn('fast');
+        //     });
+        // }
+
     }
 
     chartMode = changeToMode;
@@ -310,126 +394,57 @@ function drawChart(modeFull){
 
 
     if(mode==0){
-        // mixed top N
-        // if(option==1) {
 
-            n = option;
+        n = option;
 
-            if(Object.keys(timeRecord).length==0){
-                notifyNoData();
-                return;
+        if(Object.keys(timeRecord).length==0){
+            notifyNoData();
+            return;
+        }
+
+        // get fist N data
+        for(key in timeRecord ){
+            if(timeRecord.hasOwnProperty(key)){
+                li.push([key,timeRecord[key]]);
             }
+        }
 
-            // get fist N data
-            for(key in timeRecord ){
-                if(timeRecord.hasOwnProperty(key)){
-                    li.push([key,timeRecord[key]]);
-                }
+        li = getFirstNInList(n, li);
+
+        timeValue = li[1];
+        for (i = li[1].length; i < n; i++) timeValue.push(0);
+        for (i = 0; i < li[0].length; i++) {
+            domainName.push(li[0][i]);
+        }
+        for (i = li[0].length; i < n; i++) domainName.push("");
+
+        formattedTime = formattingTimeArr(li[1]);
+        colors = generateNColor(n);
+        for (i = 0; i < timeValue.length; i++) borderColors.push("black");
+
+        // remove color of domain in white List
+        var softIndex = getIndexesInList(domainName,softLockList);
+        for(i=0;i<colors.length;i++) {
+            if( softIndex.indexOf(i)<0){
+                colors[i] = "black";
             }
-            // for(key in whiteTimeRecord ){
-            //     if(whiteTimeRecord.hasOwnProperty(key)){
-            //         li.push([key,whiteTimeRecord[key]]);
-            //     }
-            // }
-            // for(key in softTimeRecord ){
-            //     if(softTimeRecord.hasOwnProperty(key)){
-            //         li.push([key,softTimeRecord[key]]);
-            //     }
-            // }
+        }
+        var whiteIndex = getIndexesInList(domainName,whiteList);
+        for (i = 0; i < whiteIndex.length; i++) {
+            colors[whiteIndex[i]] = "white";
+            //borderColors[whiteIndex[i]]="white";
+        }
 
-            li = getFirstNInList(n, li);
-
-            timeValue = li[1];
-            for (i = li[1].length; i < n; i++) timeValue.push(0);
-            for (i = 0; i < li[0].length; i++) {
-                domainName.push(li[0][i]);
-            }
-            for (i = li[0].length; i < n; i++) domainName.push("");
-
-            formattedTime = formattingTimeArr(li[1]);
-            colors = generateNColor(n);
-            for (i = 0; i < timeValue.length; i++) borderColors.push("black");
-
-            // remove color of domain in white List
-            var softIndex = getIndexesInList(domainName,softLockList);
-            for(i=0;i<colors.length;i++) {
-                if( softIndex.indexOf(i)<0){
-                    colors[i] = "black";
-                }
-            }
-            var whiteIndex = getIndexesInList(domainName,whiteList);
-            for (i = 0; i < whiteIndex.length; i++) {
-                colors[whiteIndex[i]] = "white";
-                //borderColors[whiteIndex[i]]="white";
-            }
-
-            // deal with category
-            for(i=0;i<timeValue.length;i++){
-                listCategory[i] = "未加入";
-            }
-            for (i = 0; i < softIndex.length; i++) {
-                listCategory[softIndex[i]] = "鎖定";
-            }
-            for (i = 0; i < whiteIndex.length; i++) {
-                listCategory[whiteIndex[i]] = "白名單";
-            }
-        // }
-
-        // // only listed top N
-        // else if(option==2){
-        //
-        //     // get fist N data
-        //     for(key in timeRecord){
-        //         if(timeRecord.hasOwnProperty(key) && softLockList.indexOf(key)>=0){
-        //             li.push([key,timeRecord[key]]);
-        //         }
-        //     }
-        //     if(li.length==0){
-        //         notifyNoData();
-        //         return;
-        //     }
-        //     li = getFirstNInList(n,li);
-        //
-        //     timeValue = li[1];
-        //     for(i=li[1].length;i<n;i++) timeValue.push(0);
-        //     for(i=0;i<li[0].length;i++){
-        //         domainName.push(li[0][i]);
-        //     }
-        //     for(i=li[0].length;i<n;i++) domainName.push("");
-        //
-        //     formattedTime =formattingTimeArr(li[1]);
-        //     colors = generateNColor(n);
-        //     for(i=0;i<timeValue.length;i++) borderColors.push("black");
-        //
-        // }
-        //
-        // // only white top N
-        // else if(option==3){
-        //
-        //     // get fist N data
-        //     for(key in timeRecord){
-        //         if(timeRecord.hasOwnProperty(key) && whiteList.indexOf(key)>=0){
-        //             li.push([key,timeRecord[key]]);
-        //         }
-        //     }
-        //     if(li.length==0){
-        //         notifyNoData();
-        //         return;
-        //     }
-        //     li = getFirstNInList(n,li);
-        //
-        //     timeValue = li[1];
-        //     for(i=li[1].length;i<n;i++) timeValue.push(0);
-        //     for(i=0;i<li[0].length;i++){
-        //         domainName.push(li[0][i]);
-        //     }
-        //     for(i=li[0].length;i<n;i++) domainName.push("");
-        //
-        //     formattedTime =formattingTimeArr(li[1]);
-        //     colors = generateNColor(n);
-        //     for(i=0;i<timeValue.length;i++) borderColors.push("black");
-        // }
-
+        // deal with category
+        for(i=0;i<timeValue.length;i++){
+            listCategory[i] = "未加入";
+        }
+        for (i = 0; i < softIndex.length; i++) {
+            listCategory[softIndex[i]] = "鎖定";
+        }
+        for (i = 0; i < whiteIndex.length; i++) {
+            listCategory[whiteIndex[i]] = "白名單";
+        }
 
         chartType="bar";
 
@@ -614,6 +629,75 @@ function drawChart(modeFull){
         });
     }
 
+    else if(mode==2){
+        chartType="line";
+
+        var pastNDays=getPastNDays(10);
+
+        loadPastNDaysForDesignatedWebsite(pastNDays,'facebook.com',function (timeData) {
+
+            data = {
+                labels: pastNDays,
+                datasets: [{
+                    data: timeData,
+                    backgroundColor: 'red',
+                    borderColor: 'black',
+                    borderWidth: 2,
+                    lineTension: 0.4,
+                    spanGaps: true
+                }]
+
+            };
+
+            chartOption= {
+                legend: {
+                    display: false
+                },
+                tooltips:{
+                    callbacks: {
+                        label: function (tooltipItem, data) {
+                            var index = tooltipItem.index;
+                            var time = timeData[index];
+
+                            time/=1000;
+                            var sec = Math.floor(time%60);
+                            time/=60;
+                            var min = Math.floor(time%60);
+                            time/=60;
+                            var hr = Math.floor(time%60);
+
+                            return hr+'h '+min+'m '+sec+'s';
+                        },
+                        afterLabel : function(tooltipItem,data){
+                            var index = tooltipItem.index;
+                            return pastNDays[index];
+                        }
+                    }
+                },
+                scales: {
+                    xAxes: [{
+                        ticks: {
+                            display: false,
+                            padding: 100
+                        }
+                    }],
+                    yAxes: [{
+                        // display: false
+                        ticks: {
+                            display: false
+                        }
+                    }]
+                }
+            };
+
+            chart = new Chart(ctx,{
+                type: chartType,
+                data: data,
+                options: chartOption
+            });
+        });
+    }
+
 }
 
 function createTopPopup(url) {
@@ -659,6 +743,7 @@ function prepareTopPopupContent(url) {
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
                 var me = $("#statistics");
+                $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
                 me.append(
                     '<canvas id="chartArea" width="225" height="160"></canvas>'
@@ -678,6 +763,7 @@ function prepareTopPopupContent(url) {
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
                 var me = $("#statistics");
+                $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
                 me.append(
                     '<canvas id="chartArea" width="225" height="160"></canvas>'
@@ -697,6 +783,7 @@ function prepareTopPopupContent(url) {
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
                 });
                 var me = $("#statistics");
+                $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
                 me.append(
                     '<canvas id="chartArea" width="225" height="160"></canvas>'
@@ -712,6 +799,7 @@ function prepareTopPopupContent(url) {
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
                 var me = $("#statistics");
+                $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
                 me.append(
                     '<canvas id="chartArea" width="225" height="160"></canvas>'
