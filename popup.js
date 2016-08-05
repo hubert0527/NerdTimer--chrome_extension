@@ -1,3 +1,29 @@
+
+$( function() {
+    // $( document ).tooltip();
+    $('.hover-tooltip').tooltip({position: {
+        my: "center",
+        at: "bottom+15",
+        track: false,
+        using:
+            function(position, feedback) {
+                $(this).css(position);
+            }
+        }
+    });
+    $('.focus-tooltip').tooltip({position: {
+        my: "center",
+        at: "bottom+15",
+        track: false,
+        using:
+            function(position, feedback) {
+                $(this).css(position);
+            }
+        }
+    });
+    $('.focus-tooltip').tooltip().off("mouseover mouseout");
+} );
+
 var ignore = [
     "www",
     "m",
@@ -250,7 +276,7 @@ var fakeLoadTimerInst;
 
 function loadButtons() {
     // document.getElementById("addSinglePageToSoftLockList").addEventListener("click", addSinglePageToSoftLockList);
-    document.getElementById("addDomainToSoftLockList").addEventListener("click", function () {
+    document.getElementById("addDomainToSoftLockListMore").addEventListener("click", function () {
         listPossibleAddDomain("locked");
         moveRightTo("#addToListType","#possibleDomain");
     });
@@ -259,7 +285,7 @@ function loadButtons() {
     // document.getElementById("addBaseDomainToHardLockList").addEventListener("click", addBaseDomainToHardLockList);
     // document.getElementById("addSinglePageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
     document.getElementById("fastWhite").addEventListener("click", addSinglePageToWhiteList);
-    document.getElementById("addDomainToWhiteList").addEventListener("click", function () {
+    document.getElementById("addDomainToWhiteListMore").addEventListener("click", function () {
         listPossibleAddDomain("white");
         moveRightTo("#addToListType","#possibleDomain");
     });
@@ -1349,30 +1375,30 @@ function loadTimerBlock() {
 }
 
 function loadPops() {
-    document.getElementById("waitTime").addEventListener("focus",function(){
-        $('#timerInputPop').fadeIn('slow');
-    });
-    document.getElementById("waitTime").addEventListener("focusout",function(){
-        $('#timerInputPop').fadeOut('fast');
-    });
+    // document.getElementById("waitTime").addEventListener("focus",function(){
+    //     $('#timerInputPop').fadeIn('slow');
+    // });
+    // document.getElementById("waitTime").addEventListener("focusout",function(){
+    //     $('#timerInputPop').fadeOut('fast');
+    // });
     // document.getElementById("prompt1").addEventListener("mouseover",function(){
     //     $('#prompt1Pop').fadeIn('fast');
     // });
     // document.getElementById("prompt1").addEventListener("mouseleave",function(){
     //     $('#prompt1Pop').fadeOut('fast');
     // });
-    document.getElementById("statisticsPastNDaysInput").addEventListener("focus",function(){
-        $('#dayInputPop').fadeIn('slow');
-    });
-    document.getElementById("statisticsPastNDaysInput").addEventListener("focusout",function(){
-        $('#dayInputPop').fadeOut('fast');
-    });
-    document.getElementById("statisticsNWebsiteInput").addEventListener("focus",function(){
-        $('#websiteCountInputPop').fadeIn('slow');
-    });
-    document.getElementById("statisticsNWebsiteInput").addEventListener("focusout",function(){
-        $('#websiteCountInputPop').fadeOut('fast');
-    });
+    // document.getElementById("statisticsPastNDaysInput").addEventListener("focus",function(){
+    //     $('#dayInputPop').fadeIn('slow');
+    // });
+    // document.getElementById("statisticsPastNDaysInput").addEventListener("focusout",function(){
+    //     $('#dayInputPop').fadeOut('fast');
+    // });
+    // document.getElementById("statisticsNWebsiteInput").addEventListener("focus",function(){
+    //     $('#websiteCountInputPop').fadeIn('slow');
+    // });
+    // document.getElementById("statisticsNWebsiteInput").addEventListener("focusout",function(){
+    //     $('#websiteCountInputPop').fadeOut('fast');
+    // });
 }
 
 function loadTopCol(){
@@ -1590,7 +1616,7 @@ function createRemoveList(){
             for(i=0; i<temp.length;i++){
                 if(temp[i]!="") ul.append([
                         '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                            '<button><p>X</p></button>',
+                            '<button style="padding: 0;">✕</button>',
                             '<div>'+temp[i]+'</div>',
                         '</li>'
                     ].join("\n")
@@ -1725,7 +1751,7 @@ function createRemoveList(){
             for (i = 0; i < temp.length; i++) {
                 if (temp[i] != "") ul.append([
                         '<li class="removeCheckWrapper" style="width: 100%;overflow: auto;">',
-                        '<button><p>X</p></button>',
+                        '<button style="padding: 0;">✕</button>',
                         '<div>' + temp[i] + '</div>',
                         '</li>'
                     ].join("\n")

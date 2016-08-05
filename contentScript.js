@@ -23,8 +23,10 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         doSoftBlock();
     }
     else if(msg && msg.block=="false"){
-        $('#blockerWrapper').fadeOut("slow");
         isFadingOut = true;
+        $('#blockerWrapper').fadeOut("slow",function () {
+            isFadingOut = false;
+        });
     }
     else if(msg.modifyMainMessage!=undefined){
         var tar = document.getElementById("main_message");
@@ -39,7 +41,10 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
                 doSoftBlock();
             }
             else if(res && (res.block=="false"||res.block=="white"||res.block=="none")){
-                $('#blockerWrapper').fadeOut("slow");
+                isFadingOut = true;
+                $('#blockerWrapper').fadeOut("slow",function () {
+                    isFadingOut = false;
+                });
             }
         });
     }

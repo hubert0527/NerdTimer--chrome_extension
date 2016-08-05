@@ -523,7 +523,7 @@ input:checked + .switchSlider:before {
 .tooltip {
     position: relative;
     display: block;
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
 .tooltipRight .tooltipText {
@@ -533,12 +533,12 @@ input:checked + .switchSlider:before {
     color: #fff;
     text-align: center;
     padding: 5px 0;
-    border-radius: 6px;
 
     top: -5px;
     left: 105%;
     position: absolute;
     z-index: 1;
+    transition-duration: .4s;
 }
 
 .tooltipBottom .tooltipText {
@@ -548,7 +548,6 @@ input:checked + .switchSlider:before {
     color: #fff;
     text-align: center;
     padding: 5px 0;
-    border-radius: 6px;
 
     top: 100%;
     left: 50%;
@@ -577,3 +576,21 @@ input:checked + .switchSlider:before {
     z-index: 1;
 }
 
+.tooltipForHover{
+    display: none;
+    width: 120px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
+
+    top: 100%;
+    left: 50%;
+    margin-left: -60px;
+    position: absolute;
+    z-index: 1;
+}
+.tooltipForHover{
+    display: block;
+}

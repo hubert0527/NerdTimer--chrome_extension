@@ -28,6 +28,27 @@
         <script src="Chart.js"></script>
         <script src="popup.js"></script>
 
+        <!-- for creating hover tooltips (make my life easier) -->
+        <link rel="stylesheet" href="./jquery-ui.min.css">
+        <script src="./jquery-ui.min.js"></script>
+        <style>
+            .ui-tooltip {
+                position: absolute;
+                display: inline-block;
+                background-color: black;
+                opacity: 0.8;
+                color: white;
+                padding: 2px 6px;
+                margin: 0;
+                font-size: 0.66em;
+                top:0;
+                border:none !important;
+                box-shadow: none;
+                white-space: pre-line;
+                border-radius: 0;
+            }
+        </style>
+
         <link href="popup.css" rel="stylesheet">
     </head>
     <body style="background-color: lightseagreen">
@@ -46,8 +67,8 @@
                     <div>
                         <h6 style="margin: 5px 0">主功能</h6>
                         <div style="margin-left: 20px">
-                            <button id="fastAdd" class="optionBtn">快速加入</button>
-                            <button id="fastWhite" class="optionBtn">設為例外</button>
+                            <button id="fastAdd" class="optionBtn hover-tooltip" title="加入整個網站">快速加入</button>
+                            <button id="fastWhite" class="optionBtn hover-tooltip" title="僅此頁面">設為例外</button>
                             <button id="goToAddToListType" class="optionBtn">更多...</button>
                         </div>
                     </div>
@@ -64,11 +85,11 @@
                         <div id="timerNotYetSet" style="display: none;margin-left: 20px;">
                             <div id="setNewTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.8em;position: relative;">
                                 <p style="display: inline-block;margin:5px 0;">暫停</p>
-                                <input id="waitTime" class="mainPageInput" style="display: inline-block;text-align: right;font-size: 0.9em;">
+                                <input id="waitTime" class="mainPageInput focus-tooltip" style="display: inline-block;text-align: right;font-size: 0.9em;" title="1 ~ 999">
                                 <p style="display: inline-block;margin:5px 5px 5px 0;">分鐘</p>
                                 <!--<span style="font-size:0.3em;margin:5px 5px 5px 0;">(1~999)</span>-->
                                 <img id="startTimer" class="imgBtn" src="submit3.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
-                                <div id="timerInputPop" class="singleBottomTooltipText" style="width: 60px;left: 35%;">0 ~ 999</div>
+                                <!--<div id="timerInputPop" class="singleBottomTooltipText" style="width: 60px;left: 35%;">0 ~ 999</div>-->
                             </div>
                         </div>
                     </div>
@@ -87,7 +108,7 @@
                             <!--<img id="prompt1" src="question.png" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 58px;left: 68px;">-->
                             <div class="tooltip tooltipRight" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 57px;left: 64px;">
                                 <img src="question.png" style="width: 100%;height: 100%;">
-                                <span class="tooltipText" style="font-size: 0.66em;padding: 5px 8px;">暫停鎖定頁面，<br>直到下一次開啟瀏覽器<br>(會繼續記錄瀏覽時間)</span>
+                                <span class="tooltipText" style="font-size: 0.66em;padding: 2px 4px;">關閉直到下次瀏覽</span>
                             </div>
 
                             <!--<div style="margin-left: 20px;">-->
@@ -120,8 +141,8 @@
                     <div style="margin-top: 10px;">
                         <h5 style="margin: 7px 0">鎖定</h5>
                         <div style="margin-left: 20px">
-                            <button id="addDomainToSoftLockList" class="optionBtn tooltipParent">新增</button>
-                            <button class="optionBtn">自訂</button>
+                            <button id="addDomainToSoftLockList" class="optionBtn hover-tooltip" title="加入網站">快速加入</button>
+                            <button id="addDomainToSoftLockListMore" class="optionBtn">更多</button>
                             <button id="removeFromSoft" class="optionBtn" style="float: right;margin-right: 20px;">管理...</button>
                         </div>
 
@@ -129,8 +150,8 @@
 
                         <h5 style="margin: 7px 0">白名單</h5>
                         <div style="margin-left: 20px">
-                            <button id="addDomainToWhiteList" class="optionBtn">新增</button>
-                            <button class="optionBtn">自訂</button>
+                            <button id="addDomainToWhiteList" class="optionBtn hover-tooltip" title="加入網站">快速加入</button>
+                            <button id="addDomainToWhiteListMore" class="optionBtn">更多</button>
                             <button id="removeFromWhite" class="optionBtn" style="float: right;margin-right: 20px;">管理...</button>
                         </div>
 
@@ -233,22 +254,22 @@
                         <!--</select>-->
                         <div id="statisticsForEachWebsiteOptions" style="position: relative;">
                             <p style="display: inline-block;line-height: 21px;margin: 0;">總數:</p>
-                            <input id="statisticsNWebsiteInput" type="text" style="margin-top: 2px;height: 15px;text-align: right;width: 23px;">
+                            <input id="statisticsNWebsiteInput" class="focus-tooltip" type="text" style="margin-top: 2px;height: 15px;text-align: right;width: 23px;" title="1 ~ 100">
                             <!--<div id="websiteCountInputPop" class="arrow_box">0 ~ 365</div>-->
-                            <div id="websiteCountInputPop" class="singleBottomTooltipText" style="width: 60px;left: 100%;">1~100</div>
+                            <!--<div id="websiteCountInputPop" class="singleBottomTooltipText" style="width: 60px;left: 100%;">1~100</div>-->
                         </div>
                         <div id="statisticsPastNDaysBlock" style="position: relative;">
                             <p style="display: inline-block;line-height: 21px;margin: 0;">天數:</p>
-                            <input id="statisticsPastNDaysInput" type="text" style="margin-top: 2px;height: 15px;text-align: right;width: 23px;">
+                            <input id="statisticsPastNDaysInput" class="focus-tooltip" type="text" style="margin-top: 2px;height: 15px;text-align: right;width: 23px;" title="2 ~ 365">
                             <!--<div id="dayInputPop" class="arrow_box">0 ~ 365</div>-->
-                            <div id="dayInputPop" class="singleBottomTooltipText" style="width: 60px;left: 100%;">2~365</div>
+                            <!--<div id="dayInputPop" class="singleBottomTooltipText" style="width: 60px;left: 100%;">2~365</div>-->
                         </div>
                     </div>
                     <!-- if no child, will not appear  -->
                     <canvas id="chartArea" width="220" height="160"></canvas>
 
                     <div id="chartPopupTop">
-                        <button id="closePopupTop" style="color: white;border: none;background-color: transparent;margin: 0 0 0 3px">×</button>
+                        <button id="closePopupTop" style="color: white;border: none;background-color: transparent;margin: 0 0 0 3px;padding:2px 5px;">✕</button>
                         <p id="addingDomainName">testing.com</p>
                         <div id="chartPopupTopActions" style="margin-left: auto;">
 
