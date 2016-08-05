@@ -86,6 +86,8 @@ init();
 var changeDayTimerInst;
 var lockSaveFile=false;
 
+var lastDay;
+
 function setChangeDayTimer() {
     var now = new Date();
     var tomorrow = new Date();
@@ -109,11 +111,11 @@ function setChangeDayTimer() {
             clearInterval(changeDayTimerInst);
             var day = new Date();
 
+            lastDay = day.getDate();
+
             saveFileFully(day,function () {
 
-                var lastDay = day.getDate();
-                var next = new Date();
-                var nextDay = next.getDate();
+                var nextDay = new Date().getDate();
                 // save file lock
                 lockSaveFile = true;
                 while(nextDay==lastDay){
