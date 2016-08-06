@@ -243,15 +243,15 @@ function checkBlock(purified){
     var i;
 
     // search single page first
-    for(i=0;i<singleWhite.length;i++){
-        if(temp==singleWhite[i]) return 0;
-    }
+    // for(i=0;i<singleWhite.length;i++){
+    //     if(temp==singleWhite[i]) return 0;
+    // }
     // for(i=0;i<singleHardLock.length;i++){
     //     if(temp == singleHardLock[i]) return 1;
     // }
-    for(i=0;i<singleSoftLock.length;i++){
-        if(temp == singleSoftLock[i]) return 2;
-    }
+    // for(i=0;i<singleSoftLock.length;i++){
+    //     if(temp == singleSoftLock[i]) return 2;
+    // }
 
     // search in domain
     do{

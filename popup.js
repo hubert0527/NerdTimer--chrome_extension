@@ -213,8 +213,8 @@ function listPossibleAddDomain(type) {
                         });
                         return;
                     }
-                    else if(res=="white"){
-                        tar.text("目標已屬於 白名單");
+                    else if(res=="locked"){
+                        tar.text("目標已屬於 鎖定");
                         tar.fadeIn('slow',function () {
                             var t = setInterval(function () {
                                 clearInterval(t);
@@ -242,13 +242,13 @@ function listPossibleAddDomain(type) {
                         });
                         return;
                     }
-                    else if(res=="white"){
-                        tar.text("目標已屬於 白名單");
-                        tar.fadeIn('fast',function () {
+                    else if(res=="locked"){
+                        tar.text("目標已屬於 鎖定");
+                        tar.fadeIn('slow',function () {
                             var t = setInterval(function () {
                                 clearInterval(t);
-                                tar.fadeOut('fast');
-                            },3000);
+                                tar.fadeOut('slow');
+                            },1000);
                         });
                         return;
                     }
@@ -267,11 +267,67 @@ function loadButtons() {
         listPossibleAddDomain("locked");
         moveRightTo("#addToListType","#possibleDomain");
     });
-    document.getElementById("fastAdd").addEventListener("click", addBaseDomainToSoftLockList);
+    document.getElementById("fastAdd").addEventListener("click", function(){
+        getCurrentTabUrl(function (url) {
+            addBaseDomainToSoftLockList(url);
+        });
+    });
+    document.getElementById("addDomainToSoftLockList").addEventListener("click", function(){
+        getCurrentTabUrl(function (url) {
+            var res = addBaseDomainToSoftLockList(url);
+            var tar = $('#addToListError');
+            if (res == "white") {
+                tar.text("目標已屬於 白名單");
+                tar.fadeIn('fast', function () {
+                    var t = setInterval(function () {
+                        clearInterval(t);
+                        tar.fadeOut('fast');
+                    }, 3000);
+                });
+            }
+            else if (res == "locked") {
+                tar.text("目標已屬於 鎖定");
+                tar.fadeIn('slow', function () {
+                    var t = setInterval(function () {
+                        clearInterval(t);
+                        tar.fadeOut('slow');
+                    }, 1000);
+                });
+            }
+        });
+    });
     // document.getElementById("addSinglePageToHardLockList").addEventListener("click", addSinglePageToHardLockList);
     // document.getElementById("addBaseDomainToHardLockList").addEventListener("click", addBaseDomainToHardLockList);
     // document.getElementById("addSinglePageToWhiteList").addEventListener("click", addSinglePageToWhiteList);
-    document.getElementById("fastWhite").addEventListener("click", addSinglePageToWhiteList);
+    document.getElementById("fastWhite").addEventListener("click", function(){
+        getCurrentTabUrl(function (url) {
+            addSinglePageToWhiteList(url);
+        });
+    });
+    document.getElementById("addDomainToWhiteList").addEventListener("click", function(){
+        getCurrentTabUrl(function (url) {
+            var res = addSinglePageToWhiteList(url);
+            var tar = $('#addToListError');
+            if (res == "white") {
+                tar.text("目標已屬於 白名單");
+                tar.fadeIn('fast', function () {
+                    var t = setInterval(function () {
+                        clearInterval(t);
+                        tar.fadeOut('fast');
+                    }, 3000);
+                });
+            }
+            else if (res == "locked") {
+                tar.text("目標已屬於 鎖定");
+                tar.fadeIn('slow', function () {
+                    var t = setInterval(function () {
+                        clearInterval(t);
+                        tar.fadeOut('slow');
+                    }, 1000);
+                });
+            }
+        });
+    });
     document.getElementById("addDomainToWhiteListMore").addEventListener("click", function () {
         listPossibleAddDomain("white");
         moveRightTo("#addToListType","#possibleDomain");
@@ -349,14 +405,7 @@ function loadButtons() {
             // refresh status
             getCurrentTabUrl(function (url) {
                 // check in list
-                chrome.runtime.sendMessage({"getStatus":url}, function(response) {
-                    if(response==undefined || response.block==undefined)
-                        $(document.getElementById("isInList")).text(" error");
-                    if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
-                    // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
-                    else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
-                    else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
-                });
+                getWebsiteBlockStatus(url);
             });
 
             // refresh timer time check if click 5min btn
@@ -365,6 +414,8 @@ function loadButtons() {
                     setPopupTimer(res.time);
                 }
             });
+
+            if($('#addToListError').is(':visible')) $('#addToListError').css('display','none');
 
             moveLeftTo("#addToListType","#mainPage");
         });
@@ -423,14 +474,7 @@ function loadButtons() {
             // refresh status
             getCurrentTabUrl(function (url) {
                 // check in list
-                chrome.runtime.sendMessage({"getStatus":url}, function(response) {
-                    if(response==undefined || response.block==undefined)
-                        $(document.getElementById("isInList")).text(" error");
-                    if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
-                    // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
-                    else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
-                    else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
-                });
+                getWebsiteBlockStatus(url);
             });
 
             // refresh timer time check if click 5min btn
@@ -598,14 +642,7 @@ function loadTopCol(){
         }
 
         // check in list
-        chrome.runtime.sendMessage({"getStatus":url}, function(response) {
-            if(response==undefined || response.block==undefined)
-                $(document.getElementById("isInList")).text(" error");
-            if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
-            // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
-            else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
-            else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
-        });
+        getWebsiteBlockStatus(url);
     });
 }
 
@@ -802,6 +839,10 @@ function createRemoveList(){
 
                         // disappear
                         $($(this).parent()).fadeOut('fast');
+
+                        getCurrentTabUrl(function (url) {
+                            getWebsiteBlockStatus(url);
+                        });
                     });
                 }
             }
@@ -937,6 +978,10 @@ function createRemoveList(){
 
                         // disappear
                         $($(this).parent()).fadeOut('fast');
+
+                        getCurrentTabUrl(function (url) {
+                            getWebsiteBlockStatus(url);
+                        });
                     });
                 }
             }
@@ -1161,7 +1206,8 @@ function addSinglePageToSoftLockList(){
         }
 
         singleSoftLock.push(url);
-        $(document.getElementById("isInList")).text(" Locked");
+
+        getWebsiteBlockStatus(rawUrl);
 
         saveFile(function(){
             getCurrentTab(function(tab){
@@ -1173,39 +1219,38 @@ function addSinglePageToSoftLockList(){
     });
 }
 
-function addBaseDomainToSoftLockList(){
-    getCurrentTabUrl(function(rawUrl){
+function addBaseDomainToSoftLockList(rawUrl){
 
-        // var url = cutOffHeadAndTail(rawUrl);
-        var url = purifyUrl(rawUrl);
+    // var url = cutOffHeadAndTail(rawUrl);
+    var url = purifyUrl(rawUrl);
 
-        var temp;
-        while( (temp = clearLast(url))!=""){
-            url = temp;
-        }
+    var temp;
+    while( (temp = clearLast(url))!=""){
+        url = temp;
+    }
 
-        // check if already exist
-        for(var i=0; i<softLockList.length;i++){
-            if(softLockList[i]==url) return "locked";
-        }
-        // for(var i=0; i<hardLockList.length;i++){
-        //     if(hardLockList[i]==url) return;
-        // }
-        for(var i=0; i<whiteList.length;i++){
-            if(whiteList[i]==url) return "white";
-        }
+    // check if already exist
+    for(var i=0; i<softLockList.length;i++){
+        if(softLockList[i]==url) return "locked";
+    }
+    // for(var i=0; i<hardLockList.length;i++){
+    //     if(hardLockList[i]==url) return;
+    // }
+    for(var i=0; i<whiteList.length;i++){
+        if(whiteList[i]==url) return "white";
+    }
 
-        softLockList.push(url);
-        $(document.getElementById("isInList")).text(" Locked");
+    softLockList.push(url);
 
-        saveFile(function(){
-            getCurrentTab(function(tab){
-                chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
-            });
+    getWebsiteBlockStatus(rawUrl);
+
+    saveFile(function(){
+        getCurrentTab(function(tab){
+            chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
         });
-
-
     });
+
+
 }
 
 function addSubDomainToSoftLockList(url){
@@ -1225,7 +1270,8 @@ function addSubDomainToSoftLockList(url){
     }
 
     softLockList.push(url);
-    $(document.getElementById("isInList")).text(" Locked");
+
+    getWebsiteBlockStatus(rawUrl);
 
     saveFile(function(){
         getCurrentTab(function(tab){
@@ -1351,67 +1397,64 @@ function addSubDomainToSoftLockList(url){
 //     });
 // }
 
-function addSinglePageToWhiteList(){
-    getCurrentTabUrl(function(rawUrl){
+function addSinglePageToWhiteList(rawUrl){
 
-        //var url = cutOffHeadAndTail(rawUrl);
-        var url = purifyUrl(rawUrl);
+    //var url = cutOffHeadAndTail(rawUrl);
+    var url = purifyUrl(rawUrl);
 
-        // check if already exist
-        for(var i=0; i<softLockList.length;i++){
-            if(softLockList[i]==url) return "locked";
-        }
-        for(var i=0; i<whiteList.length;i++){
-            if(whiteList[i]==url) return "white";
-        }
+    // check if already exist
+    for(var i=0; i<softLockList.length;i++){
+        if(softLockList[i]==url) return "locked";
+    }
+    for(var i=0; i<whiteList.length;i++){
+        if(whiteList[i]==url) return "white";
+    }
 
-        whiteList.push(url);
-        $(document.getElementById("isInList")).text(" white list");
+    whiteList.push(url);
 
-        saveFile(function(){
-            getCurrentTab(function(tab){
-                chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
-            });
+    getWebsiteBlockStatus(rawUrl);
+
+    saveFile(function(){
+        getCurrentTab(function(tab){
+            chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
         });
-
-
     });
+
 }
 
-// function addBaseDomainToWhiteList(){
-//     getCurrentTabUrl(function(rawUrl){
-//
-//         //var url = cutOffHeadAndTail(rawUrl);
-//         var url = purifyUrl(rawUrl);
-//
-//         var temp;
-//         while( (temp = clearLast(url))!=""){
-//             url = temp;
-//         }
-//
-//         // check if already exist
-//         for(var i=0; i<softLockList.length;i++){
-//             if(softLockList[i]==url) return;
-//         }
-//         // for(var i=0; i<hardLockList.length;i++){
-//         //     if(hardLockList[i]==url) return;
-//         // }
-//         for(var i=0; i<whiteList.length;i++){
-//             if(whiteList[i]==url) return;
-//         }
-//
-//         whiteList.push(url);
-//         $(document.getElementById("isInList")).text(" white list");
-//
-//         saveFile(function(){
-//             getCurrentTab(function(tab){
-//                 chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
-//             });
-//         });
-//
-//
-//     });
-// }
+function addBaseDomainToWhiteList(rawUrl){
+
+    //var url = cutOffHeadAndTail(rawUrl);
+    var url = purifyUrl(rawUrl);
+
+    var temp;
+    while( (temp = clearLast(url))!=""){
+        url = temp;
+    }
+
+    // check if already exist
+    for(var i=0; i<softLockList.length;i++){
+        if(softLockList[i]==url) return "locked";
+    }
+    // for(var i=0; i<hardLockList.length;i++){
+    //     if(hardLockList[i]==url) return;
+    // }
+    for(var i=0; i<whiteList.length;i++){
+        if(whiteList[i]==url) return "white";
+    }
+
+    whiteList.push(url);
+
+    getWebsiteBlockStatus(rawUrl);
+
+    saveFile(function(){
+        getCurrentTab(function(tab){
+            chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
+        });
+    });
+
+
+}
 
 function addSubDomainToWhiteList(url){
 
@@ -1430,12 +1473,24 @@ function addSubDomainToWhiteList(url){
     // }
 
     whiteList.push(url);
-    $(document.getElementById("isInList")).text(" white list");
+
+    getWebsiteBlockStatus(rawUrl);
     
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
         });
+    });
+}
+
+function getWebsiteBlockStatus(url) {
+    chrome.runtime.sendMessage({"getStatus":url}, function(response) {
+        if(response==undefined || response.block==undefined)
+            $(document.getElementById("isInList")).text(" error");
+        if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
+        // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
+        else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
+        else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
     });
 }
 

@@ -19,7 +19,6 @@ footer{
     height: 16px;
     font-size: 5px;
     font-weight: bold;
-    text-align: right;
     left:0;
     width:90%;
     margin: 0 5%;
@@ -520,12 +519,12 @@ input:checked + .switchSlider:before {
 }
 
 
-.errorBar{
+#addToListError{
     text-align: center;
     font-size: 0.66em;
     line-height: 30px;
     left: 0;
-    top:30px;
+    top:135px;
     width: 100%;
     color: white;
 
@@ -534,6 +533,7 @@ input:checked + .switchSlider:before {
     background-color: #333333;
     opacity: 0.9;
     height: 25px;
+    z-index: 999;
 }
 
 

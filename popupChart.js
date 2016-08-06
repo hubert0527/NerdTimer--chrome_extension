@@ -54,6 +54,10 @@ function prepareChart(callback) {
 
             createNDayInput();
 
+            createTimeLineInput();
+
+            createTimeLineSelect();
+
             if(callback) callback();
 
         // });
@@ -186,7 +190,7 @@ function changeToMode(changeToMode) {
 
         // run prev, or default
         if(option==0) {
-            var inputBox = $('#statisticsPastNDaysInput');
+            var inputBox = $('#statisticsTimeLineInput');
 
             var kill = $([mode0Box[0],mode1Box[0]]);
             var c=0;
@@ -533,7 +537,7 @@ function drawChart(modeFull){
 
         var pastNDays=getPastNDays(days);
 
-        loadPastNDaysTotalStr(pastNDays,function (lineTotal,lineLocked,lineWhite) {
+        calculatePastNDaysTotal(pastNDays,function (lineTotal,lineLocked,lineWhite) {
 
             var labelsLocked=[];
             for(i=0;i<days;i++) labelsLocked.push("Locked");
@@ -632,9 +636,10 @@ function drawChart(modeFull){
     else if(mode==2){
         chartType="line";
 
-        var pastNDays=getPastNDays(10);
+        var targetWebsite = $('#timeLineOptionsSelect').val();
+        var pastNDays=getPastNDays(days);
 
-        loadPastNDaysForDesignatedWebsite(pastNDays,'facebook.com',function (timeData) {
+        loadPastNDaysForDesignatedWebsite(pastNDays,targetWebsite,function (timeData) {
 
             data = {
                 labels: pastNDays,
@@ -928,4 +933,107 @@ function createNDayInput() {
             clearInterval(pastNDayTimerInst);
         },500);
     });
+}
+
+function createTimeLineInput() {
+    $(document.getElementById("statisticsTimeLineInput")).keydown(function (e) {
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+             // Allow: Ctrl+A
+            (e.keyCode == 65 && e.ctrlKey === true) ||
+             // Allow: Ctrl+C
+            (e.keyCode == 67 && e.ctrlKey === true) ||
+             // Allow: Ctrl+X
+            (e.keyCode == 88 && e.ctrlKey === true) ||
+             // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+                 // let it happen, don't do anything
+        }
+        // enable chinese to notify user use wrong input type
+        else if(e.which==229){
+
+        }
+        // Ensure that it is a number and stop the keypress
+        else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+
+    // create options for mode 1
+    $('#statisticsTimeLineInput').bind("input",function(){
+
+        clearInterval(pastTimeLineTimerInst);
+
+        var str = $(this).val();
+        var val = parseInt(str);
+        var lastChar = str.slice(-1);
+
+        if(!val){
+            if(lastChar!='' && (lastChar<'ㄅ'||lastChar>'ㄦ')) $(this).val('');
+            return;
+        }
+        else if(val>365){
+            //$(this).val( str.substring(0,str.length-1) );
+            $(this).val(lastTimeLineInput);
+            str = lastTimeLineInput;
+        }
+
+        lastTimeLineInput = str;
+
+        // 1 is an exception which cannot complete a graph
+        if(val==1) return;
+
+        pastTimeLineTimerInst = setInterval(function(){
+            // over 500ms no further input
+            var day = parseInt($('#statisticsTimeLineInput').val());
+            changeToMode(day*10 + 2);
+
+            clearInterval(pastTimeLineTimerInst);
+        },500);
+    });
+
+}
+
+function createTimeLineSelect() {
+    var i,j;
+    var all = Object.keys(timeRecord);
+
+    var lock=$('#timeLineOptionsSelectLocked');
+    var white=$('#timeLineOptionsSelectWhite');
+    var other=$('#timeLineOptionsSelectOther');
+
+    var fir="";
+
+    all = sortList(all);
+
+    for(i=0;i<all.length;i++){
+        if(softLockList.indexOf(all[i])>=0){
+            if(fir=="") fir = all[i];
+            //lock.push(all[i]);
+            lock.append('<option>'+all[i]+'</option>')
+        }
+        else if(whiteList.indexOf(all[i])>=0){
+            //white.push(all[i]);
+            white.append('<option>'+all[i]+'</option>')
+        }
+        else{
+            //other.push(all[i]);
+            other.append('<option>'+all[i]+'</option>')
+        }
+    }
+
+
+    var select = $('#timeLineOptionsSelect');
+    select.val(fir);
+    
+    select.change(function () {
+        var me = $("#statistics");
+        $('iframe.chartjs-hidden-iframe').remove();
+        $('#chartArea').remove();
+        me.append(
+            '<canvas id="chartArea" width="225" height="130" style="margin-top: 30px;"></canvas>'
+        );
+        drawChart(chartMode);
+    });
+
 }

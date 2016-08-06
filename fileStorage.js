@@ -51,6 +51,61 @@ function loadPastNDaysTotalStr(pastNDays,callback){
 
 }
 
+function calculatePastNDaysTotal(pastNDays,callback){
+    var i,j,k;
+    var pref = ['total-','timeRecordData-'];
+    var reqArr=[];
+    var str, temp, sp, li;
+    var strRec = [];
+
+    var rT=[];
+    var rL=[];
+    var rW=[];
+
+    for(i=0;i<pref.length;i++){
+        strRec[i] = [];
+    }
+
+    for(i=0;i<pref.length;i++) {
+        for (j = 0; j < pastNDays.length; j++) {
+            str = pref[i] + pastNDays[j];
+            reqArr.push(str);
+            strRec[i][j] = str;
+        }
+    }
+
+    chrome.storage.local.get(reqArr,function(data){
+        for(j=0;j<pastNDays.length;j++){
+            temp = parseInt(data[strRec[0][j]]);
+            if(!temp) rT[j] = 0;
+            else rT[j] = temp;
+
+            temp = data[strRec[1][j]];
+            rL[j] = 0;
+            rW[j] = 0;
+            if(temp){
+                li = temp.split('::');
+                for (k = 0; k < li.length; k++) {
+                    sp = li[k].split('||');
+                    if(softLockList.indexOf(sp[0])>=0){
+                        rL[j] += parseInt(sp[1]);
+                    }
+                    else if(softLockList.indexOf(sp[0])>=0){
+                        rW[j] += parseInt(sp[1]);
+                    }
+                }
+            }
+        }
+
+
+        if(callback){
+            callback(rT,rL,rW);
+        }
+
+    });
+
+}
+
 function loadPastNDaysForDesignatedWebsite(pastNDays,website,callback){
     var j,k;
     var pref = "timeRecordData-";
