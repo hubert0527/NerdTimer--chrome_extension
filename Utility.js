@@ -41,48 +41,59 @@ function cutOffHeadAndTail(url){
     return pure;
 }
 
-function purifyUrl(url){
-
-    // eliminate prefix http:// or https://
-    var i,j,k;
-
-    var pure = cutOffHeadAndTail(url);
-
-    var spSlash = pure.split("/");
-    var purified = "";
-    for(i=0;i<spSlash.length;i++){
-        var spDot = spSlash[i].split(".");
-        var temp = "";
-        for(j=0;j<spDot.length;j++){
-            var valid = true;
-            for(k=0;k<ignore.length;k++){
-                var ignoreStr = ignore[k];
-                if(spDot[j]==ignoreStr) {
-                    valid = false;
-                    break;
-                }
-            }
-            if(valid == true) {
-                if (temp == "") temp += spDot[j];
-                else{
-                    temp += ("."+spDot[j]);
-                }
-            }
-        }
-        if(temp!="") {
-            if (purified == "") {
-                purified += temp;
-            }
-            else {
-                purified += ("/" + temp);
-            }
-        }
+function removeWWW(url) {
+    if(url.substring(0,3)=="www"){
+        url = url.substring(4);
     }
-
-    //console.log("purified = " + purified);
-
-    return purified;
+    return url;
 }
+
+function purifyUrl(url) {
+    return cutOffHeadAndTail(url)
+}
+
+// function purifyUrl(url){
+//
+//     // eliminate prefix http:// or https://
+//     var i,j,k;
+//
+//     var pure = cutOffHeadAndTail(url);
+//
+//     var spSlash = pure.split("/");
+//     var purified = "";
+//     for(i=0;i<spSlash.length;i++){
+//         var spDot = spSlash[i].split(".");
+//         var temp = "";
+//         for(j=0;j<spDot.length;j++){
+//             var valid = true;
+//             for(k=0;k<ignore.length;k++){
+//                 var ignoreStr = ignore[k];
+//                 if(spDot[j]==ignoreStr) {
+//                     valid = false;
+//                     break;
+//                 }
+//             }
+//             if(valid == true) {
+//                 if (temp == "") temp += spDot[j];
+//                 else{
+//                     temp += ("."+spDot[j]);
+//                 }
+//             }
+//         }
+//         if(temp!="") {
+//             if (purified == "") {
+//                 purified += temp;
+//             }
+//             else {
+//                 purified += ("/" + temp);
+//             }
+//         }
+//     }
+//
+//     //console.log("purified = " + purified);
+//
+//     return purified;
+// }
 
 function clearLast(str){
     var i, pivot=-1;

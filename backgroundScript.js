@@ -22,9 +22,8 @@ var currentTab = undefined;
 var isCheckingReload = false;
 
 var ignore = [
-    "www",
-    "m",
-    "cn"
+    // "www",
+    // "m"
 ];
 
 var recordException = [

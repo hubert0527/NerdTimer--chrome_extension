@@ -14,6 +14,14 @@ var lastTimeLineInput = "7";
 var pastNWebsiteTimerInst;
 var lastWebsiteInput = "10";
 
+/**
+ * Due to showing url without 'www' is better,
+ *      but we need to read value of domain string showing to do operation.
+ * So, we do this mapping, map back the original url before doing operations.
+ * @type {{}}
+ */
+var domainMapping = {};
+
 function prepareChart(callback) {
     //chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
     //     loadFile(function(){
@@ -55,8 +63,6 @@ function prepareChart(callback) {
             createNDayInput();
 
             createTimeLineInput();
-
-            createTimeLineSelect();
 
             if(callback) callback();
 
@@ -179,6 +185,8 @@ function changeToMode(changeToMode) {
 
     }
     else if(mode==2){
+
+        createTimeLineSelect();
 
         // this mode specifically use narrower space
         var me = $("#statistics");
@@ -385,7 +393,7 @@ function drawChart(modeFull){
 
     var n;
     var days = option;
-    var li=[], i, key;
+    var li=[], i, j, key;
     var tTime=[], tDomain=[];
 
     // chart must use
@@ -498,6 +506,14 @@ function drawChart(modeFull){
             defaultFontColor: '#000',
             responsive: false
         };
+
+        var temp;
+        domainMapping = {};
+        for(i=0;i<domainName.length;i++){
+            temp = removeWWW(domainName[i]);
+            domainMapping[temp] = domainName[i];
+            domainName[i] = temp;
+        }
 
         data = {
             labels: domainName,
@@ -637,6 +653,11 @@ function drawChart(modeFull){
         chartType="line";
 
         var targetWebsite = $('#timeLineOptionsSelect').val();
+        if(domainMapping[targetWebsite]){
+            console.log("mapping "+targetWebsite+" to "+domainMapping[targetWebsite]);
+            targetWebsite = domainMapping[targetWebsite];
+        }
+
         var pastNDays=getPastNDays(days);
 
         loadPastNDaysForDesignatedWebsite(pastNDays,targetWebsite,function (timeData) {
@@ -738,6 +759,11 @@ function prepareTopPopupContent(url) {
     });
     $('#addingDomainName').text(url);
 
+    if(domainMapping[url]){
+        console.log("mapping "+url+" to "+domainMapping[url]);
+        url = domainMapping[url];
+    }
+
     if(whiteList.indexOf(url)>=0){
         actions.append('<button id="removeFromWhiteListBtnJustCreated" class="popupTopBtn">自白名單移除</button>');
         $('#removeFromWhiteListBtnJustCreated').click(function () {
@@ -747,6 +773,7 @@ function prepareTopPopupContent(url) {
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
+                getWebsiteBlockStatus(url);
                 var me = $("#statistics");
                 $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
@@ -767,6 +794,7 @@ function prepareTopPopupContent(url) {
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
+                getWebsiteBlockStatus(url);
                 var me = $("#statistics");
                 $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
@@ -787,6 +815,7 @@ function prepareTopPopupContent(url) {
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
                 });
+                getWebsiteBlockStatus(url);
                 var me = $("#statistics");
                 $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
@@ -803,6 +832,7 @@ function prepareTopPopupContent(url) {
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
+                getWebsiteBlockStatus(url);
                 var me = $("#statistics");
                 $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
@@ -995,28 +1025,56 @@ function createTimeLineInput() {
 }
 
 function createTimeLineSelect() {
-    var i,j;
-    var all = Object.keys(timeRecord);
 
     var lock=$('#timeLineOptionsSelectLocked');
     var white=$('#timeLineOptionsSelectWhite');
     var other=$('#timeLineOptionsSelectOther');
 
-    var fir="";
+
+    $(lock.children()).remove();
+    $(white.children()).remove();
+    $(other.children()).remove();
+
+    var i,j;
+    var all = Object.keys(timeRecord);
+
+    var temp;
+    domainMapping = {};
+    for(i=0;i<all.length;i++){
+        temp = removeWWW(all[i]);
+        domainMapping[temp] = all[i];
+        all[i] = temp;
+    }
+
+    var firL="";
+    var firW="";
+    var firO="";
 
     all = sortList(all);
 
+    var originalUrl;
+
     for(i=0;i<all.length;i++){
-        if(softLockList.indexOf(all[i])>=0){
-            if(fir=="") fir = all[i];
+
+        if(domainMapping[all[i]]){
+            originalUrl = domainMapping[all[i]];
+        }
+        else{
+            originalUrl = all[i];
+        }
+
+        if(softLockList.indexOf(originalUrl)>=0){
+            if(firL=="") firL = all[i];
             //lock.push(all[i]);
             lock.append('<option>'+all[i]+'</option>')
         }
-        else if(whiteList.indexOf(all[i])>=0){
+        else if(whiteList.indexOf(originalUrl)>=0){
+            if(firW=="") firW = all[i];
             //white.push(all[i]);
             white.append('<option>'+all[i]+'</option>')
         }
         else{
+            if(firO=="") firO = all[i];
             //other.push(all[i]);
             other.append('<option>'+all[i]+'</option>')
         }
@@ -1024,7 +1082,9 @@ function createTimeLineSelect() {
 
 
     var select = $('#timeLineOptionsSelect');
-    select.val(fir);
+    if(firL) select.val(firL);
+    else if(firW) select.val(firW);
+    else select.val(firO);
     
     select.change(function () {
         var me = $("#statistics");

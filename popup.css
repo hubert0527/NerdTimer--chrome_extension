@@ -178,9 +178,24 @@ hr{
     margin: 3px;
     overflow: hidden;
 }
+.remove li:hover{
+    background-color: white;
+    transition-duration: .4s;
+    cursor: pointer;
+}
+.removeActiveOnlyBack{
+    background-color: white;
+    transition-duration: .4s;
+    cursor: pointer;
+    box-shadow: 0 0 10px #444 inset;
+}
 .remove li p{
-    margin: 0;
+    font-size: 1.33em;
+    margin: 0 15px 0 0;
     padding: 0;
+    line-height: 30px;
+    float: right;
+    display: none;
 }
 .remove h4{
     margin: 7px auto;
@@ -189,9 +204,10 @@ hr{
 .remove li div{
     float: left;
     /*ul width -30px*/
-    width: 170px;
+    width: 140px;
     margin: 5px 0;
     word-wrap: break-word;
+    user-select:none;
 }
 .remove ul{
     padding: 0;
