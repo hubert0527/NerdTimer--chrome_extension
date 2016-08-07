@@ -351,10 +351,8 @@ function loadFile(callBack,tab,callback2){
         if(str!=undefined && str!="") {
             whiteList = str.split("::");
         }
-        // purify just read lists
-        purifiedWhite = [];
-        for (i = 0; i < whiteList.length; i++) {
-            purifiedWhite.push(purifyUrl(whiteList[i]));
+        else{
+            whiteList = [];
         }
 
         // str = data.whiteListData;
@@ -386,32 +384,9 @@ function loadFile(callBack,tab,callback2){
         if(str!=undefined && str!="") {
             softLockList = str.split("::");
         }
-        // purify just read lists
-        purifiedSoftLock = [];
-        for (i = 0; i < softLockList.length; i++) {
-            purifiedSoftLock.push(purifyUrl(softLockList[i]));
+        else{
+            softLockList = [];
         }
-
-        // str = data.softLockListData;
-        // softTimeRecord = {};
-        // if (str != undefined && str!="") {
-        //     sp = [];
-        //     sp = str.split("::");
-        //     for (i = 0; i < sp.length; i++) {
-        //         // split for time record
-        //         sp2 = sp[i].split("||");
-        //         sp2[1] = parseInt(sp2[1]);
-        //         if(sp2[1]){
-        //             softTimeRecord[sp2[0]] = parseInt(sp2[1]);
-        //         }
-        //     }
-        // }
-
-
-        // purifiedHardLock = [];
-        // for (i = 0; i < hardLockList.length; i++) {
-        //     purifiedHardLock.push(purifyUrl(hardLockList[i]));
-        // }
 
         str = data.timeRecordData;
         timeRecord = {};
@@ -426,26 +401,6 @@ function loadFile(callBack,tab,callback2){
                     timeRecord[sp2[0]] = parseInt(sp2[1]);
                 }
             }
-        }
-
-
-        str = data.singleSoftLock;
-        if (str != undefined && str!="") {
-            singleSoftLock = str.split("::");
-        }
-
-        // str = data.singleHardLockData;
-        // singleHardLock = [];
-        // if (str != undefined && str!="") {
-        //     var spsb = str.split("::");
-        //     for (i = 0; i < spsb.length; i++) {
-        //         singleHardLock.push(spsb[i]);
-        //     }
-        // }
-
-        str = data.singleWhite;
-        if (str != undefined && str!="") {
-            singleWhite = str.split("::");
         }
 
         var sp1, sp2;

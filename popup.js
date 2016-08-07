@@ -425,7 +425,7 @@ function loadButtons() {
                             resetMainPageStyles();
                             $('#warningPop').fadeOut('fast');
                             $('#warningCancel').unbind( "click" );
-                        },5000);
+                        },4000);
                     });
                 });
             });
@@ -1379,6 +1379,10 @@ function getWebsiteBlockStatus(url) {
 }
 
 function clearLocalData() {
+
+    $("#timerSet").css('display','none');
+    $("#timerNotYetSet").css('display','block').val(10);
+
     isAppClosed = false;
     timer = 0;
     clearInterval(timerInst);

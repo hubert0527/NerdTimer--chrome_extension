@@ -451,13 +451,13 @@ function drawChart(modeFull){
 
         // deal with category
         for(i=0;i<timeValue.length;i++){
-            listCategory[i] = "未加入";
+            listCategory[i] = "未加入 (點擊加入)";
         }
         for (i = 0; i < softIndex.length; i++) {
-            listCategory[softIndex[i]] = "鎖定";
+            listCategory[softIndex[i]] = "鎖定 (點擊解除)";
         }
         for (i = 0; i < whiteIndex.length; i++) {
-            listCategory[whiteIndex[i]] = "白名單";
+            listCategory[whiteIndex[i]] = "白名單 (點擊解除)";
         }
 
         chartType="bar";
@@ -775,8 +775,8 @@ function prepareTopPopupContent(url) {
             saveFile(function(){
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
+                    getWebsiteBlockStatus(tab.url);
                 });
-                getWebsiteBlockStatus(url);
                 var me = $("#statistics");
                 $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
@@ -797,8 +797,8 @@ function prepareTopPopupContent(url) {
             saveFile(function(){
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
+                    getWebsiteBlockStatus(tab.url);
                 });
-                getWebsiteBlockStatus(url);
                 var me = $("#statistics");
                 $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();
@@ -819,8 +819,8 @@ function prepareTopPopupContent(url) {
             saveFile(function(){
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
+                    getWebsiteBlockStatus(tab.url);
                 });
-                getWebsiteBlockStatus(url);
                 var me = $("#statistics");
                 $('iframe.chartjs-hidden-iframe').remove();
                 $('#chartArea').remove();

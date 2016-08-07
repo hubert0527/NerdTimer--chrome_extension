@@ -370,60 +370,85 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg.checkIfInList){
         if(timer>0) sendResponse({block:"false"});
-        checkIfReload(function(needReload){
-            if(needReload){
-                loadFile(function () {
-                    if(msg.checkIfInList=="none"){
-                        getCurrentTabUrl(function(url){
-                            doCheckIfInList(url,sendResponse);
-                        });
-                    }
-                    else{
-                        var url = msg.checkIfInList;
-                        doCheckIfInList(url,sendResponse);
-                    }
+
+        loadFile(function () {
+            if(msg.checkIfInList=="none"){
+                getCurrentTabUrl(function(url){
+                    doCheckIfInList(url,sendResponse);
                 });
             }
             else{
-                if(msg.checkIfInList=="none"){
-                    getCurrentTabUrl(function(url){
-                        doCheckIfInList(url,sendResponse);
-                    });
-                }
-                else{
-                    var url = msg.checkIfInList;
-                    doCheckIfInList(url,sendResponse);
-                }
+                var url = msg.checkIfInList;
+                doCheckIfInList(url,sendResponse);
             }
         });
+        // checkIfReload(function(needReload){
+        //     if(needReload){
+        //         loadFile(function () {
+        //             if(msg.checkIfInList=="none"){
+        //                 getCurrentTabUrl(function(url){
+        //                     doCheckIfInList(url,sendResponse);
+        //                 });
+        //             }
+        //             else{
+        //                 var url = msg.checkIfInList;
+        //                 doCheckIfInList(url,sendResponse);
+        //             }
+        //         });
+        //     }
+        //     else{
+        //         if(msg.checkIfInList=="none"){
+        //             getCurrentTabUrl(function(url){
+        //                 doCheckIfInList(url,sendResponse);
+        //             });
+        //         }
+        //         else{
+        //             var url = msg.checkIfInList;
+        //             doCheckIfInList(url,sendResponse);
+        //         }
+        //     }
+        // });
     }
     else if(msg.getStatus){
-        checkIfReload(function(needReload){
-            if(needReload){
-                loadFile(function () {
-                    if(msg.getStatus=="none"){
-                        getCurrentTabUrl(function(url){
-                            doCheckIfInList(url,sendResponse);
-                        });
-                    }
-                    else{
-                        var url = msg.getStatus;
-                        doCheckIfInList(url,sendResponse);
-                    }
+
+        loadFile(function () {
+            if(msg.getStatus=="none"){
+                getCurrentTabUrl(function(url){
+                    doCheckIfInList(url,sendResponse);
                 });
             }
             else{
-                if(msg.getStatus=="none"){
-                    getCurrentTabUrl(function(url){
-                        doCheckIfInList(url,sendResponse);
-                    });
-                }
-                else{
-                    var url = msg.getStatus;
-                    doCheckIfInList(url,sendResponse);
-                }
+                var url = msg.getStatus;
+                doCheckIfInList(url,sendResponse);
             }
         });
+        
+        // checkIfReload(function(needReload){
+        //     if(needReload){
+        //         loadFile(function () {
+        //             if(msg.getStatus=="none"){
+        //                 getCurrentTabUrl(function(url){
+        //                     doCheckIfInList(url,sendResponse);
+        //                 });
+        //             }
+        //             else{
+        //                 var url = msg.getStatus;
+        //                 doCheckIfInList(url,sendResponse);
+        //             }
+        //         });
+        //     }
+        //     else{
+        //         if(msg.getStatus=="none"){
+        //             getCurrentTabUrl(function(url){
+        //                 doCheckIfInList(url,sendResponse);
+        //             });
+        //         }
+        //         else{
+        //             var url = msg.getStatus;
+        //             doCheckIfInList(url,sendResponse);
+        //         }
+        //     }
+        // });
     }
     else if(msg && msg.deleteRule){
         var sp = msg.deleteRule.split("::");
@@ -571,14 +596,17 @@ function doCheckIfInList(url,sendResponse) {
  */
 function  dealWithUrlMain(tab,callback) {
     // check if has new setting?
-    checkIfReload(function(needReload){
-        if(needReload){
-            loadFile(dealingUrl,tab,callback);
-        }
-        else{
-            dealingUrl(tab,callback);
-        }
-    });
+
+    loadFile(dealingUrl,tab,callback);
+
+    // checkIfReload(function(needReload){
+    //     if(needReload){
+    //         loadFile(dealingUrl,tab,callback);
+    //     }
+    //     else{
+    //         dealingUrl(tab,callback);
+    //     }
+    // });
 }
 
 /**
