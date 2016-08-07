@@ -81,6 +81,8 @@ window.addEventListener("DOMContentLoaded", function() {
     loadButtons();
     loadCloseButton();
 
+    bindChart();
+
     console.log("softBlocks: " + softLockList.toString());
     console.log("whites: " + whiteList.toString());
 

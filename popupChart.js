@@ -22,6 +22,41 @@ var lastWebsiteInput = "10";
  */
 var domainMapping = {};
 
+function bindChart() {
+    // button for mode 0
+    $('#statisticsForEachWebsite').click(function(){
+        if(chartMode!=0){
+            clearInterval(pastNDayTimerInst);
+            clearInterval(pastTimeLineTimerInst);
+            changeToMode(0);
+        }
+    });
+
+    // button for mode 1
+    $('#statisticsPastNDays').click(function(){
+        if(chartMode!=1){
+            clearInterval(pastNWebsiteTimerInst);
+            clearInterval(pastTimeLineTimerInst);
+            changeToMode(1);
+        }
+    });
+
+    // button for mode 2
+    $('#statisticsWebsiteTimeLine').click(function(){
+        if(chartMode!=2){
+            clearInterval(pastNDayTimerInst);
+            clearInterval(pastNWebsiteTimerInst);
+            changeToMode(2);
+        }
+    });
+
+    createNWebsiteInput();
+
+    createNDayInput();
+
+    createTimeLineInput();
+}
+
 function prepareChart(callback) {
     //chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
     //     loadFile(function(){
@@ -30,39 +65,6 @@ function prepareChart(callback) {
             // force program to re load all components
             chartMode = -1;
             changeToMode(0);
-
-            // button for mode 0
-            $('#statisticsForEachWebsite').click(function(){
-                if(chartMode!=0){
-                    clearInterval(pastNDayTimerInst);
-                    clearInterval(pastTimeLineTimerInst);
-                    changeToMode(0);
-                }
-            });
-
-            // button for mode 1
-            $('#statisticsPastNDays').click(function(){
-                if(chartMode!=1){
-                    clearInterval(pastNWebsiteTimerInst);
-                    clearInterval(pastTimeLineTimerInst);
-                    changeToMode(1);
-                }
-            });
-
-            // button for mode 2
-            $('#statisticsWebsiteTimeLine').click(function(){
-                if(chartMode!=2){
-                    clearInterval(pastNDayTimerInst);
-                    clearInterval(pastNWebsiteTimerInst);
-                    changeToMode(2);
-                }
-            });
-
-            createNWebsiteInput();
-
-            createNDayInput();
-
-            createTimeLineInput();
 
             if(callback) callback();
 
@@ -756,6 +758,7 @@ function prepareTopPopupContent(url) {
 
     $('#closePopupTop').click(function () {
         $('#chartPopupTop').fadeOut('fast');
+        $(this).off('click');
     });
     $('#addingDomainName').text(url);
 
@@ -783,6 +786,7 @@ function prepareTopPopupContent(url) {
                 drawChart(chartMode);
             });
             top.fadeOut('fast');
+            $(this).off('click');
         });
     }
     else if(softLockList.indexOf(url)>=0){
@@ -804,6 +808,7 @@ function prepareTopPopupContent(url) {
                 drawChart(chartMode);
             });
             top.fadeOut('fast');
+            $(this).off('click');
         });
     }
     else{
@@ -825,6 +830,7 @@ function prepareTopPopupContent(url) {
                 drawChart(chartMode);
             });
             top.fadeOut('fast');
+            $(this).off('click');
         });
         $('#addToWhiteListBtnJustCreated').click(function () {
             whiteList.push(url);
@@ -842,6 +848,7 @@ function prepareTopPopupContent(url) {
                 drawChart(chartMode);
             });
             top.fadeOut('fast');
+            $(this).off('click');
         });
     }
 }
@@ -1085,6 +1092,8 @@ function createTimeLineSelect() {
     if(firL) select.val(firL);
     else if(firW) select.val(firW);
     else select.val(firO);
+
+    select.off('change');
     
     select.change(function () {
         var me = $("#statistics");
