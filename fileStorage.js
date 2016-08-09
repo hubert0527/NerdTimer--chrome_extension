@@ -511,15 +511,26 @@ function loadFile(callBack,tab,callback2){
  * difference is that this will merge this time browse data with last time and store
  * @param callBack
  */
-function saveFileFully(callBack){
+function saveFileFully(designatedDate,callBack){
 
     if(lockSaveFile) return;
 
     // save lists
     var i,j;
     var str,str2;
-    var date = new Date();
+    var date;
+
+    if(designatedDate){
+        date = designatedDate;
+    }
+    else{
+        date = new Date();
+    }
+
     var formattedDate = date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate();
+
+    console.log("saveFully at date " + formattedDate);
+
     var storeDataArr={};
 
     str = "";

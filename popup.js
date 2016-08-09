@@ -886,7 +886,8 @@ function drawChart(modeFull){
             }
             var whiteIndex = getIndexesInList(domainName,whiteList);
             for (i = 0; i < whiteIndex.length; i++) {
-                colors[whiteIndex[i]] = "grey";
+                colors[whiteIndex[i]] = "white";
+                //borderColors[whiteIndex[i]]="white";
             }
 
             // deal with category
@@ -1030,6 +1031,11 @@ function drawChart(modeFull){
                 var label = activePoints[0]._model.label;
                 console.log("clicked on " + label);
                 createTopPopup(label);
+            }
+            else{
+                if($('#chartPopupTop').is(':visible')){
+                    $('#chartPopupTop').fadeOut('fast');
+                }
             }
         };
 
@@ -1181,6 +1187,11 @@ function prepareTopPopupContent(url) {
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
+                var me = $("#statistics");
+                $('#chartArea').remove();
+                me.append(
+                    '<canvas id="chartArea" width="225" height="160"></canvas>'
+                );
                 drawChart(chartMode);
             });
             top.fadeOut('fast');
@@ -1195,6 +1206,11 @@ function prepareTopPopupContent(url) {
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
+                var me = $("#statistics");
+                $('#chartArea').remove();
+                me.append(
+                    '<canvas id="chartArea" width="225" height="160"></canvas>'
+                );
                 drawChart(chartMode);
             });
             top.fadeOut('fast');
@@ -1209,6 +1225,11 @@ function prepareTopPopupContent(url) {
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
                 });
+                var me = $("#statistics");
+                $('#chartArea').remove();
+                me.append(
+                    '<canvas id="chartArea" width="225" height="160"></canvas>'
+                );
                 drawChart(chartMode);
             });
             top.fadeOut('fast');
@@ -1219,6 +1240,11 @@ function prepareTopPopupContent(url) {
                 getCurrentTab(function(tab){
                     chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
                 });
+                var me = $("#statistics");
+                $('#chartArea').remove();
+                me.append(
+                    '<canvas id="chartArea" width="225" height="160"></canvas>'
+                );
                 drawChart(chartMode);
             });
             top.fadeOut('fast');
