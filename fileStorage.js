@@ -151,6 +151,10 @@ function checkIfReload(callBack){
 }
 
 
+/**
+ * this save method don't deal anything about time
+ * @param callBack
+ */
 function saveFile(callBack){
 
     // save lists
@@ -167,16 +171,16 @@ function saveFile(callBack){
     }
     storeData['whiteList'] = str;
 
-    str = "";
-    for(var key in whiteTimeRecord) {
-        if(whiteTimeRecord.hasOwnProperty(key)) {
-            if (str == "") str = key + "||" + whiteTimeRecord[key];
-            else {
-                str += ("::" + key + "||" + whiteTimeRecord[key]);
-            }
-        }
-    }
-    storeData['whiteListData'] = str;
+    // str = "";
+    // for(var key in whiteTimeRecord) {
+    //     if(whiteTimeRecord.hasOwnProperty(key)) {
+    //         if (str == "") str = key + "||" + whiteTimeRecord[key];
+    //         else {
+    //             str += ("::" + key + "||" + whiteTimeRecord[key]);
+    //         }
+    //     }
+    // }
+    // storeData['whiteListData'] = str;
 
     // str = "";
     // for(j=0;j<hardLockList.length;j++) {
@@ -196,34 +200,34 @@ function saveFile(callBack){
     }
     storeData['softLockList'] = str;
 
-    str = "";
-    for(var key in softTimeRecord) {
-        if(softTimeRecord.hasOwnProperty(key)) {
-            if (str == "") str = key + "||" + softTimeRecord[key];
-            else {
-                str += ("::" + key + "||" + softTimeRecord[key]);
-            }
-        }
-    }
-    storeData['softLockListData'] = str;
+    // str = "";
+    // for(var key in softTimeRecord) {
+    //     if(softTimeRecord.hasOwnProperty(key)) {
+    //         if (str == "") str = key + "||" + softTimeRecord[key];
+    //         else {
+    //             str += ("::" + key + "||" + softTimeRecord[key]);
+    //         }
+    //     }
+    // }
+    // storeData['softLockListData'] = str;
 
-    str = "";
-    for (j = 0; j < singleWhite.length; j++) {
-        if (str == "") str = singleWhite[j];
-        else {
-            str += ("::" + singleWhite[j]);
-        }
-    }
-    storeData['singleWhite'] = str;
-
-    str = "";
-    for (j = 0; j < singleSoftLock.length; j++) {
-        if (str == "") str = singleSoftLock[j];
-        else {
-            str += ("::" + singleSoftLock[j]);
-        }
-    }
-    storeData['singleSoftLock'] = str;
+    // str = "";
+    // for (j = 0; j < singleWhite.length; j++) {
+    //     if (str == "") str = singleWhite[j];
+    //     else {
+    //         str += ("::" + singleWhite[j]);
+    //     }
+    // }
+    // storeData['singleWhite'] = str;
+    //
+    // str = "";
+    // for (j = 0; j < singleSoftLock.length; j++) {
+    //     if (str == "") str = singleSoftLock[j];
+    //     else {
+    //         str += ("::" + singleSoftLock[j]);
+    //     }
+    // }
+    // storeData['singleSoftLock'] = str;
 
     // str = "";
     // for (j = 0; j < singleHardLock.length; j++) {
@@ -483,6 +487,9 @@ function loadFile(callBack,tab,callback2){
  * @param callBack
  */
 function saveFileFully(callBack){
+
+    if(lockSaveFile) return;
+
     // save lists
     var i,j;
     var str,str2;

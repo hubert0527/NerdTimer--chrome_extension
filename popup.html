@@ -44,7 +44,7 @@
             <div>
                 <div id="mainPage">
                     <div>
-                        <h6 style="margin: 10px 0">主功能</h6>
+                        <h6 style="margin: 5px 0">主功能</h6>
                         <div style="margin-left: 20px">
                             <button id="fastAdd" class="optionBtn">快速加入</button>
                             <button id="fastWhite" class="optionBtn">設為例外</button>
@@ -62,13 +62,13 @@
                             </div>
                         </div>
                         <div id="timerNotYetSet" style="display: none;margin-left: 20px;">
-                            <div id="setNewTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.8em;">
+                            <div id="setNewTimer" style="height: 25px;display : flex;align-items : center;font-size: 0.8em;position: relative;">
                                 <p style="display: inline-block;margin:5px 0;">暫停</p>
                                 <input id="waitTime" class="mainPageInput" style="display: inline-block;text-align: right;font-size: 0.9em;">
                                 <p style="display: inline-block;margin:5px 5px 5px 0;">分鐘</p>
                                 <!--<span style="font-size:0.3em;margin:5px 5px 5px 0;">(1~999)</span>-->
                                 <img id="startTimer" class="imgBtn" src="submit3.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
-                                <div id="timerInputPop" class="arrow_box">0 ~ 999</div>
+                                <div id="timerInputPop" class="singleBottomTooltipText" style="width: 60px;left: 35%;">0 ~ 999</div>
                             </div>
                         </div>
                     </div>
@@ -83,22 +83,25 @@
                     <hr>
                     <div>
                         <div style="width: 50%;float: left;">
-                            <h6 style="margin: 3px 0 5px 0">暫停鎖定</h6>
-                            <img id="prompt1" src="question.png" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 58px;left: 68px;">
-                            <div id="prompt1Pop" class="arrow_box_right">暫停鎖定頁面，<br>直到下一次開啟瀏覽器<br>(會繼續記錄瀏覽時間)</div>
+                            <h6 style="margin:0">暫停鎖定</h6>
+                            <!--<img id="prompt1" src="question.png" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 58px;left: 68px;">-->
+                            <div class="tooltip tooltipRight" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 57px;left: 64px;">
+                                <img src="question.png" style="width: 100%;height: 100%;">
+                                <span class="tooltipText" style="font-size: 0.66em;padding: 5px 8px;">暫停鎖定頁面，<br>直到下一次開啟瀏覽器<br>(會繼續記錄瀏覽時間)</span>
+                            </div>
 
                             <!--<div style="margin-left: 20px;">-->
                                 <!--<button id="closeButton" class="optionBtn" style="float: left;">停止鎖定</button>-->
                             <!--</div>-->
-                            <label class="switchWrapper" style="margin-left: 25px;">
+                            <label class="switchWrapper" style="margin-left: 25px;margin-top: 5px">
                                 <input id="switchBtn" class="mainPageInput" type="checkbox">
                                 <div id="closeButton" class="switchSlider round slideAnimation"></div>
                             </label>
                         </div>
                         <div style="width: 50%;float: left;">
-                            <h6 style="margin: 3px 0">檔案</h6>
+                            <h6 style="margin:0 0 3px 0">設定</h6>
                             <div style="margin-left: 20px;">
-                                <button id="clearAllData" class="optionBtn">清除</button>
+                                <button id="moreSettings" class="optionBtn">更多...</button>
                             </div>
                         </div>
                     </div>
@@ -148,8 +151,14 @@
                         <div class="subTitle">
                             <p id="addToDomainType" style="margin: 0;">加入鎖定</p>
                         </div>
+                        <div id="possibleListWrapper" style="height: 190px;margin-top: 5px;">
+                            <div class="possibleListParagraph">請選擇要加入的類型：</div>
+                            <div class="possibleListParagraph" style="text-align: center;">[推薦]</div>
+                            <ul id="possibleListRecommended"></ul>
+                            <div class="possibleListParagraph" style="text-align: center;">[全部]</div>
+                            <ul id="possibleList"></ul>
+                        </div>
                         <div id="addToListError" class="errorBar"></div>
-                        <ul id="possibleList"></ul>
                     </div>
                 </div>
 
@@ -163,7 +172,7 @@
                             <p style="margin: 0;">管理白名單</p>
                         </div>
                     </div>
-                    <div style="height: 180px;margin-top: 5px;">
+                    <div style="height: 190px;margin-top: 5px;">
                         <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
                             <!--<h4>[網站]</h4>-->
                             <ul id="removeWhiteListDomain"></ul>
@@ -181,7 +190,7 @@
                             <p style="margin: 0;">管理鎖定</p>
                         </div>
                     </div>
-                    <div style="height: 180px;margin-top: 5px;">
+                    <div style="height: 190px;margin-top: 5px;">
                         <div style="height: 100%;overflow-x:hidden;overflow-y:scroll;margin:0;padding:0 9px 0 0;">
                             <!--<h4>[網站]</h4>-->
                             <ul id="removeSoftListDomain"></ul>
@@ -233,17 +242,37 @@
 
                 </div>
 
+                <div id="settingPage" class="subPage remove">
+                    <div style="height: 30px;">
+                        <div id="goToMainPage11" class="backBtn">
+                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                        </div>
+                        <div class="subTitle">
+                            <p style="margin: 0;">設 定</p>
+                        </div>
+                        <div>
+                            <div style="margin-top: 10px;">
+                                <h6 style="margin:0 0 3px 0">檔案</h6>
+                                <div style="margin-left: 20px;">
+                                    <button id="clearAllData" class="optionBtn">清除</button>
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
         <footer>
             <!--<p id="dateTime" style="margin: 0;padding: 0;position: absolute;bottom: 0;left: 0;"> 00:00 </p>-->
             <p style="margin: 0;padding: 0;">
-                created by <a id="mGH" style="color: blue;" href="https://goo.gl/oxFPKz" target="_blank">Hubert Lin</a>
+                created by <a id="mGH" style="color: blue;" href="https://goo.gl/oxFPKz" target="_blank">HubertLin</a>
             </p>
         </footer>
 
-        <div id="warningPop">
+        <div id="warningPop" style="z-index: 1024">
             <div id="warningShadow"></div>
             <div id="warningCheck" style="width: 70%;margin: 30% auto 0;">
                 <p id="warningContent1"></p>

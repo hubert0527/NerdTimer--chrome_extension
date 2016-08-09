@@ -71,6 +71,7 @@ function init(){
 init();
 
 var changeDayTimerInst;
+var lockSaveFile=false;
 
 function setChangeDayTimer() {
     var now = new Date();
@@ -94,9 +95,22 @@ function setChangeDayTimer() {
         changeDayTimerInst=setInterval(function () {
             clearInterval(changeDayTimerInst);
             var day = new Date();
-            console.log("saveFully at "+day.getMonth()+"/"+day.getDate()+'||'+day.getSeconds()+'.'+day.getMilliseconds());
+
+            console.log("saveFully at "+(day.getMonth()+1)+"/"+day.getDate()+'||'+day.getSeconds()+'.'+day.getMilliseconds());
             saveFileFully(function () {
-                console.log("saveFully complete at "+day.getMonth()+"/"+day.getDate()+'||'+day.getSeconds()+'.'+day.getMilliseconds());
+
+                var lastDay = day.getDate();
+                var next = new Date();
+                var nextDay = next.getDate();
+                // save file lock
+                lockSaveFile = true;
+                while(nextDay==lastDay){
+                    nextDay = new Date().getDate();
+                }
+                lockSaveFile = false;
+
+                console.log("saveFully complete at "+(next.getMonth()+1)+"/"+next.getDate()+'||'+next.getSeconds()+'.'+next.getMilliseconds());
+
                 clearLocalData();
                 loadFile();
             });

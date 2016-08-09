@@ -314,6 +314,7 @@ function loadButtons() {
 
     // create sliding button                                                                  // current        target
     document.getElementById("goToAddToListType").addEventListener("click", function(){moveRightTo("#mainPage","#addToListType");});
+    document.getElementById("moreSettings").addEventListener("click", function(){moveRightTo("#mainPage","#settingPage");});
     document.getElementById("goToStatistics").addEventListener("click", function(){
 
         chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
@@ -445,7 +446,7 @@ function loadButtons() {
         moveLeftTo("#addToListType","#mainPage");
     });
     document.getElementById("goToMainPage6").addEventListener("click", function(){
-        moveLeftTo("#removeWhite","#mainPage",function () {
+        moveLeftTo("#removeWhite","#addToListType",function () {
             // var ul = $('#removeWhiteListSingle');
             // $(ul.children()).remove();
             var ul = $('#removeWhiteListDomain');
@@ -453,7 +454,7 @@ function loadButtons() {
         });
     });
     document.getElementById("goToMainPage7").addEventListener("click", function(){
-        moveLeftTo("#removeSoft","#mainPage",function(){
+        moveLeftTo("#removeSoft","#addToListType",function(){
             // var ul = $('#removeSoftListSingle');
             // $(ul.children()).remove();
             var ul = $('#removeSoftListDomain');
@@ -488,6 +489,32 @@ function loadButtons() {
         moveLeftTo("#possibleDomain","#addToListType",function(){
             $($("#possibleList").children()).remove();
         });
+    });
+
+    document.getElementById("goToMainPage11").addEventListener("click", function(){
+        loadFile();
+
+        // refresh status
+        getCurrentTabUrl(function (url) {
+            // check in list
+            chrome.runtime.sendMessage({"getStatus":url}, function(response) {
+                if(response==undefined || response.block==undefined)
+                    $(document.getElementById("isInList")).text(" error");
+                if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
+                // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
+                else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
+                else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
+            });
+        });
+
+        // refresh timer time check if click 5min btn
+        chrome.runtime.sendMessage({getTimerTime:"none"},function(res){
+            if(timer<=0 && parseInt(res.time)>0){
+                setPopupTimer(res.time);
+            }
+        });
+
+        moveLeftTo("#settingPage","#mainPage");
     });
 
 }
@@ -1097,12 +1124,12 @@ function loadPops() {
     document.getElementById("waitTime").addEventListener("focusout",function(){
         $('#timerInputPop').fadeOut('fast');
     });
-    document.getElementById("prompt1").addEventListener("mouseover",function(){
-        $('#prompt1Pop').fadeIn('fast');
-    });
-    document.getElementById("prompt1").addEventListener("mouseleave",function(){
-        $('#prompt1Pop').fadeOut('fast');
-    });
+    // document.getElementById("prompt1").addEventListener("mouseover",function(){
+    //     $('#prompt1Pop').fadeIn('fast');
+    // });
+    // document.getElementById("prompt1").addEventListener("mouseleave",function(){
+    //     $('#prompt1Pop').fadeOut('fast');
+    // });
     document.getElementById("statisticsPastNDaysInput").addEventListener("focus",function(){
         $('#dayInputPop').fadeIn('slow');
     });
