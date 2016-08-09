@@ -163,7 +163,7 @@ function loadCurrentTime(callback){
     chrome.storage.local.get('currentTime',function(storage){
         var time = parseInt(storage.currentTime);
         if(!time) time = 0;
-        console.log("currentTime = " + time);
+        // console.log("currentTime = " + time);
         if(callback) callback(time);
         return time;
     });
@@ -171,7 +171,7 @@ function loadCurrentTime(callback){
 
 function saveLastUsedTimer(time,callback){
     chrome.storage.local.set({'lastTimer': time},function(){
-        console.log("save last time = " + time);
+        // console.log("save last time = " + time);
         if(callback) callback();
     });
 }
@@ -179,7 +179,7 @@ function saveLastUsedTimer(time,callback){
 function loadLastUsedTimer(callback){
     chrome.storage.local.get('lastTimer',function(storage){
         var time = parseInt(storage.lastTimer);
-        console.log("load last time = " + time);
+        // console.log("load last time = " + time);
         if(callback) callback(time);
     });
 }

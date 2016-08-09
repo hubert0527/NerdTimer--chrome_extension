@@ -51,7 +51,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 },false);
 
 function doHardBlock(){
-    console.log("got hard block");
+    // console.log("got hard block");
 
     var tar = document.getElementById("blockerWrapper");
     if(tar!=undefined){
@@ -73,7 +73,7 @@ function doHardBlock(){
         }
         else{
             $('#blockerWrapper').fadeIn("slow");
-            console.log("turn unvisible to visible");
+            // console.log("turn unvisible to visible");
             return;
         }
     }
@@ -102,7 +102,7 @@ function doHardBlock(){
 function doSoftBlock(){
     if(stopForThisTime) return ;
 
-    console.log("got soft block");
+    // console.log("got soft block");
     var tar = document.getElementById("blockerWrapper");
     if(tar!=undefined){
         if($(tar).is(":visible") && !isFadingOut) {
@@ -124,7 +124,7 @@ function doSoftBlock(){
         else{
             isFadingOut = false;
             $('#blockerWrapper').fadeIn("slow");
-            console.log("turn unvisible to visible");
+            // console.log("turn unvisible to visible");
             return;
         }
     }
@@ -148,7 +148,7 @@ function doSoftBlock(){
         $("#remindMeLater").click(function(){
             $('#blockerWrapper').fadeOut("slow");
             chrome.runtime.sendMessage({"wait5Min":"true"}, function(response) {
-                console.log("wait5Min");
+                // console.log("wait5Min");
             });
         });
         $("#closeIt").click(function(){
@@ -163,13 +163,13 @@ function doSoftBlock(){
 // resume window
 window.addEventListener('focus', function() {
     chrome.runtime.sendMessage({resumePage:window.location.href},function(){
-        console.log("resume to browser " + window.location.href + " at " + new Date());
+        // console.log("resume to browser " + window.location.href + " at " + new Date());
     });
 });
 
 // leave window
 window.addEventListener('blur', function() {
     chrome.runtime.sendMessage({leavePage:window.location.href},function(){
-        console.log("leave browser " + window.location.href + " at " + new Date());
+        // console.log("leave browser " + window.location.href + " at " + new Date());
     });
 });

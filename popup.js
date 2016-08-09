@@ -83,8 +83,8 @@ window.addEventListener("DOMContentLoaded", function() {
 
     bindChart();
 
-    console.log("softBlocks: " + softLockList.toString());
-    console.log("whites: " + whiteList.toString());
+    // console.log("softBlocks: " + softLockList.toString());
+    // console.log("whites: " + whiteList.toString());
 
     // loadCurrentTime(function(time){
     //     time = parseInt(time);
@@ -391,7 +391,7 @@ function loadButtons() {
     // });
     $(document.getElementById("mainMessageInput")).bind('input', function() {
         var v = $(this).val();
-        console.log("receive event : "+v.toString());
+        // console.log("receive event : "+v.toString());
         if(v==MouseEvent) return;
         submitMainMessage(v.toString());
     });
@@ -1020,7 +1020,7 @@ function submitMainMessage(newMessage){
     loadBlocker(function(){
         if(newMessage!=mainMessage) {
             chrome.runtime.sendMessage({modifyMainMessage: newMessage}, function (response) {
-                console.log("modifyMainMessage as : " + newMessage);
+                // console.log("modifyMainMessage as : " + newMessage);
             });
             getCurrentTab(function(tab){
                 chrome.tabs.sendMessage(tab.id,{modifyMainMessage: newMessage});

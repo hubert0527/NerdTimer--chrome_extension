@@ -520,13 +520,13 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
         // only run this while user see chart
         //   add time to current page cuz user will feel happy if they see the chart is moving
-    else if(msg && msg.forceSaveFully){
-        getCurrentTab(function(tab){
-            console.log("force");
-            doTimeRecord(tab);
-            sendResponse({none:"none"});
-        });
-    }
+    // else if(msg && msg.forceSaveFully){
+    //     getCurrentTab(function(tab){
+    //         console.log("force");
+    //         doTimeRecord(tab);
+    //         sendResponse({none:"none"});
+    //     });
+    // }
     // else if(msg && msg.resetAllStatistics){
     //     var i;
     //     for(i=0;i<whiteTimeRecord.length;i++) whiteTimeRecord[i] = 0;
@@ -538,7 +538,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     //     saveFileFully();
     // }
     else if(msg && msg.leavePage){
-        console.log("on leave");
+        console.log("on kill page");
         doTimeRecord("tabUrl",msg.leavePage);
         currentPage = "null";
         sendResponse({none:"none"});
@@ -643,7 +643,7 @@ function doTimeRecord(tab,tabUrl){
         if(diff>0) searchDomain(pur, currentPage ,diff);
 
         saveFileFully(function(){
-            console.log("temporary save " + url + " with time : " + diff + "ms");
+            // console.log("temporary save " + url + " with time : " + diff + "ms");
         });
 
         // load page for next record
@@ -666,7 +666,7 @@ chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
     if (changeInfo.status == 'complete') {
         // check block
         dealWithUrlMain(tab,function(){
-            console.log("on update");
+            // console.log("on update");
             //doTimeRecord(tab);
         });
     }
@@ -685,7 +685,7 @@ function getCurrentTime() {
  * fire on browser close
  */
 chrome.windows.onRemoved.addListener(function(){
-    console.log("on remove");
+    console.log("on kill chrome");
     //saveCurrentTime(getCurrentTime());
     getCurrentTab(function (tab) {
         // no value cuz no need

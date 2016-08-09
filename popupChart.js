@@ -539,7 +539,7 @@ function drawChart(modeFull){
             var activePoints = chart.getElementsAtEvent(evt);
             if(activePoints && activePoints[0]) {
                 var label = activePoints[0]._model.label;
-                console.log("clicked on " + label);
+                // console.log("clicked on " + label);
                 createTopPopup(label);
             }
             else{
