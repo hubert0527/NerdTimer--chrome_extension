@@ -36,29 +36,32 @@ var softLockList = [];
 var whiteList = [];
 
 // this only record time except this time you browse
-var softTimeRecord = {};
-var whiteTimeRecord = {};
+// var softTimeRecord = {};
+// var whiteTimeRecord = {};
+var timeRecord={};
 var totalTimeRecordNew=0;
 var totalTimeRecord=0;
 
 // this only record this time browse, i.e. on-store stage
-var softTimeRecordNew = {};
-var whiteTimeRecordNew = {};
+// var softTimeRecordNew = {};
+// var whiteTimeRecordNew = {};
+var timeRecordNew={};
 
 // store only today data
 /**
  * this use dictionary cuz not guaranteed that every website will be surfed every day
  */
-var todayWhiteTimeRecord = {};
-var todaySoftTimeRecord = {};
+// var todayWhiteTimeRecord = {};
+// var todaySoftTimeRecord = {};
+var todayTimeRecord = {};
 var todayWhiteTotalTimeRecord=0;
 var todaySoftTotalTimeRecord=0;
 var todayTotalTimeRecord=0;
 
 
-var purifiedSoftLock;
-//var purifiedHardLock;
-var purifiedWhite;
+// var purifiedSoftLock;
+// var purifiedHardLock;
+// var purifiedWhite;
 
 function init(){
     
@@ -656,41 +659,45 @@ chrome.windows.onRemoved.addListener(function(){
 
 function searchDomain(purified, rawUrl,  timeDiff) {
     var i;
-    var hit = false;
+    var url;
+    var temp;
 
-    do{
-        // search white first
-        for(i=0;i<whiteList.length;i++){
-            if(isInList(purified,whiteList[i])==true){
-                var url = purifyUrl(rawUrl);
-                var temp;
-                while( (temp = clearLast(url))!=""){
-                    url = temp;
-                }
-                if(!whiteTimeRecordNew[url]) whiteTimeRecordNew[url] = 0;
-                whiteTimeRecordNew[url] += timeDiff;
-                hit = true;
-            }
-        }
-        for(i=0;i<softLockList.length;i++){
-            if(isInList(purified,softLockList[i])==true){
-                var url = purifyUrl(rawUrl);
-                var temp;
-                while( (temp = clearLast(url))!=""){
-                    url = temp;
-                }
-                if(!softTimeRecordNew[url]) softTimeRecordNew[url] = 0;
-                softTimeRecordNew[url] += timeDiff;
-                hit = true;
-            }
-        }
-    }while( (purified = clearLast(purified))!="" );
+    // do{
+    //     // search white first
+    //     for(i=0;i<whiteList.length;i++){
+    //         if(isInList(purified,whiteList[i])==true){
+    //             url = purifyUrl(rawUrl);
+    //             while( (temp = clearLast(url))!=""){
+    //                 url = temp;
+    //             }
+    //             if(!whiteTimeRecordNew[url]) whiteTimeRecordNew[url] = 0;
+    //             whiteTimeRecordNew[url] += timeDiff;
+    //         }
+    //     }
+    //     for(i=0;i<softLockList.length;i++){
+    //         if(isInList(purified,softLockList[i])==true){
+    //             url = purifyUrl(rawUrl);
+    //             while( (temp = clearLast(url))!=""){
+    //                 url = temp;
+    //             }
+    //             if(!softTimeRecordNew[url]) softTimeRecordNew[url] = 0;
+    //             softTimeRecordNew[url] += timeDiff;
+    //         }
+    //     }
+    // }while( (purified = clearLast(purified))!="" );
+
+    // might be bg page or popup page
+    if(!rawUrl || rawUrl=="null") return;
+
+    url = purifyUrl(rawUrl);
+    var sp = url.split('/');
+    if(!timeRecordNew[sp[0]]) timeRecordNew[sp[0]] = timeDiff;
+    else timeRecordNew[sp[0]] += timeDiff;
 
     // although this url is not recorded, still counted in total use time
-    if(!hit){
-        if(!totalTimeRecordNew) totalTimeRecordNew = 0;
-        totalTimeRecordNew += timeDiff;
-    }
+
+    if(!totalTimeRecordNew) totalTimeRecordNew = 0;
+    totalTimeRecordNew += timeDiff;
 
 }
 
@@ -711,16 +718,19 @@ function clearLocalData() {
     softLockList = [];
     whiteList = [];
 
-    softTimeRecord = {};
-    whiteTimeRecord = {};
+    // softTimeRecord = {};
+    // whiteTimeRecord = {};
+    timeRecord = {};
     totalTimeRecordNew=0;
     totalTimeRecord=0;
 
-    softTimeRecordNew = {};
-    whiteTimeRecordNew = {};
+    // softTimeRecordNew = {};
+    // whiteTimeRecordNew = {};
+    timeRecordNew = {};
 
-    todayWhiteTimeRecord = {};
-    todaySoftTimeRecord = {};
+    // todayWhiteTimeRecord = {};
+    // todaySoftTimeRecord = {};
+    todayTimeRecord = {};
     todayWhiteTotalTimeRecord=0;
     todaySoftTotalTimeRecord=0;
     todayTotalTimeRecord=0;

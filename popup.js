@@ -20,16 +20,18 @@ var softLockList = [];
 var whiteList = [];
 
 // this only record time except this time you browse
-var softTimeRecord = {};
-var whiteTimeRecord = {};
+// var softTimeRecord = {};
+// var whiteTimeRecord = {};
+var timeRecord={};
 var totalTimeRecord=0;
 
 // store only today data
 /**
  * this use dictionary cuz not guaranteed that every website will be surfed every day
  */
-var todayWhiteTimeRecord = {};
-var todaySoftTimeRecord = {};
+// var todayWhiteTimeRecord = {};
+// var todaySoftTimeRecord = {};
+var todayTimeRecord = {};
 var todayWhiteTotalTimeRecord=0;
 var todaySoftTotalTimeRecord=0;
 var todayTotalTimeRecord=0;
@@ -729,10 +731,10 @@ function generateNColor(n){
     return re;
 }
 
-function getWhiteIndex(arr) {
+function getIndexesInList(arr,list) {
     var re=[];
     for(var i=0;i<arr.length;i++){
-        if(whiteList.indexOf(arr[i])!=-1){
+        if(list.indexOf(arr[i])!=-1){
             re.push(i);
         }
     }
@@ -771,16 +773,21 @@ function drawChart(modeFull){
         // mixed top N
         if(option==1) {
             // get fist N data
-            for(key in whiteTimeRecord ){
-                if(whiteTimeRecord.hasOwnProperty(key)){
-                    li.push([key,whiteTimeRecord[key]]);
+            for(key in timeRecord ){
+                if(timeRecord.hasOwnProperty(key)){
+                    li.push([key,timeRecord[key]]);
                 }
             }
-            for(key in softTimeRecord ){
-                if(softTimeRecord.hasOwnProperty(key)){
-                    li.push([key,softTimeRecord[key]]);
-                }
-            }
+            // for(key in whiteTimeRecord ){
+            //     if(whiteTimeRecord.hasOwnProperty(key)){
+            //         li.push([key,whiteTimeRecord[key]]);
+            //     }
+            // }
+            // for(key in softTimeRecord ){
+            //     if(softTimeRecord.hasOwnProperty(key)){
+            //         li.push([key,softTimeRecord[key]]);
+            //     }
+            // }
 
             li = getFirstNInList(n, li);
 
@@ -796,14 +803,23 @@ function drawChart(modeFull){
             for (i = 0; i < timeValue.length; i++) borderColors.push("black");
 
             // remove color of domain in white List
-            var whiteIndex = getWhiteIndex(domainName);
+            var softIndex = getIndexesInList(domainName,softLockList);
+            for(i=0;i<colors.length;i++) {
+                if( softIndex.indexOf(i)<0){
+                    colors[i] = "black";
+                }
+            }
+            var whiteIndex = getIndexesInList(domainName,whiteList);
             for (i = 0; i < whiteIndex.length; i++) {
                 colors[whiteIndex[i]] = "grey";
             }
 
             // deal with category
-            for (i = 0; i < timeValue.length; i++) {
-                listCategory[i] = "鎖定";
+            for(i=0;i<timeValue.length;i++){
+                listCategory[i] = "未加入";
+            }
+            for (i = 0; i < softIndex.length; i++) {
+                listCategory[softIndex[i]] = "鎖定";
             }
             for (i = 0; i < whiteIndex.length; i++) {
                 listCategory[whiteIndex[i]] = "白名單";
@@ -814,9 +830,9 @@ function drawChart(modeFull){
         else if(option==2){
 
             // get fist N data
-            for(key in softTimeRecord){
-                if(softTimeRecord.hasOwnProperty(key)){
-                    li.push([key,softTimeRecord[key]]);
+            for(key in timeRecord){
+                if(timeRecord.hasOwnProperty(key) && softLockList.indexOf(key)>=0){
+                    li.push([key,timeRecord[key]]);
                 }
             }
             li = getFirstNInList(n,li);
@@ -838,9 +854,9 @@ function drawChart(modeFull){
         else if(option==3){
 
             // get fist N data
-            for(key in whiteTimeRecord){
-                if(whiteTimeRecord.hasOwnProperty(key)){
-                    li.push([key,whiteTimeRecord[key]]);
+            for(key in timeRecord){
+                if(timeRecord.hasOwnProperty(key) && whiteList.indexOf(key)>=0){
+                    li.push([key,timeRecord[key]]);
                 }
             }
             li = getFirstNInList(n,li);
@@ -2020,12 +2036,14 @@ function clearLocalData() {
     softLockList = [];
     whiteList = [];
 
-    softTimeRecord = {};
-    whiteTimeRecord = {};
+    // softTimeRecord = {};
+    // whiteTimeRecord = {};
+    timeRecord = {};
     totalTimeRecord=0;
 
-    todayWhiteTimeRecord = {};
-    todaySoftTimeRecord = {};
+    // todayWhiteTimeRecord = {};
+    // todaySoftTimeRecord = {};
+    todayTimeRecord = {};
     todayWhiteTotalTimeRecord=0;
     todaySoftTotalTimeRecord=0;
     todayTotalTimeRecord=0;

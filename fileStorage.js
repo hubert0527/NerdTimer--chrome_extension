@@ -256,14 +256,16 @@ function loadFile(callBack,tab,callback2){
 
     var requestArr = [
         "whiteList",
-        "whiteListData",
+        // "whiteListData",
         "softLockList",
-        "softLockListData",
+        // "softLockListData",
+        "timeRecordData",
         "singleSoftLock",
         "singleWhite",
         "totalTimeRecord",
-        "locked-"+formattedDate, // use time of a single day of locked domain
-        "white-"+formattedDate,
+        // "locked-"+formattedDate, // use time of a single day of locked domain
+        // "white-"+formattedDate,
+        "timeRecordData-"+formattedDate,
         "total-"+formattedDate,
         "lockedTotal-"+formattedDate, // TOTAL use time of a single day of locked domain
         "whiteTotal-"+formattedDate
@@ -283,20 +285,20 @@ function loadFile(callBack,tab,callback2){
             purifiedWhite.push(purifyUrl(whiteList[i]));
         }
 
-        str = data.whiteListData;
-        whiteTimeRecord = {};
-
-        if(str!=undefined && str!="") {
-            var sp = str.split("::");
-            for (i = 0; i < sp.length; i++) {
-                // split for time record
-                sp2 = sp[i].split("||");
-                sp2[1] = parseInt(sp2[1]);
-                if(sp2[1]){
-                    whiteTimeRecord[sp2[0]] = parseInt(sp2[1]);
-                }
-            }
-        }
+        // str = data.whiteListData;
+        // whiteTimeRecord = {};
+        //
+        // if(str!=undefined && str!="") {
+        //     var sp = str.split("::");
+        //     for (i = 0; i < sp.length; i++) {
+        //         // split for time record
+        //         sp2 = sp[i].split("||");
+        //         sp2[1] = parseInt(sp2[1]);
+        //         if(sp2[1]){
+        //             whiteTimeRecord[sp2[0]] = parseInt(sp2[1]);
+        //         }
+        //     }
+        // }
 
         // str = data.hardLockListData;
         // hardLockList = [];
@@ -318,20 +320,20 @@ function loadFile(callBack,tab,callback2){
             purifiedSoftLock.push(purifyUrl(softLockList[i]));
         }
 
-        str = data.softLockListData;
-        softTimeRecord = {};
-        if (str != undefined && str!="") {
-            sp = [];
-            sp = str.split("::");
-            for (i = 0; i < sp.length; i++) {
-                // split for time record
-                sp2 = sp[i].split("||");
-                sp2[1] = parseInt(sp2[1]);
-                if(sp2[1]){
-                    softTimeRecord[sp2[0]] = parseInt(sp2[1]);
-                }
-            }
-        }
+        // str = data.softLockListData;
+        // softTimeRecord = {};
+        // if (str != undefined && str!="") {
+        //     sp = [];
+        //     sp = str.split("::");
+        //     for (i = 0; i < sp.length; i++) {
+        //         // split for time record
+        //         sp2 = sp[i].split("||");
+        //         sp2[1] = parseInt(sp2[1]);
+        //         if(sp2[1]){
+        //             softTimeRecord[sp2[0]] = parseInt(sp2[1]);
+        //         }
+        //     }
+        // }
 
 
         // purifiedHardLock = [];
@@ -339,6 +341,20 @@ function loadFile(callBack,tab,callback2){
         //     purifiedHardLock.push(purifyUrl(hardLockList[i]));
         // }
 
+        str = data.timeRecordData;
+        timeRecord = {};
+
+        if(str!=undefined && str!="") {
+            var sp = str.split("::");
+            for (i = 0; i < sp.length; i++) {
+                // split for time record
+                sp2 = sp[i].split("||");
+                sp2[1] = parseInt(sp2[1]);
+                if(sp2[1]){
+                    timeRecord[sp2[0]] = parseInt(sp2[1]);
+                }
+            }
+        }
 
 
         str = data.singleSoftLock;
@@ -362,23 +378,32 @@ function loadFile(callBack,tab,callback2){
 
         var sp1, sp2;
         // read today time data
-        str = data["locked-"+formattedDate];
+        str = data["timeRecordData-"+formattedDate];
         if (str != undefined && str!="") {
             sp1 = str.split("::");
             for (i = 0; i < sp1.length; i++) {
                 sp2 = sp1[i].split('||');
-                todaySoftTimeRecord[sp2[0]] = parseInt(sp2[1]);
+                todayTimeRecord[sp2[0]] = parseInt(sp2[1]);
             }
         }
 
-        str = data["white-"+formattedDate];
-        if (str != undefined && str!="") {
-            sp1 = str.split("::");
-            for (i = 0; i < sp1.length; i++) {
-                sp2 = sp1[i].split('||');
-                todayWhiteTimeRecord[sp2[0]] = parseInt(sp2[1]);
-            }
-        }
+        // str = data["locked-"+formattedDate];
+        // if (str != undefined && str!="") {
+        //     sp1 = str.split("::");
+        //     for (i = 0; i < sp1.length; i++) {
+        //         sp2 = sp1[i].split('||');
+        //         todaySoftTimeRecord[sp2[0]] = parseInt(sp2[1]);
+        //     }
+        // }
+        //
+        // str = data["white-"+formattedDate];
+        // if (str != undefined && str!="") {
+        //     sp1 = str.split("::");
+        //     for (i = 0; i < sp1.length; i++) {
+        //         sp2 = sp1[i].split('||');
+        //         todayWhiteTimeRecord[sp2[0]] = parseInt(sp2[1]);
+        //     }
+        // }
 
         var p = parseInt(data.totalTimeRecord);
         if(p){
@@ -498,23 +523,60 @@ function saveFileFully(callBack){
     var storeDataArr={};
 
     str = "";
-    str2="";
-    for(var key in whiteTimeRecordNew) {
-        if(whiteTimeRecordNew.hasOwnProperty(key)){
-            if(!whiteTimeRecord[key]) whiteTimeRecord[key] = 0;
-            whiteTimeRecord[key] += whiteTimeRecordNew[key];
+    str2 = "";
+    for(var key in timeRecordNew) {
+        if(timeRecordNew.hasOwnProperty(key)){
+            // if(!softTimeRecord[key]) softTimeRecord[key] = 0;
+            // softTimeRecord[key] += softTimeRecordNew[key];
+
+            if(!timeRecord[key]) timeRecord[key] = 0;
+            timeRecord[key] += timeRecordNew[key];
+
+            if (!todayTimeRecord[key]) todayTimeRecord[key] = 0;
+            todayTimeRecord[key] += timeRecordNew[key];
 
             // save to daily statistics
-            if(!todayWhiteTimeRecord[key]) todayWhiteTimeRecord[key] = 0;
-            todayWhiteTimeRecord[key]+=whiteTimeRecordNew[key];
+            for(i=0;i<softLockList.length;i++) {
+                if(softLockList[i]==key) {
+                    todaySoftTotalTimeRecord += timeRecordNew[key];
+                }
+            }
+            for(i=0;i<whiteList.length;i++) {
+                if(whiteList[i]==key) {
+                    todayWhiteTotalTimeRecord += timeRecordNew[key];
+                }
+            }
 
-            todayWhiteTotalTimeRecord += whiteTimeRecordNew[key];
-            todayTotalTimeRecord += whiteTimeRecordNew[key];
-            totalTimeRecord += whiteTimeRecordNew[key];
+            todayTotalTimeRecord += timeRecordNew[key];
+            totalTimeRecord += timeRecordNew[key];
         }
     }
     // discard no use data
-    whiteTimeRecordNew = {};
+    timeRecordNew = {};
+
+    str = "";
+    for(var key in timeRecord) {
+        if(timeRecord.hasOwnProperty(key)) {
+            if (str == "") str = key + "||" + timeRecord[key];
+            else {
+                str += ("::" + key + "||" + timeRecord[key]);
+            }
+        }
+    }
+    storeDataArr['timeRecordData'] = str;
+
+    str = "";
+    for(var key in todayTimeRecord) {
+        if(todayTimeRecord.hasOwnProperty(key)) {
+            if (str == "") str = key + "||" + todayTimeRecord[key];
+            else {
+                str += ("::" +  key + "||" + todayTimeRecord[key]);
+            }
+        }
+    }
+    storeDataArr['timeRecordData-'+formattedDate] = str;
+
+
 
     str = "";
     for(j=0;j<whiteList.length;j++) {
@@ -525,57 +587,7 @@ function saveFileFully(callBack){
     }
     storeDataArr['whiteList'] = str;
 
-    str = "";
-    for(var key in whiteTimeRecord) {
-        if(whiteTimeRecord.hasOwnProperty(key)) {
-            if (str == "") str = key + "||" + whiteTimeRecord[key];
-            else {
-                str += ("::" + key + "||" + whiteTimeRecord[key]);
-            }
-        }
-    }
-    storeDataArr['whiteLockListData'] = str;
-
-    str = "";
-    for(var key in todayWhiteTimeRecord) {
-        if(todayWhiteTimeRecord.hasOwnProperty(key)) {
-            if (str == "") str = key + "||" + todayWhiteTimeRecord[key];
-            else {
-                str += ("::" +  key + "||" + todayWhiteTimeRecord[key]);
-            }
-        }
-    }
-    storeDataArr['white-'+formattedDate] = str;
-
     storeDataArr['whiteTotal-'+formattedDate] = todayWhiteTotalTimeRecord;
-
-    // str = "";
-    // for(j=0;j<hardLockList.length;j++) {
-    //     if(str=="") str = hardLockList[j];
-    //     else{
-    //         str+= ("::"+hardLockList[j]);
-    //     }
-    // }
-    // storeDataArr['hardLockListData'] = str;
-
-    str = "";
-    str2="";
-    for(var key in softTimeRecordNew) {
-        if(softTimeRecordNew.hasOwnProperty(key)){
-            if(!softTimeRecord[key]) softTimeRecord[key] = 0;
-            softTimeRecord[key] += softTimeRecordNew[key];
-
-            // save to daily statistics
-            if(!todaySoftTimeRecord[key]) todaySoftTimeRecord[key] = 0;
-            todaySoftTimeRecord[key]+=softTimeRecordNew[key];
-
-            todaySoftTotalTimeRecord += softTimeRecordNew[key];
-            todayTotalTimeRecord += softTimeRecordNew[key];
-            totalTimeRecord += softTimeRecordNew[key];
-        }
-    }
-    // discard no use data
-    softTimeRecordNew = {};
 
     str = "";
     for(j=0;j<softLockList.length;j++) {
@@ -586,50 +598,28 @@ function saveFileFully(callBack){
     }
     storeDataArr['softLockList'] = str;
 
-    str = "";
-    for(var key in softTimeRecord) {
-        if(softTimeRecord.hasOwnProperty(key)) {
-            if (str == "") str = key + "||" + softTimeRecord[key];
-            else {
-                str += ("::" + key + "||" + softTimeRecord[key]);
-            }
-        }
-    }
-    storeDataArr['softLockListData'] = str;
-
-    str = "";
-    for(var key in todaySoftTimeRecord) {
-        if(todaySoftTimeRecord.hasOwnProperty(key)) {
-            if (str == "") str = key + "||" + todaySoftTimeRecord[key];
-            else {
-                str += ("::" +  key + "||" + todaySoftTimeRecord[key]);
-            }
-        }
-    }
-    storeDataArr['locked-'+formattedDate] = str;
-
     storeDataArr['lockedTotal-'+formattedDate] = todaySoftTotalTimeRecord;
 
 
     // store single
-    str = "";
-    for (j = 0; j < singleWhite.length; j++) {
-        if (str == "") str = singleWhite[j];
-        else {
-            str += ("::" + singleWhite[j]);
-        }
-    }
-    storeDataArr['singleWhite'] = str;
-
-    // store single
-    str = "";
-    for (j = 0; j < singleSoftLock.length; j++) {
-        if (str == "") str = singleSoftLock[j];
-        else {
-            str += ("::" + singleSoftLock[j]);
-        }
-    }
-    storeDataArr['singleSoftLock'] = str;
+    // str = "";
+    // for (j = 0; j < singleWhite.length; j++) {
+    //     if (str == "") str = singleWhite[j];
+    //     else {
+    //         str += ("::" + singleWhite[j]);
+    //     }
+    // }
+    // storeDataArr['singleWhite'] = str;
+    //
+    // // store single
+    // str = "";
+    // for (j = 0; j < singleSoftLock.length; j++) {
+    //     if (str == "") str = singleSoftLock[j];
+    //     else {
+    //         str += ("::" + singleSoftLock[j]);
+    //     }
+    // }
+    // storeDataArr['singleSoftLock'] = str;
 
     // str = "";
     // for (j = 0; j < singleHardLock.length; j++) {
@@ -647,7 +637,7 @@ function saveFileFully(callBack){
     }
 
     // save total time use
-    storeDataArr['total'] = totalTimeRecord;
+    storeDataArr['totalTimeRecord'] = totalTimeRecord;
     storeDataArr['total-'+formattedDate] = todayTotalTimeRecord;
 
 
