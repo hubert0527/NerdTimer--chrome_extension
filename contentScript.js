@@ -16,23 +16,25 @@ var isFadingOut = false;
 
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 
-    if(msg && msg.block=="hard"){
+    if(!msg) return;
+
+    if(msg.block=="hard"){
         doHardBlock();
     }
-    else if (msg && msg.block=="soft") {
+    else if (msg.block=="soft") {
         doSoftBlock();
     }
-    else if(msg && msg.block=="false"){
+    else if(msg.block=="false"){
         isFadingOut = true;
         $('#blockerWrapper').fadeOut("slow",function () {
             isFadingOut = false;
         });
     }
-    else if(msg.modifyMainMessage!=undefined){
+    else if(msg.modifyMainMessage){
         var tar = document.getElementById("main_message");
         if(tar) $(tar).text(msg.modifyMainMessage);
     }
-    else if(msg.blockListChange!=undefined){
+    else if(msg.blockListChange){
         chrome.runtime.sendMessage({checkIfInList:"none"},function (res) {
             if(res && res.block=="hard"){
                 doHardBlock();
@@ -47,6 +49,10 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
                 });
             }
         });
+    }
+    else if(msg.waitNMinutesButtonChange){
+        var time = parseInt(msg.waitNMinutesButtonChange);
+        $('#remindMeLaterTime').text(time.toString());
     }
 },false);
 
@@ -104,14 +110,15 @@ function doSoftBlock(){
 
     // console.log("got soft block");
     var tar = document.getElementById("blockerWrapper");
-    if(tar!=undefined){
-        if($(tar).is(":visible") && !isFadingOut) {
+    if (tar != undefined) {
+        getHowManyMinutesOnButton();
+        if ($(tar).is(":visible") && !isFadingOut) {
             // already blocked
             // still need to check text
-            chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
-                if(response && response.mainMessage!=undefined) {
+            chrome.runtime.sendMessage({"getCurrentMainMessage": "true"}, function (response) {
+                if (response && response.mainMessage != undefined) {
                     var tar = $('#main_message');
-                    if(tar.text()!=response.mainMessage) {
+                    if (tar.text() != response.mainMessage) {
                         tar.fadeOut('fast', function () {
                             tar.text(response.mainMessage);
                             tar.fadeIn('fast');
@@ -121,7 +128,7 @@ function doSoftBlock(){
             });
             return;
         }
-        else{
+        else {
             isFadingOut = false;
             $('#blockerWrapper').fadeIn("slow");
             // console.log("turn unvisible to visible");
@@ -133,29 +140,41 @@ function doSoftBlock(){
     iDiv.id = "nerdDiv";
 
     var body = document.getElementsByTagName("BODY")[0];
-    if(body){
+    if (body) {
         body.appendChild(iDiv);
     }
-    else{
-        document.getElementsByTagName("HTML")[0].appendChild(iDiv);;
+    else {
+        document.getElementsByTagName("HTML")[0].appendChild(iDiv);
     }
 
     var path = chrome.extension.getURL("blocker.html");
-    $('#nerdDiv').load(path,function(){
+    $('#nerdDiv').load(path, function () {
         /**
          * write script for loaded blocker html here
          */
-        $("#remindMeLater").click(function(){
+        $("#remindMeLater").click(function () {
+            var text = $('#remindMeLaterTime').text();
+            var val = parseInt(text);
+
             $('#blockerWrapper').fadeOut("slow");
-            chrome.runtime.sendMessage({"wait5Min":"true"}, function(response) {
+            chrome.runtime.sendMessage({"wait5Min": val}, function (response) {
                 // console.log("wait5Min");
             });
         });
-        $("#closeIt").click(function(){
+        $("#closeIt").click(function () {
             stopForThisTime = true;
             $('#blockerWrapper').fadeOut("slow");
         });
         //document.getElementById("main_message").textContent = "load!";
+
+        getHowManyMinutesOnButton();
+    });
+
+}
+
+function getHowManyMinutesOnButton() {
+    chrome.runtime.sendMessage({checkHowManyMinutesShowOnButton:"none"},function (response) {
+        if (response.res) $('#remindMeLaterTime').text(response.res);
     });
 }
 

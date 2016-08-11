@@ -57,13 +57,13 @@ hr{
 #mainMessageInput{
     padding: 2px 5px;
     margin: 0;
-    border-width: 0px;
+    border-width: 0;
 }
 
 #mainPage{
     width:90%;
-    height:212px;
-    padding: 0 5% 20px 5%;
+    height:225px;
+    padding: 0 5%;
 }
 #topCol{
     width:90%;
@@ -166,6 +166,11 @@ hr{
     padding: 1px 2px;
     width: 28px;
     margin:5px 3px;
+}
+#waitNMinutesButtonSetting{
+    padding: 1px 2px;
+    width: 28px;
+    margin:5px 0;
 }
 
 .remove ul{

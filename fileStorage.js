@@ -184,6 +184,33 @@ function loadLastUsedTimer(callback){
     });
 }
 
+function saveSettings(callback) {
+    var data = {};
+
+    data['waitNMinutesButton'] = waitNMinutesButton;
+
+    chrome.storage.local.set(data,function () {
+        if(callback) callback();
+    });
+
+
+}
+
+function loadSettings(callback) {
+    var set = [
+        'waitNMinutesButton'
+    ];
+    chrome.storage.local.get(set,function (data) {
+
+        if(data && data.waitNMinutesButton) {
+            waitNMinutesButton = data.waitNMinutesButton;
+        }
+
+        if(callback) callback();
+
+    });
+}
+
 function saveBlocker(callback){
     chrome.storage.local.set({'mainMessage': mainMessage},function(){
         if(callback){

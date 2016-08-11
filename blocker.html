@@ -12,8 +12,12 @@
                 <h1 id="main_message" style="font-size:15vh;font-weight: bolder;color: black;font-family:Georgia, serif,'Adobe 仿宋 Std R';"></h1>
             </div>
             <div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;">
-                <button class="blockerBtn" id="closeIt"><div><p>Close only this time</p></div></button>
-                <button class="blockerBtn" id="remindMeLater"><div><p>Remind 5 minutes later</p></div></button>
+                <button class="blockerBtn" id="closeIt"><div><p>在這頁面暫時別管我</p></div></button>
+                <button class="blockerBtn" id="remindMeLater"><div>
+                    <p>再給我</p>
+                    <p id="remindMeLaterTime">5</p>
+                    <p>分鐘</p>
+                </div></button>
             </div>
         </div>
         <span style="height: 100%;display: inline-block"></span>
@@ -21,6 +25,9 @@
     </div>
 
     <style>
+        #remindMeLater p{
+            display: inline-block;
+        }
         #blockerWrapper{
             background-color: #888888;
             position: fixed;
@@ -31,7 +38,7 @@
             height: 100%;
             width: 100%;
             display: none;
-            font-family: /**Georgia,**/ serif,"微軟正黑體";
+            font-family: /**Georgia,**/ "微軟正黑體",serif !important;
         }
         .blockerBtn{
             float: left;
@@ -50,6 +57,7 @@
         }
         .blockerBtn p{
             color: black;
+            margin: 0;
         }
         #remindMeLater{
             background-color: #00a5ff;
@@ -64,9 +72,6 @@
         #closeIt:hover{
             background-color: white;
             box-shadow: 0 0 0 black;
-        }
-        .blockerBtn p{
-            margin: 5% auto;
         }
     </style>
     <script>

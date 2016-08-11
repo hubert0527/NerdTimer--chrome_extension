@@ -67,6 +67,7 @@ var todayWhiteTotalTimeRecord=0;
 var todaySoftTotalTimeRecord=0;
 var todayTotalTimeRecord=0;
 
+var waitNMinutesButton=5;
 
 // var purifiedSoftLock;
 // var purifiedHardLock;
@@ -79,6 +80,13 @@ function init(){
     
     loadBlocker();
     loadFile();
+    loadSettings(function () {
+        if(waitNMinutesButton && waitNMinutesButton!=5){
+            getCurrentTab(function (tab) {
+                chrome.tabs.sendMessage(tab.id, {waitNMinutesButtonChange: waitNMinutesButton});
+            });
+        }
+    });
 }
 init();
 
@@ -355,7 +363,8 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         //     isWaitingTimer = false;
         //     getCurrentTab(dealWithUrlMain);
         // },10000);
-        setTimer(300,function(){
+        var val = parseInt(msg.wait5Min);
+        setTimer(val*60,function(){
             getCurrentTab(dealWithUrlMain);
         });
         getCurrentTab(dealWithUrlMain);
@@ -555,6 +564,15 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         getCurrentTab(function (tab) {
              chrome.tabs.sendMessage(tab.id, {block: "false"});
         })
+    }
+    else if(msg && msg.waitNMinutesButtonChange){
+        waitNMinutesButton = parseInt(msg.waitNMinutesButtonChange);
+        getCurrentTab(function (tab) {
+            chrome.tabs.sendMessage(tab.id, {waitNMinutesButtonChange: waitNMinutesButton});
+        });
+    }
+    else if(msg && msg.checkHowManyMinutesShowOnButton){
+        sendResponse({res: waitNMinutesButton});
     }
 
     /**

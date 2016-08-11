@@ -66,6 +66,8 @@ var purifiedWhite;
 
 var fakeLoadTimerInst;
 
+var waitNMinutesButton=5;
+
 /**
  * main thread, load almost everything except remove list
  */
@@ -80,6 +82,9 @@ window.addEventListener("DOMContentLoaded", function() {
     loadTimerBlock();
     loadButtons();
     loadCloseButton();
+    loadSettings(function () {
+        loadSettingMenu();
+    });
 
     bindChart();
 
@@ -172,6 +177,104 @@ function loadCloseButton() {
                 chrome.tabs.sendMessage(tab.id,{block:"false"});
             });
         }
+    });
+}
+
+var lastWaitNMinutesInput=5;
+
+function loadSettingMenu() {
+
+    $('#clearAllData').click(function () {
+        $('#warningContent1').text("確定清除所有資料？");
+        $('#warningContent2').text("(此操作無法回復)");
+        $('#warningCheck').css('display','block');
+        $('#warningFakeLoad').css('display','none');
+        $('#warningPop').fadeIn('fast',function () {
+            $('#warningYes').click(function () {
+                $('#warningYes').unbind( "click" );
+                $('#warningNo').unbind( "click" );
+                $('#warningCheck').fadeOut('fast',function () {
+                    $('#warningCancel').click(function(){
+                        clearInterval(fakeLoadTimerInst);
+                        $('#warningCancel').unbind( "click" );
+                        $('#warningPop').fadeOut('fast');
+                    });
+                    $('#warningFakeLoad').fadeIn('fast',function () {
+                        fakeLoadTimerInst = setInterval(function(){
+                            clearInterval(fakeLoadTimerInst);
+                            clearAllData();
+                            clearLocalData();
+                            chrome.runtime.sendMessage({clearAllData:"true"});
+                            resetMainPageStyles();
+                            $('#warningPop').fadeOut('fast');
+                            $('#warningCancel').unbind( "click" );
+                        },4000);
+                    });
+                });
+            });
+            $('#warningNo').click(function () {
+                $('#warningPop').fadeOut('fast');
+                $('#warningYes').unbind( "click" );
+                $('#warningNo').unbind( "click" );
+            });
+        })
+    });
+
+    $('#waitNMinutesButtonSetting').val(waitNMinutesButton);
+    lastWaitNMinutesInput = waitNMinutesButton.toString();
+
+    // timer setting only allow number
+    $(document.getElementById("waitNMinutesButtonSetting")).keydown(function (e) {
+        // press ENTER
+        // Allow: backspace, delete, tab, escape, enter and .
+        if ($.inArray(e.keyCode, [46, 8, 9, 27, 13, 110, 190]) !== -1 ||
+             // Allow: Ctrl+A
+            (e.keyCode == 65 && e.ctrlKey === true) ||
+             // Allow: Ctrl+C
+            (e.keyCode == 67 && e.ctrlKey === true) ||
+             // Allow: Ctrl+X
+            (e.keyCode == 88 && e.ctrlKey === true) ||
+             // Allow: home, end, left, right
+            (e.keyCode >= 35 && e.keyCode <= 39)) {
+                 // let it happen, don't do anything
+        }
+        // enable chinese to notify user use wrong input type
+        else if(e.which==229){
+
+        }
+        // Ensure that it is a number and stop the keypress
+        else if ((e.shiftKey || (e.keyCode < 48 || e.keyCode > 57)) && (e.keyCode < 96 || e.keyCode > 105)) {
+            e.preventDefault();
+        }
+    });
+    // timer can't have too-high number, MAX=999
+    $(document.getElementById("waitNMinutesButtonSetting")).bind("input",function(e){
+        var str = $(this).val();
+        var val = parseInt(str);
+        var lastChar = str.slice(-1);
+
+        if(!val){
+            if(lastChar!='' && (lastChar<'ㄅ'||lastChar>'ㄦ')) $(this).val('');
+            return;
+        }
+        else if( (lastChar>'9'||lastChar<'0') && (lastChar<'ㄅ'||lastChar>'ㄦ') ){
+            $(this).val(lastWaitNMinutesInput);
+            return;
+        }
+        else if(val>999){
+            //$(this).val( str.substring(0,str.length-1) );
+            $(this).val(lastWaitNMinutesInput);
+            return;
+        }
+
+        if(val && val>0) {
+            waitNMinutesButton = val;
+            saveSettings(function () {
+                chrome.runtime.sendMessage({waitNMinutesButtonChange: val});
+            });
+        }
+
+        lastWaitNMinutesInput = str;
     });
 }
 
@@ -400,7 +503,7 @@ function loadButtons() {
             submitMainMessage('');
         }
     };
-    
+
     $('#clearAllData').click(function () {
         $('#warningContent1').text("確定清除所有資料？");
         $('#warningContent2').text("(此操作無法回復)");
