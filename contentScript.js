@@ -182,7 +182,7 @@ function getHowManyMinutesOnButton() {
 
 
 // resume window
-window.addEventListener('focus',sendResumePageMessage());
+window.addEventListener('focus',sendResumePageMessage);
 
 function sendResumePageMessage() {
     chrome.runtime.sendMessage({resumePage:window.location.href},function(){
@@ -191,7 +191,7 @@ function sendResumePageMessage() {
 }
 
 // leave window
-window.addEventListener('blur',sendLeavePageMessage());
+window.addEventListener('blur',sendLeavePageMessage);
 
 function sendLeavePageMessage() {
     chrome.runtime.sendMessage({leavePage:window.location.href},function(){
