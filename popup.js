@@ -359,6 +359,9 @@ function createAboutPage() {
     $('#closeAbout').click(function () {
         $('#about').fadeOut('fast');
     });
+
+    var manifest = chrome.runtime.getManifest();
+    $('#version').text('版本: '+manifest.version);
 }
 
 function listPossibleAddDomain(type) {
