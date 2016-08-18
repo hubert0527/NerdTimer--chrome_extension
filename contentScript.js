@@ -56,11 +56,6 @@ function nerdTimerMessageListener(msg, sender, sendResponse) {
         var time = parseInt(msg.waitNMinutesButtonChange);
         $('#nerdTimerRemindMeLaterTime').text(time.toString());
     }
-    else if(msg.disconnectContentScript){
-        chrome.extension.onMessage.removeEventListener(nerdTimerMessageListener);
-        window.removeEventListener('focus',sendResumePageMessage);
-        window.removeEventListener('blur',sendLeavePageMessage);
-    }
 }
 
 function doHardBlock(){
