@@ -287,17 +287,20 @@ function dealingUrl(tab,callback){
 }
 
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
+
+    if(!msg) return;
+
     /**
      * content script request for data for any reason
      */
-    if (msg && msg.blockerLoadRequest == "giveMeData") {
+    if (msg.blockerLoadRequest == "giveMeData") {
         loadBlocker();
         sendResponse({"mainMessage":mainMessage.toString()});
     }
     /**
      * popup script request modify main message
      */
-    else if(msg && msg.modifyMainMessage!=undefined){
+    else if(msg.modifyMainMessage!=undefined){
         mainMessage = msg.modifyMainMessage;
         saveBlocker(function(){
             // getCurrentTab(function(tab){
@@ -411,7 +414,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         //     }
         // });
     }
-    else if(msg && msg.deleteRule){
+    else if(msg.deleteRule){
         var sp = msg.deleteRule.split("::");
         var index;
         //purifyBlackAndWhite();
@@ -448,22 +451,22 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         //     saveFile(getCurrentTab(dealWithUrlMain));
         // }
     }
-    else if(msg && msg.timerSet){
+    else if(msg.timerSet){
         setTimer(msg.timerSet*60,function(){
             getCurrentTab(dealWithUrlMain);
         });
         getCurrentTab(dealWithUrlMain);
         return false;
     }
-    else if(msg && msg.getTimerTime){
+    else if(msg.getTimerTime){
         sendResponse({time:timer});
     }
-    else if(msg && msg.cancelTimer){
+    else if(msg.cancelTimer){
         timer = 0;
         clearInterval(timerInst);
         getCurrentTab(dealWithUrlMain);
     }
-    else if(msg && msg.isAppClosed){
+    else if(msg.isAppClosed){
         if(isAppClosed){
             sendResponse({isAppClosed:"true"});
         }
@@ -471,7 +474,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             sendResponse({isAppClosed:"false"});
         }
     }
-    else if(msg && msg.changeAppStatus){
+    else if(msg.changeAppStatus){
         if(msg.changeAppStatus=="open"){
             isAppClosed = false;
         }
@@ -652,6 +655,7 @@ chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
             //doTimeRecord(tab);
         });
     }
+
 });
 
 /**
@@ -664,6 +668,64 @@ chrome.windows.onRemoved.addListener(function(){
         // no url cuz no need
         doTimeRecord();
     })
+});
+
+function injectScript(tabs,i) {
+
+    var needLoadJQuery = 'var x; if(!window.jQuery) x=true; else x=false; x;';
+
+    chrome.tabs.executeScript(tabs[i].id,{ code: needLoadJQuery }, function (re) {
+        if(re) {
+            //console.log('need inject jQuery, return ' + re);
+            chrome.tabs.executeScript(tabs[i].id, {file: 'jquery-1.11.3.min.js'}, function () {
+                chrome.tabs.executeScript(tabs[i].id, {file: "contentScript.js"}, function () {
+                    console.log('injected script!');
+                });
+            });
+        }
+        else{
+            //console.log('NO need inject jQuery, return ' + re);
+            chrome.tabs.executeScript(tabs[i].id, {file: "contentScript.js"}, function () {
+                console.log('injected script!');
+            });
+        }
+    });
+}
+
+// Check whether new version is installed
+chrome.runtime.onInstalled.addListener(function(details){
+    if(details.reason == "install"){
+
+        // inject code for each tab
+        chrome.tabs.getAllInWindow(null, function(tabs){
+            for (var i = 0; i < tabs.length; i++) {
+                injectScript(tabs,i);
+            }
+            console.log('inject script for ' + tabs.length + ' pages');
+        });
+
+        console.log("This is a first install!");
+
+
+    }else if(details.reason == "update"){
+        var thisVersion = chrome.runtime.getManifest().version;
+        console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
+
+        // inject code for each tab
+        chrome.tabs.getAllInWindow(null, function(tabs){
+            var scriptUrl = chrome.extension.getURL('contentScript.js');
+            $.get(scriptUrl, function( script ) {
+                for (var i = 0; i < tabs.length; i++) {
+                    chrome.tabs.sendMessage(tabs[i].id,{disconnectContentScript:'none'},function () {
+                        for (i = 0; i < tabs.length; i++) {
+                            injectScript(tabs, i);
+                        }
+                    });
+                }
+                console.log('inject script for ' + tabs.length + ' pages');
+            });
+        });
+    }
 });
 
 function searchDomain(purified, rawUrl,  timeDiff) {

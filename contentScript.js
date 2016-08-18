@@ -14,7 +14,9 @@ if (!chrome.runtime) {
 
 var isFadingOut = false;
 
-chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
+chrome.extension.onMessage.addListener(nerdTimerMessageListener);
+
+function nerdTimerMessageListener(msg, sender, sendResponse) {
 
     if(!msg) return;
 
@@ -54,7 +56,12 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         var time = parseInt(msg.waitNMinutesButtonChange);
         $('#nerdTimerRemindMeLaterTime').text(time.toString());
     }
-},false);
+    else if(msg.disconnectContentScript){
+        chrome.extension.onMessage.removeEventListener(nerdTimerMessageListener);
+        window.removeEventListener('focus',sendResumePageMessage);
+        window.removeEventListener('blur',sendLeavePageMessage);
+    }
+}
 
 function doHardBlock(){
     // console.log("got hard block");
@@ -180,15 +187,19 @@ function getHowManyMinutesOnButton() {
 
 
 // resume window
-window.addEventListener('focus', function() {
+window.addEventListener('focus',sendResumePageMessage());
+
+function sendResumePageMessage() {
     chrome.runtime.sendMessage({resumePage:window.location.href},function(){
         // console.log("resume to browser " + window.location.href + " at " + new Date());
     });
-});
+}
 
 // leave window
-window.addEventListener('blur', function() {
+window.addEventListener('blur',sendLeavePageMessage());
+
+function sendLeavePageMessage() {
     chrome.runtime.sendMessage({leavePage:window.location.href},function(){
         // console.log("leave browser " + window.location.href + " at " + new Date());
     });
-});
+}

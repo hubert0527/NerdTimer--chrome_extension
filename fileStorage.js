@@ -672,7 +672,15 @@ function exportData(callback) {
         fullData['timeRecordData'] = data.timeRecordData;
         fullData['totalTimeRecord'] = data.totalTimeRecord;
 
-        var allDate = getAllDatesFromInstallDate(data.installDate);
+        var startDate = data.installDate;
+        if(!startDate){
+            if(callback) {
+                callback("No Data");
+                return;
+            }
+        }
+
+        var allDate = getAllDatesFromInstallDate(startDate);
 
         var req2 = [];
         for(var i=0;i<allDate.length;i++){

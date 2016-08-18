@@ -2,12 +2,13 @@
   "manifest_version": 2,
 
   "name": "廢宅計時器",
-  "description": "廢也要廢得知道自己是怎麼廢的",
+  "description": "今天開始專心不耍廢",
   "version": "1.0",
 
 
   "web_accessible_resources": [
-    "blocker.html"
+    "blocker.html",
+    "jquery-1.11.3.min.js"
   ],
 
   "icons": { "16": "icon.png",
@@ -28,7 +29,7 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["jquery-1.11.3.min.js","utility.js","contentScript.js"],
+      "js": ["jquery-1.11.3.min.js","contentScript.js"],
       "run_at": "document_end"
     }
   ],
