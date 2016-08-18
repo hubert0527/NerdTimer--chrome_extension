@@ -892,6 +892,7 @@ function loadMainPageTimer(){
 function setPopupTimer(timeInSec){
 
     timer = timeInSec;
+
     if(!timer || timer<=0) {
         document.getElementById("timeDisplay").textContent = "00:00:00";
         return;
@@ -934,7 +935,9 @@ function setPopupTimer(timeInSec){
             hr = "0"+hr;
         }
         document.getElementById("timeDisplay").textContent = hr + ":" + min + ":" + sec;
+
     },1000);
+
 
 }
 

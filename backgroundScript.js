@@ -537,10 +537,28 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 function setTimer(time,callback){
     isWaitingTimer = true;
     timer = time;
-    var timerInst = setInterval(function(){
-        if(timer>0) timer --;
+    timerInst = setInterval(function(){
+        if(timer>0) {
+            timer --;
+            var sec = timer%60;
+            var min = Math.floor(timer/60)%60;
+            var hr = Math.floor(timer/3600);
+            if(hr==0 && min==0){
+                chrome.browserAction.setBadgeText({text:sec+'s'});
+                chrome.browserAction.setBadgeBackgroundColor({color:'red'});
+            }
+            else if(hr==0){
+                chrome.browserAction.setBadgeText({text:(min+1)+'m'});
+                chrome.browserAction.setBadgeBackgroundColor({color:'green'});
+            }
+            else{
+                chrome.browserAction.setBadgeText({text:hr+'h'});
+                chrome.browserAction.setBadgeBackgroundColor({color:'green'});
+            }
+        }
         else{
             clearInterval(timerInst);
+            chrome.browserAction.setBadgeText({text:''});
             isWaitingTimer = false;
             if(callback!=undefined) callback();
         }
