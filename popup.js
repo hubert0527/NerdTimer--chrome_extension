@@ -81,6 +81,7 @@ window.addEventListener("DOMContentLoaded", function() {
     loadSettings(function () {
         loadSettingMenu();
     });
+    createAboutPage();
 
     bindChart();
 
@@ -348,6 +349,16 @@ function typeIncorrectWarning() {
                 $('#temporaryWarning').fadeOut();
             },1500);
         });
+}
+
+function createAboutPage() {
+    $('#showAbout').click(function () {
+        var about = $('#about');
+        if(!about.is(':visible')) about.hide().fadeIn('fast');
+    });
+    $('#closeAbout').click(function () {
+        $('#about').fadeOut('fast');
+    });
 }
 
 function listPossibleAddDomain(type) {
@@ -756,6 +767,10 @@ function loadTimerBlock() {
         else if(val>999){
             //$(this).val( str.substring(0,str.length-1) );
             $(this).val(lastTimerInput);
+            return;
+        }
+        else if(isAppClosed){
+            lastTimerInput = str;
             return;
         }
 
