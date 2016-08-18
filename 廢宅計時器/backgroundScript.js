@@ -664,6 +664,9 @@ function getCurrentTime() {
  * Fire on page load
  */
 var currentPage="";
+getCurrentTabUrl(function (url) {
+    currentPage = url;
+});
 var currentPageLoadTime=getCurrentTime();
 chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
     if (changeInfo.status == 'complete') {

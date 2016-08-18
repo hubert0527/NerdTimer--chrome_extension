@@ -59,7 +59,7 @@ function bindChart() {
 
 function prepareChart(callback) {
     //chrome.runtime.sendMessage({forceSaveFully:"none"},function(res){
-    //     loadFile(function(){
+         loadFile(function(){
 
             // init
             // force program to re load all components
@@ -68,7 +68,7 @@ function prepareChart(callback) {
 
             if(callback) callback();
 
-        // });
+         });
     //});
 }
 
