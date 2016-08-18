@@ -517,12 +517,16 @@ function saveFileFully(designatedDate,callBack){
 
     str = "";
     str2 = "";
+    console.log(timeRecordNew.toString());
     for(var key in timeRecordNew) {
         if(timeRecordNew.hasOwnProperty(key)){
             // if(!softTimeRecord[key]) softTimeRecord[key] = 0;
             // softTimeRecord[key] += softTimeRecordNew[key];
 
-            if(!timeRecord[key]) timeRecord[key] = 0;
+            if(!timeRecord[key]) {
+                console.log('timeRecord = ' + timeRecord[key]);
+                timeRecord[key] = 0;
+            }
             timeRecord[key] += timeRecordNew[key];
 
             if (!todayTimeRecord[key]) todayTimeRecord[key] = 0;
@@ -539,6 +543,8 @@ function saveFileFully(designatedDate,callBack){
                     todayWhiteTotalTimeRecord += timeRecordNew[key];
                 }
             }
+
+            console.log('saved ' + key + ' time ' + timeRecordNew[key] + 'time record = ' + timeRecord[key]);
 
             todayTotalTimeRecord += timeRecordNew[key];
             totalTimeRecord += timeRecordNew[key];
@@ -639,7 +645,8 @@ function saveFileFully(designatedDate,callBack){
 
 
     chrome.storage.local.set(storeDataArr, function () {
-            if (callBack != undefined) callBack();
+        console.log('save complete');
+        if (callBack != undefined) callBack();
     });
 
 }
