@@ -464,6 +464,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     else if(msg.cancelTimer){
         timer = 0;
         isWaitingTimer = false;
+        chrome.browserAction.setBadgeText({text:''});
         clearInterval(timerInst);
         getCurrentTab(dealWithUrlMain);
     }
