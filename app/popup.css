@@ -680,4 +680,5 @@ input:checked + .switchSlider:before {
     background-color: lightseagreen;
     top:0;
     left:0;
+    z-index: 2147483647;
 }

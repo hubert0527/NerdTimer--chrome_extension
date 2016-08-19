@@ -349,7 +349,7 @@ function saveFile(callBack){
 }
 
 
-function loadFile(callBack,tab,callback2){
+function loadFile(callBack){
     // get list
     var i, sp2;
 
@@ -469,8 +469,7 @@ function loadFile(callBack,tab,callback2){
             todayTotalTimeRecord = 0;
         }
 
-        if (callBack && callback2) callBack(tab,callback2);
-        else if (callBack) callBack(tab);
+        if (callBack) callBack();
 
     });
 

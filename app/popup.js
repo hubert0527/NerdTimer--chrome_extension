@@ -1535,7 +1535,7 @@ function getWebsiteBlockStatus(url) {
         if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
         // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
         else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
-        else if(response.block=="none") $(document.getElementById("isInList")).text(" none");
+        else $(document.getElementById("isInList")).text(" none");
     });
 }
 

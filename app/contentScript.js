@@ -16,17 +16,30 @@ var isFadingOut = false;
 
 chrome.extension.onMessage.addListener(nerdTimerMessageListener);
 
+/**
+ * Fire this upon page DOM loaded to check if block as fast as we could
+ */
+chrome.runtime.sendMessage({pageJustLoaded: 'none'}, function (res) {
+    var blockState = res.blockState;
+    if (blockState == 'soft') {
+        doSoftBlock();
+    }
+    else if (blockState == 'white') {
+        isFadingOut = true;
+        $('#nerdTimerBlockerWrapper').fadeOut("slow", function () {
+            isFadingOut = false;
+        });
+    }
+});
+
 function nerdTimerMessageListener(msg, sender, sendResponse) {
 
     if(!msg) return;
 
-    if(msg.block=="hard"){
-        doHardBlock();
-    }
-    else if (msg.block=="soft") {
+    if (msg.block=="soft") {
         doSoftBlock();
     }
-    else if(msg.block=="false"){
+    else if(msg.block=="false" || msg.block=="white" || msg.block=="none"){
         isFadingOut = true;
         $('#nerdTimerBlockerWrapper').fadeOut("slow",function () {
             isFadingOut = false;

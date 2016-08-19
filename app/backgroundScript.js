@@ -193,8 +193,7 @@ function isInList(mstr, lstr) {
 /**
  * cut current searching URL and compare to each stored list item
  * TODO: remove comparable object from list each time case not match
- * @param str
- * @returns {boolean}
+ * @param purified
  */
 
 function checkBlock(purified){
@@ -216,18 +215,18 @@ function checkBlock(purified){
     do{
         // search white first
         for(i=0;i<whiteList.length;i++){
-            if(isInList(temp,whiteList[i])==true) return 0;
+            if(isInList(temp,whiteList[i])==true) return 'white';
         }
         // search block
         // for(i=0;i<purifiedHardLock.length;i++){
         //     if(isInList(temp,purifiedHardLock[i])==true) return 1;
         // }
         for(i=0;i<softLockList.length;i++){
-            if(isInList(temp,softLockList[i])==true) return 2;
+            if(isInList(temp,softLockList[i])==true) return 'soft';
         }
     }while( (temp = clearLast(temp))!="" );
 
-    return -1;
+    return 'none';
 }
 
 /**
@@ -235,55 +234,36 @@ function checkBlock(purified){
  *  and check in black and white list to judge whether need process
  */
 function dealingUrl(tab,callback){
-    //getCurrentTabUrl(function(url) {
 
-        if(tab==undefined || tab.url==undefined) return false;
-        var url = tab.url;
+    if(tab==undefined || tab.url==undefined) return false;
+    var url = tab.url;
 
-        //purifyBlackAndWhite();
+    var purified = purifyUrl(url);
 
-        var purified = purifyUrl(url);
-        //var cutted = cutOffHeadAndTail(url);
+    var blockState = checkBlock(purified);
 
-        var isBad = checkBlock(purified);
+    // console.log("block? " + isBad);
+    // console.log("hardBlock: " + hardLockList.toString());
+    // console.log("softBlock: " + softLockList.toString());
+    // console.log("whites: " + whiteList.toString());
+    //
+    // console.log("hardBlockSingle: " + singleHardLock.toString());
+    // console.log("softBlockSingle: " + singleSoftLock.toString());
+    // console.log("whitesSingle: " + singleWhite.toString());
 
-        // console.log("block? " + isBad);
-        // console.log("hardBlock: " + hardLockList.toString());
-        // console.log("softBlock: " + softLockList.toString());
-        // console.log("whites: " + whiteList.toString());
-        //
-        // console.log("hardBlockSingle: " + singleHardLock.toString());
-        // console.log("softBlockSingle: " + singleSoftLock.toString());
-        // console.log("whitesSingle: " + singleWhite.toString());
+    if(isWaitingTimer==true || isAppClosed==true){
+        chrome.tabs.sendMessage(tab.id, {block: "false"}, function(response) {
+            //console.log("send message to " + tab.url + " id = " + tab.id);
+        });
+        return;
+    }
 
-        // if(isBad==1){
-        //     chrome.tabs.sendMessage(tab.id, {block: "hard"}, function(response) {
-        //         //console.log("send message to " + tab.url + " id = " + tab.id);
-        //     });
-        // }
-        // else 
-        if(isBad==2){
+    chrome.tabs.sendMessage(tab.id, {block: blockState}, function(response) {
+        //console.log("send message to " + tab.url + " id = " + tab.id);
+    });
+    if(callback) callback(isBad);
 
-            if(isWaitingTimer==true || isAppClosed==true){
-                chrome.tabs.sendMessage(tab.id, {block: "false"}, function(response) {
-                    //console.log("send message to " + tab.url + " id = " + tab.id);
-                });
-                return;
-            }
 
-            chrome.tabs.sendMessage(tab.id, {block: "soft"}, function(response) {
-                //console.log("send message to " + tab.url + " id = " + tab.id);
-            });
-        }
-        else{
-            chrome.tabs.sendMessage(tab.id, {block: "false"}, function(response) {
-                //console.log("send message to " + tab.url + " id = " + tab.id);
-            });
-        }
-
-        if(callback) callback();
-
-    //});
 }
 
 chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
@@ -296,6 +276,21 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     if (msg.blockerLoadRequest == "giveMeData") {
         loadBlocker();
         sendResponse({"mainMessage":mainMessage.toString()});
+    }
+    else if(msg.pageJustLoaded){
+        if(isAppClosed || isWaitingTimer){
+            sendResponse({blockState:'none'});
+        }
+        else {
+            loadFile(function () {
+                getCurrentTabUrl(function (url) {
+                    var purified = purifyUrl(url);
+                    var blockState = checkBlock(purified);
+                    sendResponse({blockState: blockState});
+                    console.log("on pageJustLoaded");
+                });
+            });
+        }
     }
     /**
      * popup script request modify main message
@@ -346,32 +341,6 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
                 doCheckIfInList(url,sendResponse);
             }
         });
-        // checkIfReload(function(needReload){
-        //     if(needReload){
-        //         loadFile(function () {
-        //             if(msg.checkIfInList=="none"){
-        //                 getCurrentTabUrl(function(url){
-        //                     doCheckIfInList(url,sendResponse);
-        //                 });
-        //             }
-        //             else{
-        //                 var url = msg.checkIfInList;
-        //                 doCheckIfInList(url,sendResponse);
-        //             }
-        //         });
-        //     }
-        //     else{
-        //         if(msg.checkIfInList=="none"){
-        //             getCurrentTabUrl(function(url){
-        //                 doCheckIfInList(url,sendResponse);
-        //             });
-        //         }
-        //         else{
-        //             var url = msg.checkIfInList;
-        //             doCheckIfInList(url,sendResponse);
-        //         }
-        //     }
-        // });
     }
     else if(msg.getStatus){
 
@@ -418,21 +387,11 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         var sp = msg.deleteRule.split("::");
         var index;
         //purifyBlackAndWhite();
-        if(sp[0]=="singleWhite"){
-            index = singleWhite.indexOf(sp[1]);
-            singleWhite.splice(index,1);
-            saveFile(getCurrentTab(dealWithUrlMain));
-        }
-        else if(sp[0]=="whiteList"){
+        if(sp[0]=="whiteList"){
             index = whiteList.indexOf(sp[1]);
             whiteList.splice(index,1);
             saveFile(getCurrentTab(dealWithUrlMain));
             //purifyBlackAndWhite();
-        }
-        else if(sp[0]=="singleSoftLock"){
-            index = singleSoftLock.indexOf(sp[1]);
-            singleSoftLock.splice(index,1);
-            saveFile(getCurrentTab(dealWithUrlMain));
         }
         else if(sp[0]=="softLockList"){
             index = softLockList.indexOf(sp[1]);
@@ -440,16 +399,6 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             saveFile(getCurrentTab(dealWithUrlMain));
             //purifyBlackAndWhite();
         }
-        // else if(sp[0]=="singleHardLock"){
-        //     index = singleHardLock.indexOf(sp[1]);
-        //     singleHardLock.splice(index,1);
-        //     saveFile(getCurrentTab(dealWithUrlMain));
-        // }
-        // else if(sp[0]=="hardLockList"){
-        //     index = hardLockList.indexOf(sp[1]);
-        //     hardLockList.splice(index,1);
-        //     saveFile(getCurrentTab(dealWithUrlMain));
-        // }
     }
     else if(msg.timerSet){
         setTimer(msg.timerSet*60,function(){
@@ -570,13 +519,8 @@ function setTimer(time,callback){
 function doCheckIfInList(url,sendResponse) {
     //purifyBlackAndWhite();
     var purified = purifyUrl(url);
-    var isBad = checkBlock(purified);
-    var str;
-    if(isBad==0) str = "white";
-    // else if(isBad==1) str = "hard";
-    else if(isBad==2) str = "soft";
-    else str = "none";
-    sendResponse({block:str});
+    var blockState = checkBlock(purified);
+    sendResponse({block:blockState});
     // console.log("is bad? " + str);
 }
 
@@ -584,10 +528,12 @@ function doCheckIfInList(url,sendResponse) {
  * main thread of checking if tab is block
  * @param tab
  */
-function  dealWithUrlMain(tab,callback) {
+function  dealWithUrlMain(tab) {
     // check if has new setting?
 
-    loadFile(dealingUrl,tab,callback);
+    loadFile(function () {
+        dealingUrl(tab);
+    });
 
     // checkIfReload(function(needReload){
     //     if(needReload){
@@ -670,16 +616,16 @@ getCurrentTabUrl(function (url) {
     currentPage = url;
 });
 var currentPageLoadTime=getCurrentTime();
-chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
-    if (changeInfo.status == 'complete') {
-        // check block
-        dealWithUrlMain(tab,function(){
-            // console.log("on update");
-            //doTimeRecord(tab);
-        });
-    }
-
-});
+// chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
+//     if (changeInfo.status == 'complete') {
+//         // check block
+//         dealWithUrlMain(tab,function(){
+//             // console.log("on update");
+//             //doTimeRecord(tab);
+//         });
+//     }
+//
+// });
 
 /**
  * fire on browser close
