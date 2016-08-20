@@ -130,17 +130,7 @@ function doSoftBlock(){
         if ($(tar).is(":visible") && !isFadingOut) {
             // already blocked
             // still need to check text
-            chrome.runtime.sendMessage({"getCurrentMainMessage": "true"}, function (response) {
-                if (response && response.mainMessage != undefined) {
-                    var tar = $('#nerdTimerMainMessage');
-                    if (tar.text() != response.mainMessage) {
-                        tar.fadeOut('fast', function () {
-                            tar.text(response.mainMessage);
-                            tar.fadeIn('fast');
-                        });
-                    }
-                }
-            });
+            requestMainMessage();
             return;
         }
         else {
@@ -151,6 +141,11 @@ function doSoftBlock(){
         }
     }
 
+    createNerdDiv();
+
+}
+
+function createNerdDiv() {
     var iDiv = document.createElement('div');
     iDiv.id = "nerdDiv";
 
@@ -164,6 +159,7 @@ function doSoftBlock(){
 
     var path = chrome.extension.getURL("blocker.html");
     $('#nerdDiv').load(path, function () {
+
         /**
          * write script for loaded blocker html here
          */
@@ -180,11 +176,26 @@ function doSoftBlock(){
             stopForThisTime = true;
             $('#nerdTimerBlockerWrapper').fadeOut("slow");
         });
-        //document.getElementById("nerdTimerMainMessage").textContent = "load!";
 
+        requestMainMessage();
         getHowManyMinutesOnButton();
-    });
 
+        $('#nerdTimerBlockerWrapper').fadeIn("slow");
+    });
+}
+
+function requestMainMessage() {
+    chrome.runtime.sendMessage({"getCurrentMainMessage": "true"}, function (response) {
+        if (response && response.mainMessage != undefined) {
+            var tar = $('#nerdTimerMainMessage');
+            if (tar.text() != response.mainMessage) {
+                tar.fadeOut('fast', function () {
+                    tar.text(response.mainMessage);
+                    tar.fadeIn('fast');
+                });
+            }
+        }
+    });
 }
 
 function getHowManyMinutesOnButton() {
