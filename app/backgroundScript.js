@@ -488,7 +488,11 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
 function setTimer(time,callback){
     isWaitingTimer = true;
     timer = time;
-    timerInst = setInterval(function(){
+
+    // use two timer instance to solve mysterious timer not clear issue
+    //    (maybe it is some timing issue or clearInsterval() bug)
+    var localTimerInst = setInterval(function(){
+        console.log('decrease timer : ' + timer);
         if(timer>0) {
             timer --;
             var sec = timer%60;
@@ -508,12 +512,15 @@ function setTimer(time,callback){
             }
         }
         else{
+            clearInterval(localTimerInst);
             clearInterval(timerInst);
             chrome.browserAction.setBadgeText({text:''});
             isWaitingTimer = false;
             if(callback!=undefined) callback();
         }
     },1000);
+
+    timerInst = localTimerInst;
 }
 
 function doCheckIfInList(url,sendResponse) {
