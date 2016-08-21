@@ -14,23 +14,9 @@ if (!chrome.runtime) {
 
 var isFadingOut = false;
 
-chrome.extension.onMessage.addListener(nerdTimerMessageListener);
+createNerdDiv();
 
-/**
- * Fire this upon page DOM loaded to check if block as fast as we could
- */
-chrome.runtime.sendMessage({pageJustLoaded: 'none'}, function (res) {
-    var blockState = res.blockState;
-    if (blockState == 'soft') {
-        doSoftBlock();
-    }
-    else if (blockState == 'white') {
-        isFadingOut = true;
-        $('#nerdTimerBlockerWrapper').fadeOut("slow", function () {
-            isFadingOut = false;
-        });
-    }
-});
+chrome.extension.onMessage.addListener(nerdTimerMessageListener);
 
 function nerdTimerMessageListener(msg, sender, sendResponse) {
 
@@ -51,10 +37,7 @@ function nerdTimerMessageListener(msg, sender, sendResponse) {
     }
     else if(msg.blockListChange){
         chrome.runtime.sendMessage({checkIfInList:"none"},function (res) {
-            if(res && res.block=="hard"){
-                doHardBlock();
-            }
-            else if (res && res.block=="soft") {
+            if (res && res.block=="soft") {
                 doSoftBlock();
             }
             else if(res && (res.block=="false"||res.block=="white"||res.block=="none")){
@@ -71,55 +54,56 @@ function nerdTimerMessageListener(msg, sender, sendResponse) {
     }
 }
 
-function doHardBlock(){
-    // console.log("got hard block");
+// function doHardBlock(){
+//     // console.log("got hard block");
+//
+//     var tar = document.getElementById("nerdTimerBlockerWrapper");
+//     if(tar!=undefined){
+//         if($(tar).is(":visible")) {
+//             // already blocked
+//             // still need to check text
+//             chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
+//                 if(response && response.mainMessage!=undefined) {
+//                     var tar = $('#nerdTimerMainMessage');
+//                     if(tar.text()!=response.mainMessage) {
+//                         tar.fadeOut('fast', function () {
+//                             tar.text(response.mainMessage);
+//                             tar.fadeIn('fast');
+//                         });
+//                     }
+//                 }
+//             });
+//             return;
+//         }
+//         else{
+//             $('#nerdTimerBlockerWrapper').fadeIn("slow");
+//             // console.log("turn unvisible to visible");
+//             return;
+//         }
+//     }
+//
+//     var iDiv = document.createElement('div');
+//     iDiv.id = "nerdDiv";
+//
+//     var body = document.getElementsByTagName("BODY")[0];
+//     if(body){
+//         body.appendChild(iDiv);
+//     }
+//     else{
+//         document.getElementsByTagName("HTML")[0].appendChild(iDiv);;
+//     }
+//
+//
+//     var path = chrome.extension.getURL("blocker.html");
+//     $('#nerdDiv').load(path,function(){
+//         /**
+//          * write script for loaded blocker html here
+//          */
+//         $("#nerdTimerRemindMeLater").css("display","none");
+//         $("#nerdTimerCloseIt").css("display","none");
+//     });
+// }
 
-    var tar = document.getElementById("nerdTimerBlockerWrapper");
-    if(tar!=undefined){
-        if($(tar).is(":visible")) {
-            // already blocked
-            // still need to check text
-            chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
-                if(response && response.mainMessage!=undefined) {
-                    var tar = $('#nerdTimerMainMessage');
-                    if(tar.text()!=response.mainMessage) {
-                        tar.fadeOut('fast', function () {
-                            tar.text(response.mainMessage);
-                            tar.fadeIn('fast');
-                        });
-                    }
-                }
-            });
-            return;
-        }
-        else{
-            $('#nerdTimerBlockerWrapper').fadeIn("slow");
-            // console.log("turn unvisible to visible");
-            return;
-        }
-    }
-
-    var iDiv = document.createElement('div');
-    iDiv.id = "nerdDiv";
-
-    var body = document.getElementsByTagName("BODY")[0];
-    if(body){
-        body.appendChild(iDiv);
-    }
-    else{
-        document.getElementsByTagName("HTML")[0].appendChild(iDiv);;
-    }
-
-
-    var path = chrome.extension.getURL("blocker.html");
-    $('#nerdDiv').load(path,function(){
-        /**
-         * write script for loaded blocker html here
-         */
-        $("#nerdTimerRemindMeLater").css("display","none");
-        $("#nerdTimerCloseIt").css("display","none");
-    });
-}
 function doSoftBlock(){
     if(stopForThisTime) return ;
 
@@ -131,18 +115,13 @@ function doSoftBlock(){
             // already blocked
             // still need to check text
             requestMainMessage();
-            return;
         }
         else {
             isFadingOut = false;
             $('#nerdTimerBlockerWrapper').fadeIn("slow");
             // console.log("turn unvisible to visible");
-            return;
         }
     }
-
-    createNerdDiv();
-
 }
 
 function createNerdDiv() {
@@ -160,10 +139,13 @@ function createNerdDiv() {
     var path = chrome.extension.getURL("blocker.html");
     $('#nerdDiv').load(path, function () {
 
+        nerdDivJustLoaded();
+
         /**
          * write script for loaded blocker html here
          */
-        $("#nerdTimerRemindMeLater").click(function () {
+        $("#nerdTimerRemindMeLater").click(function (event) {
+            event.preventDefault();
             var text = $('#nerdTimerRemindMeLaterTime').text();
             var val = parseInt(text);
 
@@ -172,7 +154,8 @@ function createNerdDiv() {
                 // console.log("wait5Min");
             });
         });
-        $("#nerdTimerCloseIt").click(function () {
+        $("#nerdTimerCloseIt").click(function (event) {
+            event.preventDefault();
             stopForThisTime = true;
             $('#nerdTimerBlockerWrapper').fadeOut("slow");
         });
@@ -180,7 +163,24 @@ function createNerdDiv() {
         requestMainMessage();
         getHowManyMinutesOnButton();
 
-        $('#nerdTimerBlockerWrapper').fadeIn("slow");
+    });
+}
+
+/**
+ * Fire this upon page DOM loaded to check if block as fast as we could
+ */
+function nerdDivJustLoaded() {
+    chrome.runtime.sendMessage({pageJustLoaded: 'none'}, function (res) {
+        var blockState = res.blockState;
+        if (blockState == 'soft') {
+            doSoftBlock();
+        }
+        else if (blockState == 'white') {
+            isFadingOut = true;
+            $('#nerdTimerBlockerWrapper').fadeOut("slow", function () {
+                isFadingOut = false;
+            });
+        }
     });
 }
 

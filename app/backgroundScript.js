@@ -69,6 +69,11 @@ var todayTotalTimeRecord=0;
 var waitNMinutesButton=5;
 
 function init(){
+
+    injectScriptToAllPage();
+
+    // clean up badge
+    chrome.browserAction.setBadgeText({text:''});
     
     // get remain time of today, then force saveFully and set local data to 0 when times up.
     setChangeDayTimer();
@@ -646,17 +651,17 @@ chrome.windows.onRemoved.addListener(function(){
     })
 });
 
-function injectScript(tabs,i,callback) {
+// destroy prev content script before load
+var destroyBomb = [
+    "if(typeof(nerdTimerMessageListener)=='function') chrome.extension.onMessage.removeEventListener(nerdTimerMessageListener);",
+    "if(typeof(sendResumePageMessage)=='function') window.removeEventListener('focus',sendResumePageMessage);",
+    "if(typeof(sendLeavePageMessage)=='function') window.removeEventListener('blur',sendLeavePageMessage);",
+    "$('#nerdTimerRemindMeLater').off('click');",
+    "$('#nerdTimerCloseIt').off('click');",
+    "$('#nerdTimerBlockerWrapper').remove();"
+].join('\n');
 
-    // destroy prev content script before load
-    var destroyBomb = [
-        "if(typeof(nerdTimerMessageListener)=='function') chrome.extension.onMessage.removeEventListener(nerdTimerMessageListener);",
-        "if(typeof(sendResumePageMessage)=='function') window.removeEventListener('focus',sendResumePageMessage);",
-        "if(typeof(sendLeavePageMessage)=='function') window.removeEventListener('blur',sendLeavePageMessage);",
-        "$('#nerdTimerRemindMeLater').off('click');",
-        "$('#nerdTimerCloseIt').off('click');",
-        "$('#nerdTimerBlockerWrapper').remove();"
-    ].join('\n');
+function injectScriptToSinglePage(tabs,i) {
 
     var needLoadJQuery = 'var x; if(!window.jQuery) x=true; else x=false; x;';
 
@@ -682,39 +687,44 @@ function injectScript(tabs,i,callback) {
     });
 }
 
-// Check whether new version is installed
-chrome.runtime.onInstalled.addListener(function(details){
-    if(details.reason == "install"){
+function injectScriptToAllPage() {
+    // inject code for each tab
+    chrome.tabs.getAllInWindow(null, function(tabs){
+        for (var i = 0; i < tabs.length; i++) {
+            injectScriptToSinglePage(tabs,i);
+        }
+        console.log('inject script for ' + tabs.length + ' pages');
+    });
 
-        // inject code for each tab
-        chrome.tabs.getAllInWindow(null, function(tabs){
-            for (var i = 0; i < tabs.length; i++) {
-                injectScript(tabs,i);
-            }
-            console.log('inject script for ' + tabs.length + ' pages');
-        });
+    console.log("Start up!");
+}
 
-        console.log("This is a first install!");
-
-
-    }else if(details.reason == "update"){
-        var thisVersion = chrome.runtime.getManifest().version;
-        console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
-
-        // inject code for each tab
-        chrome.tabs.getAllInWindow(null, function(tabs){
-            var scriptUrl = chrome.extension.getURL('contentScript.js');
-            $.get(scriptUrl, function( script ) {
-                for (var i = 0; i < tabs.length; i++) {
-                    for (i = 0; i < tabs.length; i++) {
-                        injectScript(tabs, i);
-                    }
-                }
-                console.log('inject script for ' + tabs.length + ' pages');
+function killAllContentScript() {
+    chrome.tabs.getAllInWindow(null, function(tabs){
+        for (var i = 0; i < tabs.length; i++) {
+            chrome.tabs.executeScript(tabs[i].id, {code: destroyBomb}, function () {
+                console.log('Bomb!');
             });
-        });
-    }
-});
+        }
+    });
+
+    console.log("Bomb ALL!");
+}
+
+// // Check whether new version is installed
+// chrome.runtime.onInstalled.addListener(function(details){
+//     if(details.reason == "install"){
+//
+//         injectScriptToAllPage();
+//
+//
+//     }else if(details.reason == "update"){
+//         var thisVersion = chrome.runtime.getManifest().version;
+//         console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
+//
+//         injectScriptToAllPage();
+//     }
+// });
 
 function searchDomain(purified, rawUrl,  timeDiff) {
     var i;
