@@ -145,9 +145,7 @@ function loadCloseButton() {
             }
 
             chrome.runtime.sendMessage({changeAppStatus:"open"});
-            getCurrentTab(function(tab){
-                chrome.tabs.sendMessage(tab.id,{blockListChange:"none"});
-            });
+            // chrome.runtime.sendMessage({blockListChange:"none"});
         }
         // close
         else{
@@ -337,6 +335,37 @@ function loadSettingMenu() {
             });
         $('#dataField').fadeIn('fast');
     });
+
+    $('#customizeBlockerButton').click(function () {
+        var code = $('#customizeBlockerInput').val();
+
+        var doc = document.createElement('div');
+        doc.innerHTML = code;
+
+        var root = $(doc);
+        if(root.find('#nerdTimerBlockerWrapper').length){
+            saveBlockerLayout(code,function () {
+                chrome.runtime.sendMessage({changeBlockerLayout:code});
+            });
+        }
+        // at least need a wrapper
+        else{
+            $('#customizeBlockerWarning').hide()
+                .text('未達基本需求')
+                .fadeIn('fast',function () {
+                    var inter = setInterval(function () {
+                        clearInterval(inter);
+                        $('#customizeBlockerWarning').fadeOut('fast');
+                    },1500);
+                });
+        }
+    });
+
+    $('#customizeBlockerTutorial').click(function () {
+        var path = chrome.extension.getURL("tutorial.html");
+        chrome.tabs.create({ url: path });
+
+    });
 }
 
 function typeIncorrectWarning() {
@@ -390,7 +419,13 @@ function listPossibleAddDomain(type) {
         }
 
         var recommand = $("#possibleListRecommended");
-        recommand.append("<li class='possibleListItem'>"+ possibleList.slice(-1) +"</li>");
+        if(type=="white"){
+            recommand.append("<li class='possibleListItem'>"+ possibleList.slice(0,1) +"</li>");
+        }
+        else if(type=="locked"){
+            recommand.append("<li class='possibleListItem'>"+ possibleList.slice(-1) +"</li>");
+        }
+
         $(recommand.children()).click(function () {
             var res ;
             var text = $(this).text();
@@ -1177,7 +1212,6 @@ var mainMessage="Better stop now!";
 
 function submitMainMessage(newMessage){
     //var newMessage = document.getElementById("mainMessageInput").value;
-    if(newMessage==undefined) return;
     loadBlocker(function(){
         if(newMessage!=mainMessage) {
             chrome.runtime.sendMessage({modifyMainMessage: newMessage}, function (response) {
@@ -1255,9 +1289,7 @@ function addSinglePageToSoftLockList(){
         getWebsiteBlockStatus(rawUrl);
 
         saveFile(function(){
-            getCurrentTab(function(tab){
-                chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
-            });
+            chrome.runtime.sendMessage({blockListChange:"soft"});
         });
 
 
@@ -1290,9 +1322,7 @@ function addBaseDomainToSoftLockList(rawUrl){
     getWebsiteBlockStatus(rawUrl);
 
     saveFile(function(){
-        getCurrentTab(function(tab){
-            chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
-        });
+        chrome.runtime.sendMessage({blockListChange:"soft"});
     });
 
 
@@ -1319,9 +1349,7 @@ function addSubDomainToSoftLockList(url){
     getWebsiteBlockStatus(url);
 
     saveFile(function(){
-        getCurrentTab(function(tab){
-            chrome.tabs.sendMessage(tab.id,{blockListChange:"soft"});
-        });
+        chrome.runtime.sendMessage({blockListChange:"soft"});
     });
 
 }
@@ -1460,9 +1488,7 @@ function addSinglePageToWhiteList(rawUrl){
     getWebsiteBlockStatus(rawUrl);
 
     saveFile(function(){
-        getCurrentTab(function(tab){
-            chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
-        });
+        chrome.runtime.sendMessage({blockListChange:"false"});
     });
 
 }
@@ -1493,9 +1519,7 @@ function addBaseDomainToWhiteList(rawUrl){
     getWebsiteBlockStatus(rawUrl);
 
     saveFile(function(){
-        getCurrentTab(function(tab){
-            chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
-        });
+        chrome.runtime.sendMessage({blockListChange:"false"});
     });
 
 
@@ -1522,9 +1546,7 @@ function addSubDomainToWhiteList(url){
     getWebsiteBlockStatus(url);
 
     saveFile(function(){
-        getCurrentTab(function(tab){
-            chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
-        });
+        chrome.runtime.sendMessage({blockListChange:"false"});
     });
 }
 
@@ -1532,7 +1554,7 @@ function getWebsiteBlockStatus(url) {
     chrome.runtime.sendMessage({"getStatus":url}, function(response) {
         if(response==undefined || response.block==undefined)
             $(document.getElementById("isInList")).text(" error");
-        if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
+        else if(response.block=="white") $(document.getElementById("isInList")).text(" white list");
         // else if(response.block=="hard") $(document.getElementById("isInList")).text(" hard block");
         else if(response.block=="soft") $(document.getElementById("isInList")).text(" Locked");
         else $(document.getElementById("isInList")).text(" none");

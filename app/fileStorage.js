@@ -214,6 +214,23 @@ function loadSettings(callback) {
     });
 }
 
+function saveBlockerLayout(str,callback) {
+    chrome.storage.local.set({'blockerLayout': str},function(){
+        if(callback){
+            callback();
+        }
+    });
+}
+
+function loadBlockerLayout(callback) {
+    chrome.storage.local.get('blockerLayout',function(data){
+        if(callback){
+            if(data.blockerLayout) blockerLayoutVersion++;
+            callback(data.blockerLayout);
+        }
+    });
+}
+
 function saveBlocker(callback){
     chrome.storage.local.set({'mainMessage': mainMessage},function(){
         if(callback){
@@ -224,7 +241,7 @@ function saveBlocker(callback){
 
 function loadBlocker(callback){
     chrome.storage.local.get('mainMessage',function(data){
-        if(data.mainMessage!="" && data.mainMessage!=undefined) mainMessage = data.mainMessage;
+        if(data.mainMessage!=undefined) mainMessage = data.mainMessage;
         if(callback){
             callback();
         }
@@ -477,28 +494,30 @@ function loadFile(callBack){
 
 /**
  * difference is that this will merge this time browse data with last time and store
- * @param designatedDate
  * @param callBack
  */
-function saveFileFully(designatedDate,callBack){
+function saveFileFully(callBack){
 
     // save lists
     var i,j;
     var str,str2;
     var date;
 
-    if(designatedDate instanceof Date){
-        date = designatedDate;
-    }
-    else{
-        date = new Date();
-    }
+    date = new Date();
+
+    // if(designatedDate instanceof Date){
+    //     date = designatedDate;
+    // }
+    // else{
+    //     date = new Date();
+    // }
 
     // this fires on date change
     var serializedDate = date.getFullYear()*366+date.getMonth()*31+date.getDate();
     if(lastSaveFileDate && lastSaveFileDate!=serializedDate){
         // just change day, so save file to yesterday
         date.setDate(date.getDate()-1);
+        console.log('save file to yesterday: '+date.getDate());
     }
     lastSaveFileDate = serializedDate;
 

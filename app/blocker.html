@@ -1,100 +1,69 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Block you!</title>
 
-</head>
-<body>
-    <div id="nerdTimerBlockerWrapper">
-        <div id="nerdTimerCentralContainer" style="width:80%;margin-left:10%;margin-top:20vh; padding-bottom: 20%;">
-            <div style="text-align: center;height:15vh;">
-                <h1 id="nerdTimerMainMessage" style="font-size:15vh;font-weight: bolder;color: black;font-family:Georgia, serif,'Adobe 仿宋 Std R';"></h1>
-            </div>
-            <div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;">
-                <button class="nerdTimerBlockerBtn" id="nerdTimerCloseIt"><div><p>在這頁面暫時別管我</p></div></button>
-                <button class="nerdTimerBlockerBtn" id="nerdTimerRemindMeLater"><div>
-                    <p>再給我</p>
-                    <p id="nerdTimerRemindMeLaterTime">5</p>
-                    <p>分鐘</p>
-                </div></button>
-            </div>
+<div id="nerdTimerBlockerWrapper">
+    <div style="width:80%;padding:20vh 10vw;">
+        <div style="text-align: center;height:15vh;">
+            <h1 id="nerdTimerMainMessage" style="font-size:15vh;font-weight: bolder;color: black;font-family:Georgia, serif,'Adobe 仿宋 Std R';"></h1>
         </div>
-        <span style="height: 100%;display: inline-block"></span>
-
+        <div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;">
+            <button class="nerdTimerBlockerBtn" id="nerdTimerCloseIt"><div><p>在這頁面暫時關閉</p></div></button>
+            <button class="nerdTimerBlockerBtn" id="nerdTimerRemindMeLater"><div>
+                <p>再給我</p>
+                <p id="nerdTimerRemindMeLaterTime">5</p>
+                <p>分鐘</p>
+            </div></button>
+        </div>
     </div>
+    <span style="height: 100%;display: inline-block"></span>
+</div>
 
-    <style>
-        #nerdTimerMainMessage{
-            font-family: /**Georgia,**/ "微軟正黑體",serif !important;
-        }
-        #nerdTimerRemindMeLater p{
-            display: inline-block;
-        }
-        #nerdTimerBlockerWrapper{
-            background-color: #888888;
-            position: fixed;
-            opacity: 0.7;
-            z-index: 2147483647;
-            top:0;
-            left:0;
-            height: 100%;
-            width: 100%;
-            display: none;
-        }
-        .nerdTimerBlockerBtn{
-            float: left;
-            width: 39%;
-            height: 12vh;
-            margin: 0 5%;
-            border: none;
-            border-radius: 5px;
-            box-shadow: 0 0 10px black;
-            transition-duration: 0.4s;
-            overflow: hidden;
-            text-align: center;
-            background-image: none;
-        }
-        .nerdTimerBlockerBtn p{
-            color: black;
-            margin: 0;
-            font-size: 3vh;
-            font-weight: bolder;
-            font-family: /**Georgia,**/ "微軟正黑體",serif !important;
-        }
-        #nerdTimerRemindMeLater{
-            background-color: #00a5ff;
-        }
-        #nerdTimerRemindMeLater:hover{
-            background-color: white;
-            box-shadow: 0 0 0 black;
-        }
-        #nerdTimerCloseIt{
-            background-color: red;
-        }
-        #nerdTimerCloseIt:hover{
-            background-color: white;
-            box-shadow: 0 0 0 black;
-        }
-    </style>
-    <script>
+<style>
+    #nerdTimerMainMessage{
+        font-family: /**Georgia,**/ "微軟正黑體",serif !important;
+    }
+    #nerdTimerRemindMeLater p{
+        display: inline-block;
+    }
+    #nerdTimerBlockerWrapper{
+        background-color: #888888;
+        opacity: 0.7;
+        height: 100vh;
+        width: 100vw;
+        top:0;
+        left: 0;
+    }
+    .nerdTimerBlockerBtn{
+        float: left;
+        width: 39%;
+        height: 12vh;
+        margin: 0 5%;
+        border: none;
+        border-radius: 5px;
+        box-shadow: 0 0 10px black;
+        transition-duration: 0.4s;
+        overflow: hidden;
+        text-align: center;
+        background-image: none;
+    }
+    .nerdTimerBlockerBtn p{
+        color: black;
+        margin: 0;
+        font-size: 3vh;
+        font-weight: bolder;
+        font-family: /**Georgia,**/ "微軟正黑體",serif !important;
+    }
+    #nerdTimerRemindMeLater{
+        background-color: #00a5ff;
+    }
+    #nerdTimerRemindMeLater:hover{
+        background-color: white;
+        box-shadow: 0 0 0 black;
+    }
+    #nerdTimerCloseIt{
+        background-color: red;
+    }
+    #nerdTimerCloseIt:hover{
+        background-color: white;
+        box-shadow: 0 0 0 black;
+    }
+</style>
 
-//        $('#nerdTimerBlockerWrapper').ready(function(){
-//            var i = setInterval(function(){
-//                clearInterval(i);
-//                $('#nerdTimerBlockerWrapper').fadeIn('slow');
-//            },1000);
-//        });
-        $("#nerdTimerCentralContainer").ready(function(){
-            var target = document.getElementById("nerdTimerMainMessage");
-
-            chrome.runtime.sendMessage({blockerLoadRequest: "giveMeData"}, function(response) {
-                console.log(response.mainMessage);
-                $(target).text(response.mainMessage);
-            });
-
-        });
-
-    </script>
-</body>
-</html>

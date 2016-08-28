@@ -35,32 +35,22 @@ var prefixException = [
     'chrome'
 ];
 
-// var singleHardLock = [];
-var singleSoftLock = [];
-var singleWhite = [];
-
 var softLockList = [];
-// var hardLockList = [];
 var whiteList = [];
 
 // this only record time except this time you browse
-// var softTimeRecord = {};
-// var whiteTimeRecord = {};
+
 var timeRecord={};
 var totalTimeRecordNew=0;
 var totalTimeRecord=0;
 
 // this only record this time browse, i.e. on-store stage
-// var softTimeRecordNew = {};
-// var whiteTimeRecordNew = {};
 var timeRecordNew={};
 
 // store only today data
 /**
  * this use dictionary cuz not guaranteed that every website will be surfed every day
  */
-// var todayWhiteTimeRecord = {};
-// var todaySoftTimeRecord = {};
 var todayTimeRecord = {};
 var todayWhiteTotalTimeRecord=0;
 var todaySoftTotalTimeRecord=0;
@@ -68,9 +58,10 @@ var todayTotalTimeRecord=0;
 
 var waitNMinutesButton=5;
 
-function init(){
+var blockerLayout;
+var blockerLayoutVersion=0;
 
-    injectScriptToAllPage();
+function init(){
 
     // clean up badge
     chrome.browserAction.setBadgeText({text:''});
@@ -80,6 +71,10 @@ function init(){
     
     loadBlocker();
     loadFile();
+    loadBlockerLayout(function (code) {
+        blockerLayout = code;
+        // injectScriptToAllPage();
+    });
     loadSettings(function () {
         if(waitNMinutesButton && waitNMinutesButton!=5){
             getCurrentTab(function (tab) {
@@ -108,8 +103,9 @@ function setChangeDayTimer() {
     changeDayTimerInst=setInterval(function () {
         clearInterval(changeDayTimerInst);
         getCurrentTab(function (tab) {
-            doTimeRecord(tab,function () {
+            doTimeRecord(tab,null,function () {
                 clearLocalData(false);
+                console.log('clear and loadFile at: '+new Date().getDate());
                 loadFile();
             });
         });
@@ -123,6 +119,7 @@ function setChangeDayTimer() {
 setInterval(function () {
     getCurrentTab(function (tab) {
         doTimeRecord(tab);
+        console.log('automatically save');
     });
 },600000);
 
@@ -284,16 +281,24 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg.pageJustLoaded){
         if(isAppClosed || isWaitingTimer){
-            sendResponse({blockState:'none'});
+            sendResponse({block:'none'});
         }
         else {
             loadFile(function () {
-                getCurrentTabUrl(function (url) {
-                    var purified = purifyUrl(url);
+                if(msg.pageJustLoaded=='none') {
+                    getCurrentTabUrl(function (url) {
+                        var purified = purifyUrl(url);
+                        var blockState = checkBlock(purified);
+                        sendResponse({block: blockState});
+                        console.log("on pageJustLoaded");
+                    });
+                }
+                else{
+                    var purified = purifyUrl(msg.pageJustLoaded);
                     var blockState = checkBlock(purified);
-                    sendResponse({blockState: blockState});
+                    sendResponse({block: blockState});
                     console.log("on pageJustLoaded");
-                });
+                }
             });
         }
     }
@@ -332,19 +337,26 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         sendResponse({mainMessage:mainMessage.toString()});
         //console.log("send main message : " + mainMessage.toString());
     }
-    else if(msg.checkIfInList){
-        if(timer>0) sendResponse({block:"false"});
+    else if(msg.blockListChange){
+        getCurrentTab(function (tab) {
 
-        loadFile(function () {
-            if(msg.checkIfInList=="none"){
-                getCurrentTabUrl(function(url){
-                    doCheckIfInList(url,sendResponse);
-                });
+            if(timer>0) {
+                loadFile();
+                chrome.tabs.sendMessage(tab.id,{block:'false'});
+                return;
             }
-            else{
-                var url = msg.checkIfInList;
-                doCheckIfInList(url,sendResponse);
-            }
+
+            loadFile(function () {
+                if(msg.checkIfInList=="none"){
+                    doCheckIfInList(tab.url,tab,null);
+                }
+                else{
+                    // currently not used
+                    var url = msg.checkIfInList;
+                    doCheckIfInList(tab.url,tab,null);
+                }
+            });
+
         });
     }
     else if(msg.getStatus){
@@ -352,12 +364,12 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         loadFile(function () {
             if(msg.getStatus=="none"){
                 getCurrentTabUrl(function(url){
-                    doCheckIfInList(url,sendResponse);
+                    doCheckIfInList(url,null,sendResponse);
                 });
             }
             else{
                 var url = msg.getStatus;
-                doCheckIfInList(url,sendResponse);
+                doCheckIfInList(url,null,sendResponse);
             }
         });
         
@@ -433,6 +445,16 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     else if(msg.changeAppStatus){
         if(msg.changeAppStatus=="open"){
             isAppClosed = false;
+            loadFile(function () {
+                if(msg.checkIfInList=="none"){
+                    doCheckIfInList(tab.url,tab,null);
+                }
+                else{
+                    // currently not used
+                    var url = msg.checkIfInList;
+                    doCheckIfInList(tab.url,tab,null);
+                }
+            });
         }
         else{
             isAppClosed = true;
@@ -482,6 +504,22 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             sendResponse({none:"none"});
         });
     }
+    else if(msg.changeBlockerLayout){
+        blockerLayoutVersion++;
+        if(msg.changeBlockerLayout){
+            blockerLayout = msg.changeBlockerLayout;
+
+            // update to all tabs
+            chrome.tabs.getAllInWindow(null, function(tabs){
+                for (var i = 0; i < tabs.length; i++) {
+                    chrome.tabs.sendMessage(tabs[i].id,{updateNerdDivCode:blockerLayout,version:blockerLayoutVersion});
+                }
+            });
+        }
+    }
+    else if(msg.blockerLayoutVersionCheck){
+        sendResponse({version:blockerLayoutVersion,code:blockerLayout});
+    }
 
     /**
      * IMPORTANT
@@ -497,7 +535,7 @@ function setTimer(time,callback){
     // use two timer instance to solve mysterious timer not clear issue
     //    (maybe it is some timing issue or clearInsterval() bug)
     var localTimerInst = setInterval(function(){
-        console.log('decrease timer : ' + timer);
+        //console.log('decrease timer : ' + timer);
         if(timer>0) {
             timer --;
             var sec = timer%60;
@@ -528,11 +566,12 @@ function setTimer(time,callback){
     timerInst = localTimerInst;
 }
 
-function doCheckIfInList(url,sendResponse) {
+function doCheckIfInList(url,tab,sendResponse) {
     //purifyBlackAndWhite();
     var purified = purifyUrl(url);
     var blockState = checkBlock(purified);
-    sendResponse({block:blockState});
+    if(typeof sendResponse === "function") sendResponse({block:blockState});
+    if(tab) chrome.tabs.sendMessage(tab.id,{block:blockState});
     // console.log("is bad? " + str);
 }
 
@@ -591,7 +630,7 @@ function doTimeRecord(tab,tabUrl,callback){
         if(diff>0 && diff<605000) searchDomain(pur, currentPage ,diff);
         else {
             loadFile(function () {
-                console.log('block possibly user change daytime');
+                console.log('block possibly user change daytime: diff=' + diff);
             });
         }
 
@@ -600,7 +639,10 @@ function doTimeRecord(tab,tabUrl,callback){
         currentPage = url;
 
         saveFileFully(function(){
-            if(callback) callback();
+            if(callback) {
+                console.log('callback after saveFully');
+                callback();
+            }
             // console.log("temporary save " + url + " with time : " + diff + "ms");
         });
     }
@@ -654,33 +696,33 @@ chrome.windows.onRemoved.addListener(function(){
 // destroy prev content script before load
 var destroyBomb = [
     "if(typeof(nerdTimerMessageListener)=='function') chrome.extension.onMessage.removeEventListener(nerdTimerMessageListener);",
-    "if(typeof(sendResumePageMessage)=='function') window.removeEventListener('focus',sendResumePageMessage);",
+    "if(typeof(sendResumePageMessage)=='function') {window.removeEventListener('focus',sendResumePageMessage);/**console.log('remove focus');**/}",
     "if(typeof(sendLeavePageMessage)=='function') window.removeEventListener('blur',sendLeavePageMessage);",
     "$('#nerdTimerRemindMeLater').off('click');",
     "$('#nerdTimerCloseIt').off('click');",
     "$('#nerdTimerBlockerWrapper').remove();"
 ].join('\n');
 
-function injectScriptToSinglePage(tabs,i) {
+function injectScriptToSinglePage(tab) {
 
     var needLoadJQuery = 'var x; if(!window.jQuery) x=true; else x=false; x;';
 
-    chrome.tabs.executeScript(tabs[i].id,{ code: needLoadJQuery }, function (re) {
+    chrome.tabs.executeScript(tab.id,{ code: needLoadJQuery }, function (re) {
         if(re) {
             //console.log('need inject jQuery, return ' + re);
-            chrome.tabs.executeScript(tabs[i].id, {file: 'jquery-1.11.3.min.js'}, function () {
-                chrome.tabs.executeScript(tabs[i].id, {code: destroyBomb}, function () {
-                    chrome.tabs.executeScript(tabs[i].id, {file: "contentScript.js"}, function () {
-                        console.log('injected script!');
+            chrome.tabs.executeScript(tab.id, {file: 'jquery-1.11.3.min.js'}, function () {
+                chrome.tabs.executeScript(tab.id, {code: destroyBomb}, function () {
+                    chrome.tabs.executeScript(tab.id, {file: "contentScript.js"}, function () {
+                        //console.log('injected script!');
                     });
                 });
             });
         }
         else{
             //console.log('NO need inject jQuery, return ' + re);
-            chrome.tabs.executeScript(tabs[i].id, {code: destroyBomb}, function () {
-                chrome.tabs.executeScript(tabs[i].id, {file: "contentScript.js"}, function () {
-                    console.log('injected script!');
+            chrome.tabs.executeScript(tab.id, {code: destroyBomb}, function () {
+                chrome.tabs.executeScript(tab.id, {file: "contentScript.js"}, function () {
+                    //console.log('injected script!');
                 });
             });
         }
@@ -691,7 +733,7 @@ function injectScriptToAllPage() {
     // inject code for each tab
     chrome.tabs.getAllInWindow(null, function(tabs){
         for (var i = 0; i < tabs.length; i++) {
-            injectScriptToSinglePage(tabs,i);
+            injectScriptToSinglePage(tabs[i]);
         }
         console.log('inject script for ' + tabs.length + ' pages');
     });
@@ -711,20 +753,20 @@ function killAllContentScript() {
     console.log("Bomb ALL!");
 }
 
-// // Check whether new version is installed
-// chrome.runtime.onInstalled.addListener(function(details){
-//     if(details.reason == "install"){
-//
-//         injectScriptToAllPage();
-//
-//
-//     }else if(details.reason == "update"){
-//         var thisVersion = chrome.runtime.getManifest().version;
-//         console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
-//
-//         injectScriptToAllPage();
-//     }
-// });
+// Check whether new version is installed
+chrome.runtime.onInstalled.addListener(function(details){
+    if(details.reason == "install"){
+
+        injectScriptToAllPage();
+
+
+    }else if(details.reason == "update"){
+        var thisVersion = chrome.runtime.getManifest().version;
+        console.log("Updated from " + details.previousVersion + " to " + thisVersion + "!");
+
+        injectScriptToAllPage();
+    }
+});
 
 function searchDomain(purified, rawUrl,  timeDiff) {
     var i;
