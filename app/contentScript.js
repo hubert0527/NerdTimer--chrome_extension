@@ -270,7 +270,7 @@ function requestBlockState() {
 
     //TODO: request query tab url from background script for NEWTAB
     var url = cutOffHeadAndTail(window.location.href);
-    console.log(url);
+    // console.log(url);
 
     // newtab is an exception
     chrome.runtime.sendMessage({"pageJustLoaded": url}, function (response) {
