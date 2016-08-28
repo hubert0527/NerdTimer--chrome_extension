@@ -2,10 +2,14 @@
 <div id="nerdTimerBlockerWrapper">
     <div style="width:80%;padding:20vh 10vw;">
         <div style="text-align: center;height:15vh;">
-            <h1 id="nerdTimerMainMessage" style="font-size:15vh;font-weight: bolder;color: black;font-family:Georgia, serif,'Adobe 仿宋 Std R';"></h1>
+            <h1 id="nerdTimerMainMessage"></h1>
         </div>
         <div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;">
-            <button class="nerdTimerBlockerBtn" id="nerdTimerCloseIt"><div><p>在這頁面暫時關閉</p></div></button>
+            <button class="nerdTimerBlockerBtn" id="nerdTimerCloseIt">
+                <div>
+                    <p>在這頁面暫時關閉</p>
+                </div>
+            </button>
             <button class="nerdTimerBlockerBtn" id="nerdTimerRemindMeLater"><div>
                 <p>再給我</p>
                 <p id="nerdTimerRemindMeLaterTime">5</p>
@@ -18,7 +22,10 @@
 
 <style>
     #nerdTimerMainMessage{
-        font-family: /**Georgia,**/ "微軟正黑體",serif !important;
+        font-family:"微軟正黑體",serif !important;
+        font-size:15vh;
+        font-weight: bolder;
+        color: black;
     }
     #nerdTimerRemindMeLater p{
         display: inline-block;
@@ -49,7 +56,7 @@
         margin: 0;
         font-size: 3vh;
         font-weight: bolder;
-        font-family: /**Georgia,**/ "微軟正黑體",serif !important;
+        font-family:"微軟正黑體",serif !important;
     }
     #nerdTimerRemindMeLater{
         background-color: #00a5ff;

@@ -15,6 +15,7 @@ if (!chrome.runtime) {
 var isFadingOut = false;
 
 function init() {
+
     checkUserLayout(function (code) {
         createNerdDiv(code);
     });
@@ -169,8 +170,8 @@ function doSoftBlock(){
     if(stopForThisTime) return ;
 
     // console.log("got soft block");
-    var tar = document.getElementById("nerdTimerBlockerWrapper");
-    if (tar != undefined) {
+    // var tar = document.getElementById("nerdTimerBlockerWrapper");
+    // if (tar != undefined) {
         getHowManyMinutesOnButton();
         if ($('#nerdDiv').is(":visible") && !isFadingOut) {
             // already blocked
@@ -182,7 +183,7 @@ function doSoftBlock(){
             $('#nerdDiv').fadeIn("slow");
             // console.log("turn unvisible to visible");
         }
-    }
+    // }
 }
 
 function createNerdDiv(code) {
@@ -205,6 +206,17 @@ function createNerdDiv(code) {
 
     // if uses user defined html
     if(code){
+
+        // var preloadS = code.indexOf('<preload>');
+        // var preloadE = code.indexOf('</preload>') + 10;
+        // if(preloadS!=-1 && preloadE!=-1){
+        //     var tempArr = code.split('');
+        //     tempArr.splice(preloadS,preloadE-preloadS);
+        //     code = tempArr.join('');
+        //     console.log('code after splice = ' + code);
+        //     console.log(jQuery);
+        // }
+
         $('#nerdDiv').html(code)
             .hide();
         prepareNerdDivContent();
@@ -239,8 +251,8 @@ function prepareNerdDivContent() {
         var val = parseInt(text);
 
         $('#nerdDiv').fadeOut("slow");
-        chrome.runtime.sendMessage({"wait5Min": val}, function (response) {
-            // console.log("wait5Min");
+        chrome.runtime.sendMessage({"waitForMinutes": 'true',"waitVal":val}, function (response) {
+            // console.log("waitForMinutes");
         });
     });
     $("#nerdTimerCloseIt").click(function (event) {

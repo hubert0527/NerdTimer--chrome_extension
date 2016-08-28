@@ -343,29 +343,29 @@ function loadSettingMenu() {
         doc.innerHTML = code;
 
         var root = $(doc);
-        if(root.find('#nerdTimerBlockerWrapper').length){
+        // if(root.find('#nerdTimerBlockerWrapper').length){
             saveBlockerLayout(code,function () {
                 chrome.runtime.sendMessage({changeBlockerLayout:code});
             });
-        }
-        // at least need a wrapper
-        else{
-            $('#customizeBlockerWarning').hide()
-                .text('未達基本需求')
-                .fadeIn('fast',function () {
-                    var inter = setInterval(function () {
-                        clearInterval(inter);
-                        $('#customizeBlockerWarning').fadeOut('fast');
-                    },1500);
-                });
-        }
+        // }
+        // // at least need a wrapper
+        // else{
+        //     $('#customizeBlockerWarning').hide()
+        //         .text('未達基本需求')
+        //         .fadeIn('fast',function () {
+        //             var inter = setInterval(function () {
+        //                 clearInterval(inter);
+        //                 $('#customizeBlockerWarning').fadeOut('fast');
+        //             },1500);
+        //         });
+        // }
     });
 
-    $('#customizeBlockerTutorial').click(function () {
-        var path = chrome.extension.getURL("tutorial.html");
-        chrome.tabs.create({ url: path });
-
-    });
+    // $('#customizeBlockerTutorial').click(function () {
+    //     var path = chrome.extension.getURL("tutorial.html");
+    //     chrome.tabs.create({ url: path });
+    //
+    // });
 }
 
 function typeIncorrectWarning() {

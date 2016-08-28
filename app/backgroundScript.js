@@ -316,14 +316,15 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     /**
      * content script request bg script stop sending soft block for 5 min
      */
-    else if(msg.wait5Min!=undefined){
+    else if(msg.waitForMinutes!=undefined){
         // isWaitingTimer = true;
         // var i = setInterval(function(){
         //     clearInterval(i);
         //     isWaitingTimer = false;
         //     getCurrentTab(dealWithUrlMain);
         // },10000);
-        var val = parseInt(msg.wait5Min);
+        var val = parseInt(msg.waitVal);
+        if(val==undefined) val = waitNMinutesButton;
         setTimer(val*60,function(){
             getCurrentTab(dealWithUrlMain);
         });

@@ -3,8 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <title>Tutorial</title>
+
+    <script src="jquery-1.11.3.min.js"></script>
+    <script src="bootstrap/bootstrap.min.js"></script>
+    <script src="tutorial.js"></script>
+    <link rel="stylesheet" href="bootstrap/bootstrap.min.css">
 </head>
 <body>
-    <div>Hello world!</div>
+    <div style="width: 100%; margin-bottom: 50px;padding:20px 0;background-color: grey;color: white;">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-xs-12" style="text-align: center">
+                    <h1 style="font-weight: 900;">如何自製一個個人化阻擋頁？</h1>
+                    <p style="font-size: 0.66em">頁面乾淨了點請多包涵(笑)</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row w">
+            <h2 class="col-xs-12">功能物件：</h2>
+                <p class="col-xs-push-1 col-xs-11">以下id已有內建功能，若要使用該物件，需在html中寫入擁有該id之物件</p>
+                <h4 class="col-xs-push-2 col-xs-10 b">根(root)物件(id=nerdDiv)：</h4>
+                    <p class="col-xs-push-3 col-xs-9">整個阻擋頁的根物件，你的所有阻擋頁程式碼都會寫入在裡面，但你依舊可以使用CSS style更改他的顯示方式</p>
+                <h4 class="col-xs-push-2 col-xs-10 b">按鍵(id=nerdTimerCloseIt)：</h4>
+                    <p class="col-xs-push-3 col-xs-9">按下後暫時關閉阻擋頁，停留於同一頁面時，阻擋頁暫時不會出現</p>
+                <h4 class="col-xs-push-2 col-xs-10 b">按鍵(id=nerdTimerRemindMeLater)：</h4>
+                    <p class="col-xs-push-3 col-xs-9">按下後暫時關閉阻擋頁，並會根據「設定」中的「"再等我一下"時間」欄位設定計時，計時完畢後再次顯示阻擋頁</p>
+                <h4 class="col-xs-push-2 col-xs-10 b">文字(id=nerdTimerMainMessage)：</h4>
+                    <p class="col-xs-push-3 col-xs-9">顯示「留言板」上的內容</p>
+                <h4 class="col-xs-push-2 col-xs-10 b">文字(id=nerdTimerRemindMeLaterTime)：</h4>
+                    <p class="col-xs-push-3 col-xs-9">顯示「設定」中的「"再等我一下"時間」設定</p>
+        </div>
+
+        <hr>
+
+        <div class="row w">
+            <h2 class="col-xs-12">環境：</h2>
+	            <h4 class="col-xs-push-1 col-xs-11">一般瀏覽器環境(阻擋頁屬於植入網頁內部的物件)，包含預加入了jQuery</h4>
+        </div>
+
+        <hr id="codeTop">
+
+        <div class="row w">
+            <h2 class="col-xs-12">範例：(預設阻擋頁)</h2>
+            <button type="button" class="col-xs-12 btn btn-default showCodeExample">顯示/關閉範例</button>
+            <div class="col-xs-12" id="codeExample" style="display: none;"><pre><code>
+                &lt;div id="nerdTimerBlockerWrapper"&gt;
+                    &lt;div style="width:80%;padding:20vh 10vw;"&gt;
+                        &lt;div style="text-align: center;height:15vh;"&gt;
+                            &lt;h1 id="nerdTimerMainMessage"&gt;&lt;/h1&gt;
+                        &lt;/div&gt;
+                        &lt;div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;"&gt;
+                            &lt;button class="nerdTimerBlockerBtn" id="nerdTimerCloseIt"&gt;
+                                &lt;div&gt;
+                                    &lt;p&gt;在這頁面暫時關閉&lt;/p&gt;
+                                &lt;/div&gt;
+                            &lt;/button&gt;
+                            &lt;button class="nerdTimerBlockerBtn" id="nerdTimerRemindMeLater"&gt;&lt;div&gt;
+                                &lt;p&gt;再給我&lt;/p&gt;
+                                &lt;p id="nerdTimerRemindMeLaterTime"&gt;5&lt;/p&gt;
+                                &lt;p&gt;分鐘&lt;/p&gt;
+                            &lt;/div&gt;&lt;/button&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;span style="height: 100%;display: inline-block"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+
+                &lt;style&gt;
+                    #nerdTimerMainMessage{
+                        font-family:"微軟正黑體",serif !important;
+                        font-size:15vh;
+                        font-weight: bolder;
+                        color: black;
+                    }
+                    #nerdTimerRemindMeLater p{
+                        display: inline-block;
+                    }
+                    #nerdTimerBlockerWrapper{
+                        background-color: #888888;
+                        opacity: 0.7;
+                        height: 100vh;
+                        width: 100vw;
+                        top:0;
+                        left: 0;
+                    }
+                    .nerdTimerBlockerBtn{
+                        float: left;
+                        width: 39%;
+                        height: 12vh;
+                        margin: 0 5%;
+                        border: none;
+                        border-radius: 5px;
+                        box-shadow: 0 0 10px black;
+                        transition-duration: 0.4s;
+                        overflow: hidden;
+                        text-align: center;
+                        background-image: none;
+                    }
+                    .nerdTimerBlockerBtn p{
+                        color: black;
+                        margin: 0;
+                        font-size: 3vh;
+                        font-weight: bolder;
+                        font-family:"微軟正黑體",serif !important;
+                    }
+                    #nerdTimerRemindMeLater{
+                        background-color: #00a5ff;
+                    }
+                    #nerdTimerRemindMeLater:hover{
+                        background-color: white;
+                        box-shadow: 0 0 0 black;
+                    }
+                    #nerdTimerCloseIt{
+                        background-color: red;
+                    }
+                    #nerdTimerCloseIt:hover{
+                        background-color: white;
+                        box-shadow: 0 0 0 black;
+                    }
+                &lt;/style&gt;
+            </code></pre></div>
+            <button type="button" class="col-xs-12 btn btn-default showCodeExample" id="secondBtn" style="display: none;">顯示/關閉範例</button>
+
+            <div class="col-xs-12" style="color: red;text-align: end;">
+                備註： 程式碼會直接(raw code)植入nerdDiv中，所以並不需要加入&lt;html&gt;、&lt;head&gt;、&lt;body&gt;等標籤
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row w">
+            <h2 class="col-xs-12">測試：</h2>
+            <div class="row">
+                <p class="col-xs-2 b ar">Step 1: </p>
+                <p class="col-xs-10">複製上面的範例程式碼</p>
+            </div>
+            <div class="row">
+                <p class="col-xs-2 b ar">Step 2: </p>
+                <p class="col-xs-10">直接貼入「設定」中的「個人化阻擋頁」，並按下確認(如果程式碼過度複雜，會稍微延遲)</p>
+            </div>
+            <div class="row">
+                <p class="col-xs-2 b ar">Step 3: </p>
+                <p class="col-xs-10">(套用會快速完成，並套用至所有頁面)</p>
+            </div>
+            <div class="row">
+                <p class="col-xs-2 b ar">Step 4: </p>
+                <p class="col-xs-10">打開「開發者工具」(在任何的瀏覽器視窗上按F12)，並打開「console」，已可以看見"Hello, world!"字樣，代表程式碼中的&lt;script&gt;已成功植入並執行</p>
+            </div>
+            <div class="row">
+                <p class="col-xs-2 b ar">Step 5: </p>
+                <p class="col-xs-10">可嘗試更改範例程式碼中nerdTimerBlockerWrapper的'background-color'為任意顏色(例如'red')，並進行上面2~4步驟，可以看見套用已變更</p>
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="row w">
+            <h2 class="col-xs-12" style="font-weight: 900;color:red;">警告：</h2>
+
+            <p class="col-xs-1 ar">1.</p>
+            <p class="col-xs-11">因程式碼會直接植入頁面，切勿直接使用tag作為css/js操作對象，並盡量勿使用太過簡單的id/class名稱，以免操作到原本頁面上的物件</p>
+
+            <p class="col-xs-1 ar">2.</p>
+            <p class="col-xs-11">雖然環境支持使用jQuery，但並不保證能使用bootstrap等需要jQuery的library，並且，引用的library會直接影響網頁的內容(例如引用bootstrap會使FB排版壞掉)，如仍要嘗試引用，有以下注意事項：</p>
+
+            <div class="col-xs-push-2 col-xs-10">
+                <p>a. 需使用完整的&lt;html&gt;、&lt;head&gt;、&lt;body&gt;標示</p>
+                <p>b. jQuery需重新引用</p>
+                <p>c. 引用檔案須經由網路連結，並在多數情況下須使用'https'而非'http'(否則會被瀏覽器阻擋)</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-xs-12" style="width:100%;height: 160px;margin-top:50px;background-color: grey;color: white;">
+        <div class="col-xs-push-1 col-xs-10" style="padding-top:40px;text-align: right;">
+        <p>Created by HubertLin</p>
+        <p>2016/8/28 廢宅計時器 v2.0 update</p>
+        <p>bug report: <a href="https://goo.gl/forms/ZHNTwaNqUo6YV7kc2" style="color: white;border-bottom: solid 1px;">google表單</a></p>
+            </div>
+    </div>
+
+    <style>
+        .b{
+            font-weight: 900;
+        }
+        .ar{
+            text-align: right;
+        }
+        .w{
+            margin: 50px 0;
+        }
+        .p{
+            padding-left: 3%;
+        }
+        a:hover{
+            text-decoration: none;
+        }
+    </style>
+
 </body>
 </html>
