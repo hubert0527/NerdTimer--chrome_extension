@@ -22,7 +22,7 @@
             }
         </style>
 
-        <script src="jquery-1.11.3.min.js"></script>
+        <script src="jquery/jquery-1.11.3.min.js"></script>
         <script src="utility.js"></script>
         <script src="fileStorage.js"></script>
         <script src="popupChart.js"></script>
@@ -30,8 +30,8 @@
         <script src="popup.js"></script>
 
         <!-- for creating hover tooltips (make my life easier) -->
-        <link rel="stylesheet" href="./jquery-ui.min.css">
-        <script src="./jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="jquery/jquery-ui.min.css">
+        <script src="jquery/jquery-ui.min.js"></script>
         <style>
             .ui-tooltip {
                 position: absolute;
@@ -52,7 +52,7 @@
 
         <link href="popup.css" rel="stylesheet">
     </head>
-    <body style="background-color: lightseagreen">
+    <body style="background-color: lightseagreen;zoom:normal;">
 
         <div id="pageWrapper" style="height: 100%;margin-bottom: -25px;">
             <div id="topCol">
@@ -82,7 +82,7 @@
                             <div id="currentTimer" style="height: 25px;display : flex;align-items : center;font-size: 1.5em;">
                                 <!--<p style="display: inline-block;margin:5px 0;">暫停</p>-->
                                 <p id="timeDisplay" style="display: inline-block;"></p>
-                                <img id="cancelTimer" class="imgBtn" src="cancel.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
+                                <img id="cancelTimer" class="imgBtn" src="icons/cancel.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
                             </div>
                         </div>
                         <div id="timerNotYetSet" style="display: none;margin-left: 20px;">
@@ -91,7 +91,7 @@
                                 <input id="waitTime" class="mainPageInput focus-tooltip" style="display: inline-block;text-align: right;font-size: 0.9em;" title="1 ~ 999">
                                 <p style="display: inline-block;margin:5px 5px 5px 0;">分鐘</p>
                                 <!--<span style="font-size:0.3em;margin:5px 5px 5px 0;">(1~999)</span>-->
-                                <img id="startTimer" class="imgBtn" src="submit3.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
+                                <img id="startTimer" class="imgBtn" src="icons/submit.png" style="display: inline-block;width: 15px;height: 15px;" draggable="false">
                                 <!--<div id="timerInputPop" class="singleBottomTooltipText" style="width: 60px;left: 35%;">0 ~ 999</div>-->
                             </div>
                         </div>
@@ -110,7 +110,7 @@
                             <h6 style="margin:0">暫停鎖定</h6>
                             <!--<img id="prompt1" src="question.png" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 58px;left: 68px;">-->
                             <div class="hover-tooltip" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 31.5px;left: 53px;" title="關閉直到下次瀏覽">
-                                <img src="question.png" style="width: 100%;height: 100%;">
+                                <img src="icons/question.png" style="width: 100%;height: 100%;">
                             </div>
 
                             <!--<div style="margin-left: 20px;">-->
@@ -136,7 +136,7 @@
                 <div id="addToListType" class="subPage">
                     <div style="height: 30px;">
                         <div id="goToMainPage1" class="backBtn">
-                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                            <img src="icons/backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
                             <p style="margin: 0;">主功能</p>
@@ -171,7 +171,7 @@
                 <div id="possibleDomain" class="subPage remove">
                     <div style="height: 30px;">
                         <div id="goToMainPage10" class="backBtn">
-                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                            <img src="icons/backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
                             <p id="addToDomainType" style="margin: 0;">加入鎖定</p>
@@ -189,7 +189,7 @@
                 <div id="removeWhite" class="subPage remove">
                     <div style="height: 30px;">
                         <div id="goToMainPage6" class="backBtn">
-                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                            <img src="icons/backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
                             <p style="margin: 0;">管理白名單</p>
@@ -207,7 +207,7 @@
                 <div id="removeSoft" class="subPage remove">
                     <div style="height: 30px;">
                         <div id="goToMainPage7" class="backBtn">
-                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                            <img src="icons/backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
                             <p style="margin: 0;">管理鎖定</p>
@@ -239,7 +239,7 @@
                 <div id="statistics" class="subPage">
                     <div style="">
                         <div id="goToMainPage9" class="backBtn">
-                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                            <img src="icons/backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
                             <p style="margin: 0;">紀 錄</p>
@@ -295,7 +295,7 @@
                 <div id="settingPage" class="subPage remove">
                     <div style="height: 30px;">
                         <div id="goToMainPage11" class="backBtn">
-                            <img src="backArrow.png" style="height:100%;width: 100%;" draggable="false">
+                            <img src="icons/backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
                             <p style="margin: 0;">設 定</p>
@@ -319,7 +319,7 @@
                                     <input id="customizeBlockerInput" class="mainPageInput focus-tooltip" title="輸入HTML/CSS代碼" style="display: inline-block;margin: 0 5px;padding: 2px 4px;width: 140px;">
                                     <button id="customizeBlockerButton" class="optionBtn">確認</button>
                                     <div id="customizeBlockerTutorial" class="hover-tooltip" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;cursor:pointer;bottom: 28px;left: 53px;" title="說明">
-                                        <img src="question.png" style="width: 100%;height: 100%;">
+                                        <img src="icons/question.png" style="width: 100%;height: 100%;">
                                     </div>
                                 </div>
                             </div>
@@ -391,7 +391,7 @@
                 <button id="warningNo" class="optionBtn warningBtn">NO</button>
             </div>
             <div id="warningFakeLoad" style="width: 70%;margin: 50% auto 0;">
-                <img id="waitGif" src="wait.svg">
+                <img id="waitGif" src="icons/wait.svg">
                 <div></div>
                 <button id="warningCancel" class="optionBtn warningBtn">Cancel</button>
             </div>

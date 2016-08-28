@@ -1,5 +1,5 @@
-
 $(window).load(function () {
+
     $('.showCodeExample').click(function () {
         var codeBlock = $('#codeExample');
         var sec = $('#secondBtn');

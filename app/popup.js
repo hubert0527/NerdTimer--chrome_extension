@@ -361,11 +361,11 @@ function loadSettingMenu() {
         // }
     });
 
-    // $('#customizeBlockerTutorial').click(function () {
-    //     var path = chrome.extension.getURL("tutorial.html");
-    //     chrome.tabs.create({ url: path });
-    //
-    // });
+    $('#customizeBlockerTutorial').click(function () {
+        // var path = chrome.extension.getURL("tutorial.html");
+        // chrome.tabs.create({ url: path });
+        chrome.tabs.create({ url: 'https://hubert0527.github.io/myProjects/nerdTimer/customizedBlockerTutorial/tutorial.html' });
+    });
 }
 
 function typeIncorrectWarning() {

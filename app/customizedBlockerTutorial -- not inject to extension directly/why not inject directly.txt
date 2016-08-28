@@ -1,0 +1,2 @@
+Zooming on tutorial page will mage pop up window layout broken and cannot be fixed by any method.
+And browser zooming cannot be forbiddened by any strategy. So, give up inject directly.

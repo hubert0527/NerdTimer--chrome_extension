@@ -8,12 +8,12 @@
 
   "web_accessible_resources": [
     "blocker.html",
-    "jquery-1.11.3.min.js"
+    "jquery/jquery-1.11.3.min.js"
   ],
 
-  "icons": { "16": "icon.png",
-           "48": "icon.png",
-          "128": "icon.png" },
+  "icons": { "16": "icons/icon.png",
+           "48": "icons/icon.png",
+          "128": "icons/icon.png" },
 
   "browser_action": {
     "default_popup": "popup.html",
@@ -30,13 +30,13 @@
   "content_scripts": [
     {
       "matches": ["<all_urls>"],
-      "js": ["jquery-1.11.3.min.js","contentScript.js"],
+      "js": ["jquery/jquery-1.11.3.min.js","contentScript.js"],
       "run_at": "document_end"
     }
   ],
   "background": {
     "scripts": [
-      "jquery-1.11.3.min.js", "fileStorage.js", "utility.js","backgroundScript.js"
+      "jquery/jquery-1.11.3.min.js", "fileStorage.js", "utility.js","backgroundScript.js"
     ]
   }
 }

@@ -711,7 +711,7 @@ function injectScriptToSinglePage(tab) {
     chrome.tabs.executeScript(tab.id,{ code: needLoadJQuery }, function (re) {
         if(re) {
             //console.log('need inject jQuery, return ' + re);
-            chrome.tabs.executeScript(tab.id, {file: 'jquery-1.11.3.min.js'}, function () {
+            chrome.tabs.executeScript(tab.id, {file: 'jquery/jquery-1.11.3.min.js'}, function () {
                 chrome.tabs.executeScript(tab.id, {code: destroyBomb}, function () {
                     chrome.tabs.executeScript(tab.id, {file: "contentScript.js"}, function () {
                         //console.log('injected script!');
