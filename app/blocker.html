@@ -5,16 +5,18 @@
             <h1 id="nerdTimerMainMessage"></h1>
         </div>
         <div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;">
-            <button class="nerdTimerBlockerBtn" id="nerdTimerCloseIt">
+            <div class="nerdTimerBlockerBtn" id="nerdTimerCloseIt">
                 <div>
-                    <p>在這頁面暫時關閉</p>
+                    <p>在頁面暫時關閉</p>
                 </div>
-            </button>
-            <button class="nerdTimerBlockerBtn" id="nerdTimerRemindMeLater"><div>
-                <p>再給我</p>
-                <p id="nerdTimerRemindMeLaterTime">5</p>
-                <p>分鐘</p>
-            </div></button>
+            </div>
+            <div class="nerdTimerBlockerBtn" id="nerdTimerRemindMeLater">
+                <div>
+                    <p>再給我</p>
+                    <p id="nerdTimerRemindMeLaterTime">5</p>
+                    <p>分鐘</p>
+                </div>
+            </div>
         </div>
     </div>
     <span style="height: 100%;display: inline-block"></span>
@@ -31,6 +33,7 @@
         display: inline-block;
     }
     #nerdTimerBlockerWrapper{
+        -webkit-user-select: none;
         background-color: #888888;
         opacity: 0.7;
         height: 100vh;
@@ -50,6 +53,12 @@
         overflow: hidden;
         text-align: center;
         background-image: none;
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+    }
+    .nerdTimerBlockerBtn div{
+        width: 100%;
     }
     .nerdTimerBlockerBtn p{
         color: black;

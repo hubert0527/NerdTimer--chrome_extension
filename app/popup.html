@@ -300,8 +300,11 @@
                         <div class="subTitle">
                             <p style="margin: 0;">設 定</p>
                         </div>
-                        <div>
-                            <div style="margin-top: 10px;">
+
+                        <div style="height: 190px;overflow-y: scroll;margin-top: 5px;">
+                            <!--horrible workaround QQ-->
+                            <div style="width: 100%;height: 5px;"></div>
+                            <div>
                                 <h6 style="margin:0 0 3px 0">"再等我一下"時間</h6>
                                 <div style="margin-left: 20px;">
                                     <p style="margin: 0;padding: 0;font-size: 0.8em;">再給我
@@ -311,20 +314,29 @@
                             </div>
                             <hr>
                             <div style="margin-top: 10px;">
+                                <h6 style="margin:0 0 3px 0">阻擋頁按鍵</h6>
+                                <label class="switchWrapper" style="margin-left: 25px;margin-top: 5px">
+                                    <input id="useBlockerButtonSwitchBtn" class="mainPageInput" type="checkbox">
+                                    <div id="useBlockerButtonSwitchSlide" class="switchSlider round slideAnimation"></div>
+                                </label>
+                            </div>
+                            <hr>
+                            <div style="margin-top: 10px;">
                                 <h6 style="margin:0 0 3px 0">個人化阻擋頁</h6>
                                 <div style="margin-left: 20px;position: relative;">
                                     <div id="customizeBlockerWarning" style="height: 15px;width: 150px;margin: 0;padding: 5px 0;font-size: 0.66em;color: white;background-color: #444;position: absolute;left: 0;top:25px;text-align: center;display: none;">
                                         不正確的HTML
                                     </div>
-                                    <input id="customizeBlockerInput" class="mainPageInput focus-tooltip" title="輸入HTML/CSS代碼" style="display: inline-block;margin: 0 5px;padding: 2px 4px;width: 140px;">
-                                    <button id="customizeBlockerButton" class="optionBtn">確認</button>
-                                    <div id="customizeBlockerTutorial" class="hover-tooltip" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;cursor:pointer;bottom: 28px;left: 53px;" title="說明">
+                                    <input id="customizeBlockerInput" class="mainPageInput focus-tooltip" title="輸入HTML/CSS代碼" style="display: inline-block;margin: 0 5px;padding: 2px 4px;width: 125px;">
+                                    <button id="customizeBlockerButton" class="optionBtn" style="margin: 5px;">確認</button>
+                                    <!--<button id="clearCustomizeBlocker" class="optionBtn">清除</button>-->
+                                    <div id="customizeBlockerTutorial" class="hover-tooltip" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;cursor:pointer;bottom: 38px;left: 53px;" title="簡易教學">
                                         <img src="icons/question.png" style="width: 100%;height: 100%;">
                                     </div>
                                 </div>
                             </div>
                             <hr>
-                            <div style="margin-top: 10px;">
+                            <div style="margin-top: 10px;margin-bottom: 10px;">
                                 <h6 style="margin:0 0 3px 0">檔案</h6>
                                 <div style="margin-left: 20px;">
                                     <button id="exportData" class="optionBtn">匯出</button>

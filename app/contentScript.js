@@ -46,7 +46,16 @@ function nerdTimerMessageListener(msg, sender, sendResponse) {
     // use undefined cuz message might be empty string
     else if(msg.modifyMainMessage !=undefined){
         var tar = document.getElementById("nerdTimerMainMessage");
-        if(tar) $(tar).text(msg.modifyMainMessage);
+
+        // if someone wants it to be an input, text() will fail.
+        if(tar) {
+            if(tar.tagName=='INPUT'){
+                $(tar).val(msg.modifyMainMessage);
+            }
+            else{
+                $(tar).text(msg.modifyMainMessage);
+            }
+        }
     }
     // else if(msg.blockListChange){
     //     chrome.runtime.sendMessage({checkIfInList:"none"},function (res) {
@@ -63,7 +72,15 @@ function nerdTimerMessageListener(msg, sender, sendResponse) {
     // }
     else if(msg.waitNMinutesButtonChange){
         var time = parseInt(msg.waitNMinutesButtonChange);
-        $('#nerdTimerRemindMeLaterTime').text(time.toString());
+        var timerNumDisplay = $('#nerdTimerRemindMeLaterTime');
+
+        // if someone wants it to be an input, text() will fail.
+        if(timerNumDisplay[0].tagName=='INPUT'){
+            timerNumDisplay.val(time.toString());
+        }
+        else{
+            timerNumDisplay.text(time.toString());
+        }
     }
     else if(msg.updateNerdDivCode){
         if(msg.version>0 && msg.version!=currentVersion){
@@ -74,6 +91,17 @@ function nerdTimerMessageListener(msg, sender, sendResponse) {
             });
         }
     }
+    else if(msg.isBlockerButtonDisabled!=undefined){
+        displayBlockerBtn(msg.isBlockerButtonDisabled);
+    }
+    else if(msg.resetAll){
+        currentVersion = 0;
+        createNerdDiv();
+    }
+}
+
+function changeIcon(color) {
+    chrome.runtime.sendMessage({changeIcon:color});
 }
 
 function useUserLayout(code) {
@@ -98,56 +126,6 @@ function useUserLayout(code) {
     console.log('css='+css);
     console.log('js='+js);
 }
-
-// function doHardBlock(){
-//     // console.log("got hard block");
-//
-//     var tar = document.getElementById("nerdTimerBlockerWrapper");
-//     if(tar!=undefined){
-//         if($(tar).is(":visible")) {
-//             // already blocked
-//             // still need to check text
-//             chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
-//                 if(response && response.mainMessage!=undefined) {
-//                     var tar = $('#nerdTimerMainMessage');
-//                     if(tar.text()!=response.mainMessage) {
-//                         tar.fadeOut('fast', function () {
-//                             tar.text(response.mainMessage);
-//                             tar.fadeIn('fast');
-//                         });
-//                     }
-//                 }
-//             });
-//             return;
-//         }
-//         else{
-//             $('#nerdTimerBlockerWrapper').fadeIn("slow");
-//             // console.log("turn unvisible to visible");
-//             return;
-//         }
-//     }
-//
-//     var iDiv = document.createElement('div');
-//     iDiv.id = "nerdDiv";
-//
-//     var body = document.getElementsByTagName("BODY")[0];
-//     if(body){
-//         body.appendChild(iDiv);
-//     }
-//     else{
-//         document.getElementsByTagName("HTML")[0].appendChild(iDiv);;
-//     }
-//
-//
-//     var path = chrome.extension.getURL("blocker.html");
-//     $('#nerdDiv').load(path,function(){
-//         /**
-//          * write script for loaded blocker html here
-//          */
-//         $("#nerdTimerRemindMeLater").css("display","none");
-//         $("#nerdTimerCloseIt").css("display","none");
-//     });
-// }
 
 var currentVersion=0;
 
@@ -247,16 +225,28 @@ function prepareNerdDivContent() {
      */
     $("#nerdTimerRemindMeLater").click(function (event) {
         event.preventDefault();
-        var text = $('#nerdTimerRemindMeLaterTime').text();
-        var val = parseInt(text);
+
+        var val;
+        var timerNumDisplay = $('#nerdTimerRemindMeLaterTime');
+
+        // if someone wants it to be an input, text() will fail.
+        if(timerNumDisplay[0].tagName=='INPUT'){
+            val = parseInt(timerNumDisplay.val());
+        }
+        else{
+            val = parseInt(timerNumDisplay.text());
+        }
 
         $('#nerdDiv').fadeOut("slow");
+
+        // tell background script (i.e. worker) start a timer based on 'val' value
         chrome.runtime.sendMessage({"waitForMinutes": 'true',"waitVal":val}, function (response) {
             // console.log("waitForMinutes");
         });
     });
     $("#nerdTimerCloseIt").click(function (event) {
-        event.preventDefault();
+
+        // set GLOBAL stop-timer-working flag true
         stopForThisTime = true;
         $('#nerdDiv').fadeOut("slow");
     });
@@ -268,12 +258,7 @@ function prepareNerdDivContent() {
 
 function requestBlockState() {
 
-    //TODO: request query tab url from background script for NEWTAB
-    var url = cutOffHeadAndTail(window.location.href);
-    // console.log(url);
-
-    // newtab is an exception
-    chrome.runtime.sendMessage({"pageJustLoaded": url}, function (response) {
+    chrome.runtime.sendMessage({"pageJustLoaded": window.location.href}, function (response) {
         if(!response) return;
 
         if (response.block=="soft") {
@@ -285,18 +270,50 @@ function requestBlockState() {
                 isFadingOut = false;
             });
         }
+
+        displayBlockerBtn(response.isBlockerBtnDisabled);
     });
+}
+
+/**
+ * Show/hide two main buttons in blocker
+ * @param isDisabled
+ */
+function displayBlockerBtn(isDisabled) {
+    var b1 = $('#nerdTimerCloseIt');
+    var b2 = $('#nerdTimerRemindMeLater');
+    // show
+    if(!isDisabled){
+        b1.add(b2).show();
+    }
+    // kill
+    else if(isDisabled){
+        b1.add(b2).hide();
+    }
+
 }
 
 function requestMainMessage() {
     chrome.runtime.sendMessage({"getCurrentMainMessage": "true"}, function (response) {
         if (response && response.mainMessage != undefined) {
             var tar = $('#nerdTimerMainMessage');
-            if (tar.text() != response.mainMessage) {
-                tar.fadeOut('fast', function () {
-                    tar.text(response.mainMessage);
-                    tar.fadeIn('fast');
-                });
+
+            // if someone wants it to be an input, text() will fail.
+            if(tar[0].tagName=='INPUT'){
+                if (tar.val() != response.mainMessage) {
+                    tar.fadeOut('fast', function () {
+                        tar.val(response.mainMessage);
+                        tar.fadeIn('fast');
+                    });
+                }
+            }
+            else {
+                if (tar.text() != response.mainMessage) {
+                    tar.fadeOut('fast', function () {
+                        tar.text(response.mainMessage);
+                        tar.fadeIn('fast');
+                    });
+                }
             }
         }
     });
@@ -304,7 +321,17 @@ function requestMainMessage() {
 
 function getHowManyMinutesOnButton() {
     chrome.runtime.sendMessage({checkHowManyMinutesShowOnButton:"none"},function (response) {
-        if (response.res) $('#nerdTimerRemindMeLaterTime').text(response.res);
+        if (response.res) {
+            var timerNumDisplay = $('#nerdTimerRemindMeLaterTime');
+
+            // if someone wants it to be an input, text() will fail.
+            if(timerNumDisplay[0].tagName=='INPUT'){
+                timerNumDisplay.val(response.res);
+            }
+            else{
+                timerNumDisplay.text(response.res);
+            }
+        }
     });
 }
 

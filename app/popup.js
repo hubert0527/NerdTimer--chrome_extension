@@ -31,6 +31,7 @@ var ignore = [
 ];
 
 var isAppClosed = false;
+var isBlockerBtnDisabled = false;
 
 var timer = 0;
 var timerInst;
@@ -78,6 +79,7 @@ window.addEventListener("DOMContentLoaded", function() {
     loadTimerBlock();
     loadButtons();
     loadCloseButton();
+    loadBlockerButtonSwitchButton();
     loadSettings(function () {
         loadSettingMenu();
     });
@@ -129,6 +131,27 @@ chrome.runtime.sendMessage({isAppClosed:"none"},function(re){
     }
 });
 
+/**
+ * check if blocker btn is disabled
+ */
+chrome.runtime.sendMessage({isBlockerBtnDisabled:"none"},function(re){
+
+    // disable blocker buttons
+    if(re && re.res==true){
+        // turn bg to red
+        isBlockerBtnDisabled = true;
+
+        // clean toggle button animation only for short time slack
+        var btn = $("#useBlockerButtonSwitchBtn");
+        btn.toggleClass('slideAnimation');
+        document.getElementById("useBlockerButtonSwitchBtn").checked = true;
+    }
+    // enable blocker buttons
+    else{
+        // default
+    }
+});
+
 function loadCloseButton() {
     $('#closeButton').click(function(){
         // open
@@ -172,6 +195,23 @@ function loadCloseButton() {
                 chrome.tabs.sendMessage(tab.id,{block:"false"});
             });
         }
+    });
+}
+
+function loadBlockerButtonSwitchButton() {
+    $('#useBlockerButtonSwitchSlide').click(function () {
+        // open
+        if (isBlockerBtnDisabled) {
+            isBlockerBtnDisabled = false;
+
+            chrome.runtime.sendMessage({changeBlockerButtonShowStatus: isBlockerBtnDisabled});
+        }
+        else{
+            isBlockerBtnDisabled = true;
+
+            chrome.runtime.sendMessage({changeBlockerButtonShowStatus: isBlockerBtnDisabled});
+        }
+        saveSettings();
     });
 }
 
@@ -1567,6 +1607,7 @@ function clearLocalData() {
     $("#timerNotYetSet").css('display','block').val(10);
 
     isAppClosed = false;
+    isBlockerBtnDisabled = false;
     timer = 0;
     clearInterval(timerInst);
 
@@ -1591,6 +1632,7 @@ function clearLocalData() {
 
 function resetMainPageStyles() {
     $('body').css("background-color","lightseagreen");
+    document.getElementById("useBlockerButtonSwitchBtn").checked = false;
     document.getElementById("switchBtn").checked = false;
     $('#waitTime').val("10");
     $('#startTimer').fadeIn('fast');

@@ -191,6 +191,7 @@ function saveSettings(callback) {
     var data = {};
 
     data['waitNMinutesButton'] = waitNMinutesButton;
+    data['isBlockerBtnDisabled'] = isBlockerBtnDisabled;
 
     chrome.storage.local.set(data,function () {
         if(callback) callback();
@@ -201,12 +202,16 @@ function saveSettings(callback) {
 
 function loadSettings(callback) {
     var set = [
-        'waitNMinutesButton'
+        'waitNMinutesButton',
+        'isBlockerBtnDisabled'
     ];
     chrome.storage.local.get(set,function (data) {
 
         if(data && data.waitNMinutesButton) {
             waitNMinutesButton = data.waitNMinutesButton;
+        }
+        if(data && data.isBlockerBtnDisabled!=undefined){
+            isBlockerBtnDisabled = data.isBlockerBtnDisabled;
         }
 
         if(callback) callback();

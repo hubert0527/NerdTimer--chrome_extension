@@ -14,6 +14,7 @@ var timer=0;
 var timerInst;
 var isWaitingTimer = false;
 var isAppClosed = false;
+var isBlockerBtnDisabled = false;
 
 // content of blocker
 var mainMessage="You shall not pass!";
@@ -217,17 +218,24 @@ function checkBlock(purified){
     do{
         // search white first
         for(i=0;i<whiteList.length;i++){
-            if(isInList(temp,whiteList[i])==true) return 'white';
+            if(isInList(temp,whiteList[i])==true) {
+                changeIcon('white');
+                return 'white';
+            }
         }
         // search block
         // for(i=0;i<purifiedHardLock.length;i++){
         //     if(isInList(temp,purifiedHardLock[i])==true) return 1;
         // }
         for(i=0;i<softLockList.length;i++){
-            if(isInList(temp,softLockList[i])==true) return 'soft';
+            if(isInList(temp,softLockList[i])==true) {
+                changeIcon('soft');
+                return 'soft';
+            }
         }
     }while( (temp = clearLast(temp))!="" );
 
+    changeIcon('none');
     return 'none';
 }
 
@@ -281,24 +289,23 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg.pageJustLoaded){
         if(isAppClosed || isWaitingTimer){
-            sendResponse({block:'none'});
+            sendResponse({block:'none',blockerBtn:isBlockerBtnDisabled});
         }
         else {
             loadFile(function () {
-                if(msg.pageJustLoaded=='none') {
-                    getCurrentTabUrl(function (url) {
-                        var purified = purifyUrl(url);
+                getCurrentTab(function (tab) {
+                    var current = cutOffHeadAndTail(tab.url);
+                    var mPass = cutOffHeadAndTail(msg.pageJustLoaded);
+                    if(current==mPass){
+                        var purified = purifyUrl(current);
                         var blockState = checkBlock(purified);
-                        sendResponse({block: blockState});
+                        sendResponse({block: blockState,isBlockerBtnDisabled:isBlockerBtnDisabled});
                         console.log("on pageJustLoaded");
-                    });
-                }
-                else{
-                    var purified = purifyUrl(msg.pageJustLoaded);
-                    var blockState = checkBlock(purified);
-                    sendResponse({block: blockState});
-                    console.log("on pageJustLoaded");
-                }
+                    }
+                    else{
+                        sendResponse({isBlockerBtnDisabled:isBlockerBtnDisabled});
+                    }
+                });
             });
         }
     }
@@ -348,14 +355,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             }
 
             loadFile(function () {
-                if(msg.checkIfInList=="none"){
-                    doCheckIfInList(tab.url,tab,null);
-                }
-                else{
-                    // currently not used
-                    var url = msg.checkIfInList;
-                    doCheckIfInList(tab.url,tab,null);
-                }
+                doCheckIfInList(tab.url,tab,null);
             });
 
         });
@@ -446,15 +446,10 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     else if(msg.changeAppStatus){
         if(msg.changeAppStatus=="open"){
             isAppClosed = false;
-            loadFile(function () {
-                if(msg.checkIfInList=="none"){
+            getCurrentTab(function (tab) {
+                loadFile(function () {
                     doCheckIfInList(tab.url,tab,null);
-                }
-                else{
-                    // currently not used
-                    var url = msg.checkIfInList;
-                    doCheckIfInList(tab.url,tab,null);
-                }
+                });
             });
         }
         else{
@@ -486,9 +481,13 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg && msg.clearAllData){
         clearLocalData(true);
-        getCurrentTab(function (tab) {
-             chrome.tabs.sendMessage(tab.id, {block: "false"});
-        })
+        getAlltabs(function (tabs) {
+            for(var i in tabs){
+                if(tabs.hasOwnProperty(i)) {
+                    chrome.tabs.sendMessage(tabs[i].id, {resetAll:true});
+                }
+            }
+        });
     }
     else if(msg && msg.waitNMinutesButtonChange){
         waitNMinutesButton = parseInt(msg.waitNMinutesButtonChange);
@@ -521,6 +520,17 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     else if(msg.blockerLayoutVersionCheck){
         sendResponse({version:blockerLayoutVersion,code:blockerLayout});
     }
+    else if(msg.isBlockerBtnDisabled){
+        sendResponse({res:isBlockerBtnDisabled});
+    }
+    else if(msg.changeBlockerButtonShowStatus!=undefined){
+        isBlockerBtnDisabled = msg.changeBlockerButtonShowStatus;
+        getAlltabs(function(tabs){
+            for (var i = 0; i < tabs.length; i++) {
+                chrome.tabs.sendMessage(tabs[i].id,{isBlockerButtonDisabled: msg.changeBlockerButtonShowStatus});
+            }
+        });
+    }
 
     /**
      * IMPORTANT
@@ -528,6 +538,19 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
      */
     return true;
 });
+
+function changeIcon(blockState) {
+    if(blockState=='soft') {
+        chrome.browserAction.setIcon({
+            path: './icons/icon_red.png'
+        });
+    }
+    else{
+        chrome.browserAction.setIcon({
+            path: './icons/icon.png'
+        });
+    }
+}
 
 function setTimer(time,callback){
     isWaitingTimer = true;
@@ -828,8 +851,12 @@ function clearLocalData(deepClean) {
         clearInterval(timerInst);
         isWaitingTimer = false;
         isAppClosed = false;
+        isBlockerBtnDisabled = false;
         mainMessage="You shall not pass!";
         currentTab = undefined;
+
+        blockerLayout = undefined;
+        blockerLayoutVersion = 0;
     }
 
     softLockList = [];

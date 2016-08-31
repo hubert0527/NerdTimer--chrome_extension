@@ -142,6 +142,17 @@ function getCurrentTabUrl(callback) {
 
 }
 
+function getAlltabs(callback) {
+    var queryInfo = {
+        active: true,
+        currentWindow: true
+    };
+
+    chrome.tabs.query({}, function(tabs) {
+        callback(tabs);
+    });
+}
+
 function daysInMonth(month,year) {
     // cuz month 0 is January in JS, this gets last month' last date
     return new Date(year, month, 0).getDate();
