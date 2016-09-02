@@ -289,7 +289,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg.pageJustLoaded){
         if(isAppClosed || isWaitingTimer){
-            sendResponse({block:'none',blockerBtn:isBlockerBtnDisabled});
+            sendResponse({block:'none',isBlockerBtnDisabled:isBlockerBtnDisabled});
         }
         else {
             loadFile(function () {
