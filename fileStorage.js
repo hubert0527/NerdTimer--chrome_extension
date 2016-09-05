@@ -1,3 +1,6 @@
+
+var lastSaveFileDate ;
+
 /**
  * return in a array of time integer
  *
@@ -359,8 +362,8 @@ function loadFile(callBack,tab,callback2){
         "softLockList",
         // "softLockListData",
         "timeRecordData",
-        "singleSoftLock",
-        "singleWhite",
+        // "singleSoftLock",
+        // "singleWhite",
         "totalTimeRecord",
         // "locked-"+formattedDate, // use time of a single day of locked domain
         // "white-"+formattedDate,
@@ -381,31 +384,6 @@ function loadFile(callBack,tab,callback2){
         else{
             whiteList = [];
         }
-
-        // str = data.whiteListData;
-        // whiteTimeRecord = {};
-        //
-        // if(str!=undefined && str!="") {
-        //     var sp = str.split("::");
-        //     for (i = 0; i < sp.length; i++) {
-        //         // split for time record
-        //         sp2 = sp[i].split("||");
-        //         sp2[1] = parseInt(sp2[1]);
-        //         if(sp2[1]){
-        //             whiteTimeRecord[sp2[0]] = parseInt(sp2[1]);
-        //         }
-        //     }
-        // }
-
-        // str = data.hardLockListData;
-        // hardLockList = [];
-        // if(str!=undefined && str!="") {
-        //     sp = [];
-        //     sp = str.split("::");
-        //     for (i = 0; i < sp.length; i++) {
-        //         hardLockList.push(sp[i]);
-        //     }
-        // }
 
         str = data.softLockList;
         if(str!=undefined && str!="") {
@@ -498,76 +476,12 @@ function loadFile(callBack,tab,callback2){
 
 }
 
-// function test(){
-//     // get list
-//     var i;
-//     chrome.storage.local.get("whiteListData",function(data){
-//         var str = data.whiteListData;
-//         console.log("load white: " + str);
-//         //whiteList = [];
-//
-//         if(str!=undefined) {
-//             var spw = str.split("::");
-//             for (i = 0; i < spw.length; i++) {
-//                 whiteList[i] = spw[i];
-//             }
-//         }
-//
-//         // load black
-//         chrome.storage.local.get("blackListData",function(data){
-//             var str = data.blackListData;
-//             console.log("load black: " + str);
-//             //blackList = [];
-//             if(str!=undefined) {
-//                 var spb = str.split("::");
-//                 for (i = 0; i < spb.length; i++) {
-//                     blackList[i] = spb[i];
-//                 }
-//             }
-//
-//             chrome.storage.local.get("singleBlackData",function(data) {
-//                 var str = data.singleBlackData;
-//                 console.log("load single black: " + str);
-//                 singleBlack = [];
-//                 if (str != undefined) {
-//                     var spsb = str.split("::");
-//                     for (i = 0; i < spsb.length; i++) {
-//                         singleBlack.push(spsb[i]);
-//                     }
-//                 }
-//                 chrome.storage.local.get("singleWhiteData",function(data) {
-//                     var str = data.singleWhiteData;
-//                     console.log("load single white: " + str);
-//                     singleWhite = [];
-//                     if (str != undefined) {
-//                         var spsw = str.split("::");
-//                         for (i = 0; i < spsw.length; i++) {
-//                             singleWhite.push(spsw[i]);
-//                         }
-//                     }
-//
-//                     // getCurrentTab(function(tab){
-//                     //     chrome.tabs.sendMessage(tab.id, {none: "none"}, function(response) {
-//                     //         console.log("send message to " + tab.url + " id = " + tab.id);
-//                     //     });
-//                     // });
-//
-//                 });
-//             });
-//
-//         });
-//
-//     });
-//
-// }
-
 /**
  * difference is that this will merge this time browse data with last time and store
+ * @param designatedDate
  * @param callBack
  */
 function saveFileFully(designatedDate,callBack){
-
-    if(lockSaveFile) return;
 
     // save lists
     var i,j;
@@ -581,7 +495,21 @@ function saveFileFully(designatedDate,callBack){
         date = new Date();
     }
 
+    // this fires on date change
+    var serializedDate = date.getFullYear()*366+date.getMonth()*31+date.getDate();
+    if(lastSaveFileDate && lastSaveFileDate!=serializedDate){
+        // just change day, so save file to yesterday
+        date.setDate(date.getDate()-1);
+    }
+    lastSaveFileDate = serializedDate;
+
     var formattedDate = date.getFullYear()+'/'+(date.getMonth()+1)+'/'+date.getDate();
+
+    chrome.storage.local.get('installDate',function (data) {
+        if(!data || !data.installDate){
+            chrome.storage.local.set({installDate:formattedDate});
+        }
+    });
 
     console.log("saveFully at date " + formattedDate);
 
@@ -723,4 +651,113 @@ function clearAllData(){
             console.error(error);
         }
     });
+}
+
+function exportData(callback) {
+
+    var requestArr = [
+        'installDate',
+        "whiteList",
+        "softLockList",
+        "timeRecordData",
+        "totalTimeRecord"
+    ];
+
+    chrome.storage.local.get(requestArr,function (data) {
+
+        var fullData = {};
+
+        fullData['whiteList'] = data.whiteList;
+        fullData['softLockList'] = data.softLockList;
+        fullData['timeRecordData'] = data.timeRecordData;
+        fullData['totalTimeRecord'] = data.totalTimeRecord;
+
+        var allDate = getAllDatesFromInstallDate(data.installDate);
+
+        var req2 = [];
+        for(var i=0;i<allDate.length;i++){
+            req2.push("timeRecordData-"+allDate[i]);
+            req2.push("total-"+allDate[i]);
+            req2.push("lockedTotal-"+allDate[i]);
+            req2.push("whiteTotal-"+allDate[i]);
+        }
+
+        chrome.storage.local.get(req2,function (data) {
+            for(i=0;i<req2.length;i++){
+                fullData[req2[i]] = data[req2[i]];
+            }
+
+            var reStr = JSON.stringify(fullData);
+
+            console.log(reStr);
+
+            if(callback) callback(reStr);
+
+        });
+
+    });
+}
+
+function importData(data,callback) {
+
+    chrome.storage.local.set(data,function () {
+
+        // over-write local data
+        loadFile(function () {
+            chrome.runtime.sendMessage({forceReload:"none"},function(){
+                if(callback) callback();
+            });
+        });
+    });
+
+}
+
+function getAllDatesFromInstallDate(dateStr) {
+
+    var re=[];
+
+    var sp = dateStr.split('/');
+    var fromYear = sp[0];
+    var fromMonth = sp[1]-1; // month is special
+    var fromDate = sp[2];
+
+    var today = new Date();
+    var toYear = today.getFullYear();
+    var toMonth = today.getMonth();
+    var toDate = today.getDate();
+
+    for(var y=fromYear;y<=toYear;y++){
+
+        var monthUpperBound=11;
+        var monthLowerBound=0;
+
+        if(y==toYear){
+            monthUpperBound = toMonth;
+        }
+        if(y==fromYear){
+            monthLowerBound = fromMonth;
+        }
+
+        for(var m=monthLowerBound;m<=monthUpperBound;m++){
+
+            var dateUpperBound = daysInMonth(m+1,y);
+            var dateLowerBound = 1;
+
+            if(y==toYear && m==toMonth){
+                dateUpperBound = toDate;
+            }
+            if(y==fromYear && m==fromMonth){
+                dateLowerBound = fromDate;
+            }
+
+            for(var d=dateLowerBound;d<=dateUpperBound;d++){
+                var formattedDate = y+'/'+(m+1)+'/'+d;
+                re.push(formattedDate);
+                console.log(formattedDate);
+            }
+        }
+    }
+
+    return re;
+
 }

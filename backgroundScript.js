@@ -19,7 +19,6 @@ var isAppClosed = false;
 var mainMessage="You shall not pass!";
 
 var currentTab = undefined;
-var isCheckingReload = false;
 
 var ignore = [
     // "www",
@@ -69,10 +68,6 @@ var todayTotalTimeRecord=0;
 
 var waitNMinutesButton=5;
 
-// var purifiedSoftLock;
-// var purifiedHardLock;
-// var purifiedWhite;
-
 function init(){
     
     // get remain time of today, then force saveFully and set local data to 0 when times up.
@@ -91,9 +86,6 @@ function init(){
 init();
 
 var changeDayTimerInst;
-var lockSaveFile=false;
-
-var lastDay;
 
 function setChangeDayTimer() {
     var now = new Date();
@@ -106,68 +98,28 @@ function setChangeDayTimer() {
 
     var timeDiff = tomorrow.getTime() - now.getTime();
 
-    // too close to change day, might be dangerous wait next time
-    if(timeDiff<1000){
-        changeDayTimerInst=setInterval(function () {
-            clearInterval(changeDayTimerInst);
-            setChangeDayTimer();
-        },1005);
-    }
-    else{
-        changeDayTimerInst=setInterval(function () {
-            clearInterval(changeDayTimerInst);
-            var day = new Date();
+    if(changeDayTimerInst) clearInterval(changeDayTimerInst);
 
-            lastDay = day.getDate();
-
-            saveFileFully(day,function () {
-
-                var nextDay = new Date().getDate();
-                // save file lock
-                lockSaveFile = true;
-                while(nextDay==lastDay){
-                    nextDay = new Date().getDate();
-                }
-                lockSaveFile = false;
-                
-                clearLocalData();
+    changeDayTimerInst=setInterval(function () {
+        clearInterval(changeDayTimerInst);
+        getCurrentTab(function (tab) {
+            doTimeRecord(tab,function () {
+                clearLocalData(false);
                 loadFile();
             });
-            setChangeDayTimer();
-        },timeDiff-5);
-    }
+        });
+
+        setChangeDayTimer();
+
+    },timeDiff+1);
 
 }
 
-// function purifyBlackAndWhite(callback){
-//     var i;
-//
-//     // for(i=0;i<singleHardLock.length;i++){
-//     //     singleHardLock[i] = cutOffHeadAndTail(singleHardLock[i]);
-//     // }
-//     for(i=0;i<singleSoftLock.length;i++){
-//         singleSoftLock[i] = cutOffHeadAndTail(singleSoftLock[i]);
-//     }
-//     for(i=0;i<singleWhite.length;i++){
-//         singleWhite[i] = cutOffHeadAndTail(singleWhite[i]);
-//     }
-//
-//     // purifiedHardLock = new Array(hardLockList.length);
-//     // for(i=0;i<hardLockList.length;i++){
-//     //     purifiedHardLock[i] = purifyUrl(hardLockList[i]);
-//     // }
-//     purifiedSoftLock = new Array(softLockList.length);
-//     for(i=0;i<softLockList.length;i++){
-//         purifiedSoftLock[i] = purifyUrl(softLockList[i]);
-//     }
-//     purifiedWhite = new Array(whiteList.length);
-//     for(i=0;i<whiteList.length;i++){
-//         purifiedWhite[i] = purifyUrl(whiteList[i]);
-//     }
-//
-//     if(callback) callback();
-// }
-
+setInterval(function () {
+    getCurrentTab(function (tab) {
+        doTimeRecord(tab);
+    });
+},600000);
 
 /**
  * New implement cuz seems no need for special blocking rule(?)
@@ -536,18 +488,8 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     //         sendResponse({none:"none"});
     //     });
     // }
-    // else if(msg && msg.resetAllStatistics){
-    //     var i;
-    //     for(i=0;i<whiteTimeRecord.length;i++) whiteTimeRecord[i] = 0;
-    //     for(i=0;i<whiteTimeRecordNew.length;i++) whiteTimeRecordNew[i] = 0;
-    //     for(i=0;i<softTimeRecord.length;i++) softTimeRecord[i] = 0;
-    //     for(i=0;i<softTimeRecordNew.length;i++) softTimeRecordNew[i] = 0;
-    //     totalTimeRecord = 0;
-    //     totalTimeRecordNew = 0;
-    //     saveFileFully();
-    // }
     else if(msg && msg.leavePage){
-        console.log("on kill page");
+        console.log("on leave page");
         doTimeRecord("tabUrl",msg.leavePage);
         currentPage = "null";
         sendResponse({none:"none"});
@@ -558,9 +500,10 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         currentPageLoadTime = getCurrentTime();
         currentPage = msg.resumePage;
         sendResponse({none:"none"});
+        setChangeDayTimer();
     }
     else if(msg && msg.clearAllData){
-        clearLocalData();
+        clearLocalData(true);
         getCurrentTab(function (tab) {
              chrome.tabs.sendMessage(tab.id, {block: "false"});
         })
@@ -573,6 +516,12 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg && msg.checkHowManyMinutesShowOnButton){
         sendResponse({res: waitNMinutesButton});
+    }
+    else if(msg.forceReload){
+        loadFile(function () {
+            clearLocalData(false);
+            sendResponse({none:"none"});
+        });
     }
 
     /**
@@ -637,7 +586,7 @@ chrome.tabs.onActivated.addListener(function (tabId, windowId) {
     });
 });
 
-function doTimeRecord(tab,tabUrl){
+function doTimeRecord(tab,tabUrl,callback){
 
     var url;
     if(tab=="tabUrl"){
@@ -657,16 +606,22 @@ function doTimeRecord(tab,tabUrl){
         var current = getCurrentTime();
         var diff = current-currentPageLoadTime;
 
-        // prevent from idiot change day and make his/her extension explode
-        if(diff>0) searchDomain(pur, currentPage ,diff);
-
-        saveFileFully(function(){
-            // console.log("temporary save " + url + " with time : " + diff + "ms");
-        });
+        // prevent from idiotically change day and make his/her extension explode
+        if(diff>0 && diff<605000) searchDomain(pur, currentPage ,diff);
+        else {
+            loadFile(function () {
+                console.log('block possibly user change daytime');
+            });
+        }
 
         // load page for next record
         currentPageLoadTime = current;
         currentPage = url;
+
+        saveFileFully(function(){
+            if(callback) callback();
+            // console.log("temporary save " + url + " with time : " + diff + "ms");
+        });
     }
     else{
         // load page for next record
@@ -674,21 +629,6 @@ function doTimeRecord(tab,tabUrl){
         currentPage = url;
     }
 }
-
-/**
- * Fire on page load
- */
-var currentPage="";
-var currentPageLoadTime=0;
-chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
-    if (changeInfo.status == 'complete') {
-        // check block
-        dealWithUrlMain(tab,function(){
-            // console.log("on update");
-            //doTimeRecord(tab);
-        });
-    }
-});
 
 /**
  * return current time in long expression
@@ -700,13 +640,28 @@ function getCurrentTime() {
 }
 
 /**
+ * Fire on page load
+ */
+var currentPage="";
+var currentPageLoadTime=getCurrentTime();
+chrome.tabs.onUpdated.addListener( function (tabId, changeInfo, tab) {
+    if (changeInfo.status == 'complete') {
+        // check block
+        dealWithUrlMain(tab,function(){
+            // console.log("on update");
+            //doTimeRecord(tab);
+        });
+    }
+});
+
+/**
  * fire on browser close
  */
 chrome.windows.onRemoved.addListener(function(){
     console.log("on kill chrome");
     //saveCurrentTime(getCurrentTime());
     getCurrentTab(function (tab) {
-        // no value cuz no need
+        // no url cuz no need
         doTimeRecord();
     })
 });
@@ -758,42 +713,35 @@ function searchDomain(purified, rawUrl,  timeDiff) {
 
 }
 
-function clearLocalData() {
-    timer=0;
-    clearInterval(timerInst);
-    isWaitingTimer = false;
-    isAppClosed = false;
+/**
+ *
+ * @param deepClean
+ *          will also clean timer... etc.
+ */
+function clearLocalData(deepClean) {
 
-    mainMessage="You shall not pass!";
-
-    currentTab = undefined;
-    isCheckingReload = false;
-
-    singleSoftLock = [];
-    singleWhite = [];
+    if(deepClean){
+        timer=0;
+        clearInterval(timerInst);
+        isWaitingTimer = false;
+        isAppClosed = false;
+        mainMessage="You shall not pass!";
+        currentTab = undefined;
+    }
 
     softLockList = [];
     whiteList = [];
 
-    // softTimeRecord = {};
-    // whiteTimeRecord = {};
     timeRecord = {};
     totalTimeRecordNew=0;
     totalTimeRecord=0;
 
-    // softTimeRecordNew = {};
-    // whiteTimeRecordNew = {};
     timeRecordNew = {};
 
-    // todayWhiteTimeRecord = {};
-    // todaySoftTimeRecord = {};
     todayTimeRecord = {};
     todayWhiteTotalTimeRecord=0;
     todaySoftTotalTimeRecord=0;
     todayTotalTimeRecord=0;
-
-    purifiedSoftLock=[];
-    purifiedWhite=[];
 
     currentPageLoadTime = getCurrentTime();
 }

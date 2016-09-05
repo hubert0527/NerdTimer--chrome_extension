@@ -249,11 +249,6 @@ function changeToMode(changeToMode) {
 }
 
 
-function daysInMonth(month,year) {
-    // cuz month 0 is January in JS, this gets last month' last date
-    return new Date(year, month, 0).getDate();
-}
-
 function getPastNDays(n){
 
     var i;

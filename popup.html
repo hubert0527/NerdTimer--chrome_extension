@@ -68,7 +68,7 @@
             <div>
                 <div id="mainPage">
                     <div>
-                        <h6 style="margin: 5px 0">主功能</h6>
+                        <h6 style="margin:5px 0;">主功能</h6>
                         <div style="margin-left: 20px">
                             <button id="fastAdd" class="optionBtn hover-tooltip" title="加入整個網站">快速加入</button>
                             <button id="fastWhite" class="optionBtn hover-tooltip" title="僅此頁面">設為例外</button>
@@ -127,6 +127,8 @@
                                 <button id="moreSettings" class="optionBtn">更多...</button>
                             </div>
                         </div>
+                        <!-- 突出似乎比擠出去好? -->
+                        <!--<div style="clear: both;"></div>-->
                     </div>
 
                 </div>
@@ -303,7 +305,7 @@
                                 <h6 style="margin:0 0 3px 0">"再等我一下"時間</h6>
                                 <div style="margin-left: 20px;">
                                     <p style="margin: 0;padding: 0;font-size: 0.8em;">再給我
-                                    <input id="waitNMinutesButtonSetting" class="mainPageInput" title="1~999" style="display: inline-block;text-align: end;">
+                                    <input id="waitNMinutesButtonSetting" class="mainPageInput focus-tooltip" title="1~999" style="display: inline-block;text-align: end;">
                                     分鐘</p>
                                 </div>
                             </div>
@@ -311,7 +313,22 @@
                             <div style="margin-top: 10px;">
                                 <h6 style="margin:0 0 3px 0">檔案</h6>
                                 <div style="margin-left: 20px;">
-                                    <button id="clearAllData" class="optionBtn">清除</button>
+                                    <button id="exportData" class="optionBtn">匯出</button>
+                                    <button id="importData" class="optionBtn">匯入</button>
+                                    <button id="clearAllData" class="optionBtn" style="float:right;margin-right: 20px;">清除</button>
+                                </div>
+                                <div id="dataField">
+                                    <button id="closeDataField" class="optionBtn">✕</button>
+                                    <div style="margin: 10px 5%;position: relative;">
+                                        <h4 style="margin: 0;text-align: left;">Data</h4>
+                                        <input id="dataFieldInput">
+                                        <button id="dataFieldAction">複製</button>
+                                        <div id="dataFieldWarning" style="display: none;">
+                                            <h5 style="color: red;font-weight: 900;margin: 0;">將清除原本的資料！</h5>
+                                            <h5 id="temporaryWarning" style="color: red;font-weight: 900;margin: 0;display: none;">格式錯誤!!請確認檔案正確!</h5>
+                                            <h5 id="temporarySuccess" style="color: red;font-weight: 900;margin: 0;display: none;">成功匯入!</h5>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>

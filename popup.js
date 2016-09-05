@@ -60,10 +60,6 @@ var todayWhiteTotalTimeRecord=0;
 var todaySoftTotalTimeRecord=0;
 var todayTotalTimeRecord=0;
 
-var purifiedSoftLock;
-// var purifiedHardLock;
-var purifiedWhite;
-
 var fakeLoadTimerInst;
 
 var waitNMinutesButton=5;
@@ -184,42 +180,6 @@ var lastWaitNMinutesInput=5;
 
 function loadSettingMenu() {
 
-    $('#clearAllData').click(function () {
-        $('#warningContent1').text("確定清除所有資料？");
-        $('#warningContent2').text("(此操作無法回復)");
-        $('#warningCheck').css('display','block');
-        $('#warningFakeLoad').css('display','none');
-        $('#warningPop').fadeIn('fast',function () {
-            $('#warningYes').click(function () {
-                $('#warningYes').unbind( "click" );
-                $('#warningNo').unbind( "click" );
-                $('#warningCheck').fadeOut('fast',function () {
-                    $('#warningCancel').click(function(){
-                        clearInterval(fakeLoadTimerInst);
-                        $('#warningCancel').unbind( "click" );
-                        $('#warningPop').fadeOut('fast');
-                    });
-                    $('#warningFakeLoad').fadeIn('fast',function () {
-                        fakeLoadTimerInst = setInterval(function(){
-                            clearInterval(fakeLoadTimerInst);
-                            clearAllData();
-                            clearLocalData();
-                            chrome.runtime.sendMessage({clearAllData:"true"});
-                            resetMainPageStyles();
-                            $('#warningPop').fadeOut('fast');
-                            $('#warningCancel').unbind( "click" );
-                        },4000);
-                    });
-                });
-            });
-            $('#warningNo').click(function () {
-                $('#warningPop').fadeOut('fast');
-                $('#warningYes').unbind( "click" );
-                $('#warningNo').unbind( "click" );
-            });
-        })
-    });
-
     $('#waitNMinutesButtonSetting').val(waitNMinutesButton);
     lastWaitNMinutesInput = waitNMinutesButton.toString();
 
@@ -276,6 +236,118 @@ function loadSettingMenu() {
 
         lastWaitNMinutesInput = str;
     });
+
+    $('#clearAllData').click(function () {
+        $('#warningContent1').text("確定清除所有資料？");
+        $('#warningContent2').text("(此操作無法回復)");
+        $('#warningCheck').css('display','block');
+        $('#warningFakeLoad').css('display','none');
+        $('#warningPop').fadeIn('fast',function () {
+            $('#warningYes').click(function () {
+                $('#warningYes').unbind( "click" );
+                $('#warningNo').unbind( "click" );
+                $('#warningCheck').fadeOut('fast',function () {
+                    $('#warningCancel').click(function(){
+                        clearInterval(fakeLoadTimerInst);
+                        $('#warningCancel').unbind( "click" );
+                        $('#warningPop').fadeOut('fast');
+                    });
+                    $('#warningFakeLoad').fadeIn('fast',function () {
+                        fakeLoadTimerInst = setInterval(function(){
+                            clearInterval(fakeLoadTimerInst);
+                            clearAllData();
+                            clearLocalData();
+                            chrome.runtime.sendMessage({clearAllData:"true"});
+                            resetMainPageStyles();
+                            $('#warningPop').fadeOut('fast');
+                            $('#warningCancel').unbind( "click" );
+                        },4000);
+                    });
+                });
+            });
+            $('#warningNo').click(function () {
+                $('#warningPop').fadeOut('fast');
+                $('#warningYes').unbind( "click" );
+                $('#warningNo').unbind( "click" );
+            });
+        })
+    });
+
+    $('#closeDataField').click(function () {
+        $('#dataField').fadeOut('fast');
+    });
+
+    $('#exportData').click(function () {
+        exportData(function (data) {
+
+            $('#dataFieldWarning').css('display', 'none');
+            $('#dataFieldAction').off('click')
+                .text('複製')
+                .click(function () {
+                    $('#dataFieldInput').select();
+                    document.execCommand("copy");
+                });
+            $('#dataField').fadeIn();
+
+            $('#dataFieldInput').val(data).select();
+
+        });
+    });
+
+    $('#importData').click(function () {
+
+        $('#dataFieldInput').val('');
+        $('#dataFieldWarning').css('display','block');
+        $('#dataFieldAction').off('click')
+            .text('匯入')
+            .click(function () {
+                var str = $('#dataFieldInput').val();
+                var obj;
+                // check if is JSON
+                try {
+                    obj = JSON.parse(str);
+                } catch (e) {
+                    typeIncorrectWarning();
+                    return;
+                }
+
+                if(!obj){
+                    typeIncorrectWarning();
+                    return;
+                }
+
+                // prevent from type for fun
+                var k = Object.keys(obj);
+                if(!k || k.length<2){
+                    typeIncorrectWarning();
+                    return;
+                }
+
+                importData(obj,function () {
+                    $('#temporarySuccess').hide().fadeIn(function () {
+                        var i = setInterval(function () {
+                            clearInterval(i);
+                            $('#dataField').fadeOut('slow',function () {
+                                $('#temporarySuccess').css('display','none');
+                            });
+                        },300);
+                    });
+                });
+            });
+        $('#dataField').fadeIn('fast');
+    });
+}
+
+function typeIncorrectWarning() {
+
+    $('#temporaryWarning')
+        .hide()
+        .fadeIn('fast',function () {
+            var i = setInterval(function () {
+                clearInterval(i);
+                $('#temporaryWarning').fadeOut();
+            },1500);
+        });
 }
 
 function listPossibleAddDomain(type) {
@@ -504,42 +576,6 @@ function loadButtons() {
         }
     };
 
-    $('#clearAllData').click(function () {
-        $('#warningContent1').text("確定清除所有資料？");
-        $('#warningContent2').text("(此操作無法回復)");
-        $('#warningCheck').css('display','block');
-        $('#warningFakeLoad').css('display','none');
-        $('#warningPop').fadeIn('fast',function () {
-            $('#warningYes').click(function () {
-                $('#warningYes').unbind( "click" );
-                $('#warningNo').unbind( "click" );
-                $('#warningCheck').fadeOut('fast',function () {
-                    $('#warningCancel').click(function(){
-                        clearInterval(fakeLoadTimerInst);
-                        $('#warningCancel').unbind( "click" );
-                        $('#warningPop').fadeOut('fast');
-                    });
-                    $('#warningFakeLoad').fadeIn('fast',function () {
-                        fakeLoadTimerInst = setInterval(function(){
-                            clearInterval(fakeLoadTimerInst);
-                            clearAllData();
-                            clearLocalData();
-                            chrome.runtime.sendMessage({clearAllData:"true"});
-                            resetMainPageStyles();
-                            $('#warningPop').fadeOut('fast');
-                            $('#warningCancel').unbind( "click" );
-                        },4000);
-                    });
-                });
-            });
-            $('#warningNo').click(function () {
-                $('#warningPop').fadeOut('fast');
-                $('#warningYes').unbind( "click" );
-                $('#warningNo').unbind( "click" );
-            });
-        })
-    });
-
     // create sliding button                                                                  // current        target
     document.getElementById("goToAddToListType").addEventListener("click", function(){moveRightTo("#mainPage","#addToListType");});
     document.getElementById("moreSettings").addEventListener("click", function(){moveRightTo("#mainPage","#settingPage");});
@@ -640,6 +676,7 @@ function loadButtons() {
             });
 
             moveLeftTo("#settingPage","#mainPage");
+            $('#dataField').fadeOut('fast');
         });
     });
 
@@ -1462,7 +1499,7 @@ function addSubDomainToWhiteList(url){
     whiteList.push(url);
 
     getWebsiteBlockStatus(url);
-    
+
     saveFile(function(){
         getCurrentTab(function(tab){
             chrome.tabs.sendMessage(tab.id,{blockListChange:"false"});
@@ -1507,8 +1544,6 @@ function clearLocalData() {
     todaySoftTotalTimeRecord=0;
     todayTotalTimeRecord=0;
 
-    purifiedSoftLock=[];
-    purifiedWhite=[];
 }
 
 function resetMainPageStyles() {
