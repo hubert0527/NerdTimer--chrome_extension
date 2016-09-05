@@ -489,7 +489,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     //     });
     // }
     else if(msg && msg.leavePage){
-        console.log("on leave page");
+        // console.log("on leave page");
         doTimeRecord("tabUrl",msg.leavePage);
         currentPage = "null";
         sendResponse({none:"none"});
@@ -554,7 +554,7 @@ function doCheckIfInList(url,sendResponse) {
     else if(isBad==2) str = "soft";
     else str = "none";
     sendResponse({block:str});
-    console.log("is bad? " + str);
+    // console.log("is bad? " + str);
 }
 
 /**

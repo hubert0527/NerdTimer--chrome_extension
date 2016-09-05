@@ -26,12 +26,12 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg.block=="false"){
         isFadingOut = true;
-        $('#blockerWrapper').fadeOut("slow",function () {
+        $('#nerdTimerBlockerWrapper').fadeOut("slow",function () {
             isFadingOut = false;
         });
     }
     else if(msg.modifyMainMessage){
-        var tar = document.getElementById("main_message");
+        var tar = document.getElementById("nerdTimerMainMessage");
         if(tar) $(tar).text(msg.modifyMainMessage);
     }
     else if(msg.blockListChange){
@@ -44,7 +44,7 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
             }
             else if(res && (res.block=="false"||res.block=="white"||res.block=="none")){
                 isFadingOut = true;
-                $('#blockerWrapper').fadeOut("slow",function () {
+                $('#nerdTimerBlockerWrapper').fadeOut("slow",function () {
                     isFadingOut = false;
                 });
             }
@@ -52,21 +52,21 @@ chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
     }
     else if(msg.waitNMinutesButtonChange){
         var time = parseInt(msg.waitNMinutesButtonChange);
-        $('#remindMeLaterTime').text(time.toString());
+        $('#nerdTimerRemindMeLaterTime').text(time.toString());
     }
 },false);
 
 function doHardBlock(){
     // console.log("got hard block");
 
-    var tar = document.getElementById("blockerWrapper");
+    var tar = document.getElementById("nerdTimerBlockerWrapper");
     if(tar!=undefined){
         if($(tar).is(":visible")) {
             // already blocked
             // still need to check text
             chrome.runtime.sendMessage({"getCurrentMainMessage":"true"}, function(response) {
                 if(response && response.mainMessage!=undefined) {
-                    var tar = $('#main_message');
+                    var tar = $('#nerdTimerMainMessage');
                     if(tar.text()!=response.mainMessage) {
                         tar.fadeOut('fast', function () {
                             tar.text(response.mainMessage);
@@ -78,7 +78,7 @@ function doHardBlock(){
             return;
         }
         else{
-            $('#blockerWrapper').fadeIn("slow");
+            $('#nerdTimerBlockerWrapper').fadeIn("slow");
             // console.log("turn unvisible to visible");
             return;
         }
@@ -101,15 +101,15 @@ function doHardBlock(){
         /**
          * write script for loaded blocker html here
          */
-        $("#remindMeLater").css("display","none");
-        $("#closeIt").css("display","none");
+        $("#nerdTimerRemindMeLater").css("display","none");
+        $("#nerdTimerCloseIt").css("display","none");
     });
 }
 function doSoftBlock(){
     if(stopForThisTime) return ;
 
     // console.log("got soft block");
-    var tar = document.getElementById("blockerWrapper");
+    var tar = document.getElementById("nerdTimerBlockerWrapper");
     if (tar != undefined) {
         getHowManyMinutesOnButton();
         if ($(tar).is(":visible") && !isFadingOut) {
@@ -117,7 +117,7 @@ function doSoftBlock(){
             // still need to check text
             chrome.runtime.sendMessage({"getCurrentMainMessage": "true"}, function (response) {
                 if (response && response.mainMessage != undefined) {
-                    var tar = $('#main_message');
+                    var tar = $('#nerdTimerMainMessage');
                     if (tar.text() != response.mainMessage) {
                         tar.fadeOut('fast', function () {
                             tar.text(response.mainMessage);
@@ -130,7 +130,7 @@ function doSoftBlock(){
         }
         else {
             isFadingOut = false;
-            $('#blockerWrapper').fadeIn("slow");
+            $('#nerdTimerBlockerWrapper').fadeIn("slow");
             // console.log("turn unvisible to visible");
             return;
         }
@@ -152,20 +152,20 @@ function doSoftBlock(){
         /**
          * write script for loaded blocker html here
          */
-        $("#remindMeLater").click(function () {
-            var text = $('#remindMeLaterTime').text();
+        $("#nerdTimerRemindMeLater").click(function () {
+            var text = $('#nerdTimerRemindMeLaterTime').text();
             var val = parseInt(text);
 
-            $('#blockerWrapper').fadeOut("slow");
+            $('#nerdTimerBlockerWrapper').fadeOut("slow");
             chrome.runtime.sendMessage({"wait5Min": val}, function (response) {
                 // console.log("wait5Min");
             });
         });
-        $("#closeIt").click(function () {
+        $("#nerdTimerCloseIt").click(function () {
             stopForThisTime = true;
-            $('#blockerWrapper').fadeOut("slow");
+            $('#nerdTimerBlockerWrapper').fadeOut("slow");
         });
-        //document.getElementById("main_message").textContent = "load!";
+        //document.getElementById("nerdTimerMainMessage").textContent = "load!";
 
         getHowManyMinutesOnButton();
     });
@@ -174,7 +174,7 @@ function doSoftBlock(){
 
 function getHowManyMinutesOnButton() {
     chrome.runtime.sendMessage({checkHowManyMinutesShowOnButton:"none"},function (response) {
-        if (response.res) $('#remindMeLaterTime').text(response.res);
+        if (response.res) $('#nerdTimerRemindMeLaterTime').text(response.res);
     });
 }
 

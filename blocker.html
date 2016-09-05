@@ -6,16 +6,16 @@
 
 </head>
 <body>
-    <div id="blockerWrapper">
-        <div id="central_container" style="width:80%;margin-left:10%;margin-top:20vh; padding-bottom: 20%;">
-            <div id="central_message" style="text-align: center;height:15vh;">
-                <h1 id="main_message" style="font-size:15vh;font-weight: bolder;color: black;font-family:Georgia, serif,'Adobe 仿宋 Std R';"></h1>
+    <div id="nerdTimerBlockerWrapper">
+        <div id="nerdTimerCentralContainer" style="width:80%;margin-left:10%;margin-top:20vh; padding-bottom: 20%;">
+            <div style="text-align: center;height:15vh;">
+                <h1 id="nerdTimerMainMessage" style="font-size:15vh;font-weight: bolder;color: black;font-family:Georgia, serif,'Adobe 仿宋 Std R';"></h1>
             </div>
             <div style="width: 60%;bottom: 25vh;margin:0 10%;position: fixed;">
-                <button class="blockerBtn" id="closeIt"><div><p>在這頁面暫時別管我</p></div></button>
-                <button class="blockerBtn" id="remindMeLater"><div>
+                <button class="nerdTimerBlockerBtn" id="nerdTimerCloseIt"><div><p>在這頁面暫時別管我</p></div></button>
+                <button class="nerdTimerBlockerBtn" id="nerdTimerRemindMeLater"><div>
                     <p>再給我</p>
-                    <p id="remindMeLaterTime">5</p>
+                    <p id="nerdTimerRemindMeLaterTime">5</p>
                     <p>分鐘</p>
                 </div></button>
             </div>
@@ -25,10 +25,10 @@
     </div>
 
     <style>
-        #remindMeLater p{
+        #nerdTimerRemindMeLater p{
             display: inline-block;
         }
-        #blockerWrapper{
+        #nerdTimerBlockerWrapper{
             background-color: #888888;
             position: fixed;
             opacity: 0.7;
@@ -40,7 +40,7 @@
             display: none;
             font-family: /**Georgia,**/ "微軟正黑體",serif !important;
         }
-        .blockerBtn{
+        .nerdTimerBlockerBtn{
             float: left;
             width: 39%;
             height: 12vh;
@@ -55,35 +55,35 @@
             overflow: hidden;
             text-align: center;
         }
-        .blockerBtn p{
+        .nerdTimerBlockerBtn p{
             color: black;
             margin: 0;
         }
-        #remindMeLater{
+        #nerdTimerRemindMeLater{
             background-color: #00a5ff;
         }
-        #remindMeLater:hover{
+        #nerdTimerRemindMeLater:hover{
             background-color: white;
             box-shadow: 0 0 0 black;
         }
-        #closeIt{
+        #nerdTimerCloseIt{
             background-color: red;
         }
-        #closeIt:hover{
+        #nerdTimerCloseIt:hover{
             background-color: white;
             box-shadow: 0 0 0 black;
         }
     </style>
     <script>
 
-        $('#blockerWrapper').ready(function(){
+        $('#nerdTimerBlockerWrapper').ready(function(){
             var i = setInterval(function(){
                 clearInterval(i);
-                $('#blockerWrapper').fadeIn('slow');
+                $('#nerdTimerBlockerWrapper').fadeIn('slow');
             },1000);
         });
-        $("#central_container").ready(function(){
-            var target = document.getElementById("main_message");
+        $("#nerdTimerCentralContainer").ready(function(){
+            var target = document.getElementById("nerdTimerMainMessage");
 
             chrome.runtime.sendMessage({blockerLoadRequest: "giveMeData"}, function(response) {
                 console.log(response.mainMessage);
@@ -92,7 +92,7 @@
 
         });
 //        chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
-//            var target = document.getElementById("main_message");
+//            var target = document.getElementById("nerdTimerMainMessage");
 //            $(target).text("done!");
 //            console.log("haha");
 //        });

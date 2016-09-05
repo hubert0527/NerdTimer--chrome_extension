@@ -689,7 +689,7 @@ function exportData(callback) {
 
             var reStr = JSON.stringify(fullData);
 
-            console.log(reStr);
+            // console.log(reStr);
 
             if(callback) callback(reStr);
 
@@ -753,7 +753,7 @@ function getAllDatesFromInstallDate(dateStr) {
             for(var d=dateLowerBound;d<=dateUpperBound;d++){
                 var formattedDate = y+'/'+(m+1)+'/'+d;
                 re.push(formattedDate);
-                console.log(formattedDate);
+                // console.log(formattedDate);
             }
         }
     }
