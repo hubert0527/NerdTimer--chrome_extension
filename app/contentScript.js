@@ -75,6 +75,7 @@ function nerdTimerMessageListener(msg, sender, sendResponse) {
         var timerNumDisplay = $('#nerdTimerRemindMeLaterTime');
 
         // if someone wants it to be an input, text() will fail.
+        if(!timerNumDisplay[0]) return;
         if(timerNumDisplay[0].tagName=='INPUT'){
             timerNumDisplay.val(time.toString());
         }
@@ -230,6 +231,7 @@ function prepareNerdDivContent() {
         var timerNumDisplay = $('#nerdTimerRemindMeLaterTime');
 
         // if someone wants it to be an input, text() will fail.
+        if(!timerNumDisplay[0]) return;
         if(timerNumDisplay[0].tagName=='INPUT'){
             val = parseInt(timerNumDisplay.val());
         }
@@ -299,6 +301,7 @@ function requestMainMessage() {
             var tar = $('#nerdTimerMainMessage');
 
             // if someone wants it to be an input, text() will fail.
+            if(!tar[0]) return;
             if(tar[0].tagName=='INPUT'){
                 if (tar.val() != response.mainMessage) {
                     tar.fadeOut('fast', function () {
@@ -325,6 +328,7 @@ function getHowManyMinutesOnButton() {
             var timerNumDisplay = $('#nerdTimerRemindMeLaterTime');
 
             // if someone wants it to be an input, text() will fail.
+            if(!timerNumDisplay[0]) return;
             if(timerNumDisplay[0].tagName=='INPUT'){
                 timerNumDisplay.val(response.res);
             }

@@ -68,7 +68,7 @@
             <div>
                 <div id="mainPage">
                     <div>
-                        <h6 style="margin:5px 0;">主功能</h6>
+                        <h6 style="margin:5px 0;">頁面鎖定</h6>
                         <div style="margin-left: 20px">
                             <button id="fastAdd" class="optionBtn hover-tooltip" title="加入整個網站">快速加入</button>
                             <button id="fastWhite" class="optionBtn hover-tooltip" title="僅此頁面">設為例外</button>
@@ -107,19 +107,11 @@
                     <hr>
                     <div>
                         <div style="width: 50%;float: left;position: relative">
-                            <h6 style="margin:0">暫停鎖定</h6>
-                            <!--<img id="prompt1" src="question.png" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 58px;left: 68px;">-->
-                            <div class="hover-tooltip" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 31.5px;left: 53px;" title="關閉直到下次瀏覽">
-                                <img src="icons/question.png" style="width: 100%;height: 100%;">
-                            </div>
 
-                            <!--<div style="margin-left: 20px;">-->
-                                <!--<button id="closeButton" class="optionBtn" style="float: left;">停止鎖定</button>-->
-                            <!--</div>-->
-                            <label class="switchWrapper" style="margin-left: 25px;margin-top: 5px">
-                                <input id="switchBtn" class="mainPageInput" type="checkbox">
-                                <div id="closeButton" class="switchSlider round slideAnimation"></div>
-                            </label>
+                            <h5 style="margin:0 0 3px 0">紀錄</h5>
+                            <div style="margin-left: 20px">
+                                <button id="goToStatistics" class="optionBtn">觀看紀錄</button>
+                            </div>
                         </div>
                         <div style="width: 50%;float: left;">
                             <h6 style="margin:0 0 3px 0">設定</h6>
@@ -139,7 +131,7 @@
                             <img src="icons/backArrow.png" style="height:100%;width: 100%;" draggable="false">
                         </div>
                         <div class="subTitle">
-                            <p style="margin: 0;">主功能</p>
+                            <p style="margin: 0;">頁面鎖定</p>
                         </div>
                     </div>
                     <div style="margin-top: 10px;">
@@ -159,12 +151,6 @@
                             <button id="removeFromWhite" class="optionBtn" style="float: right;margin-right: 20px;">管理...</button>
                         </div>
 
-                        <hr>
-
-                        <h5 style="margin: 7px 0">紀錄</h5>
-                        <div style="margin-left: 20px">
-                            <button id="goToStatistics" class="optionBtn">觀看紀錄</button>
-                        </div>
                     </div>
                 </div>
 
@@ -314,14 +300,6 @@
                             </div>
                             <hr>
                             <div style="margin-top: 10px;">
-                                <h6 style="margin:0 0 3px 0">阻擋頁按鍵</h6>
-                                <label class="switchWrapper" style="margin-left: 25px;margin-top: 5px">
-                                    <input id="useBlockerButtonSwitchBtn" class="mainPageInput" type="checkbox">
-                                    <div id="useBlockerButtonSwitchSlide" class="switchSlider round slideAnimation"></div>
-                                </label>
-                            </div>
-                            <hr>
-                            <div style="margin-top: 10px;">
                                 <h6 style="margin:0 0 3px 0">個人化阻擋頁</h6>
                                 <div style="margin-left: 20px;position: relative;">
                                     <div id="customizeBlockerWarning" style="height: 15px;width: 150px;margin: 0;padding: 5px 0;font-size: 0.66em;color: white;background-color: #444;position: absolute;left: 0;top:25px;text-align: center;display: none;">
@@ -355,6 +333,28 @@
                                             <h5 id="temporarySuccess" style="color: red;font-weight: 900;margin: 0;display: none;">成功匯入!</h5>
                                         </div>
                                     </div>
+                                </div>
+                            </div>
+                            <hr>
+                            <div style="margin-top: 10px;display: flex;">
+                                <div style="width: 49%;">
+                                    <h6 style="margin:0 0 3px 0">阻擋頁按鍵</h6>
+                                    <label class="switchWrapper" style="margin-left: 25px;margin-top: 5px">
+                                        <input id="useBlockerButtonSwitchBtn" class="mainPageInput" type="checkbox">
+                                        <div id="useBlockerButtonSwitchSlide" class="switchSlider round slideAnimation"></div>
+                                    </label>
+                                </div>
+
+                                <div style="width: 50%;position: relative;">
+                                    <h6 style="margin:0 0 3px 0">暫停鎖定</h6>
+                                    <!--<img id="prompt1" src="question.png" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 58px;left: 68px;">-->
+                                    <div class="hover-tooltip" style="width: 14px;height: 14px;margin: 2px 5px;position: absolute;bottom: 34px;left: 50px;" title="關閉直到下次瀏覽">
+                                        <img src="icons/question.png" style="width: 100%;height: 100%;">
+                                    </div>
+                                    <label class="switchWrapper" style="margin-left: 25px;margin-top: 5px">
+                                        <input id="switchBtn" class="mainPageInput" type="checkbox">
+                                        <div id="closeButton" class="switchSlider round slideAnimation"></div>
+                                    </label>
                                 </div>
                             </div>
                         </div>
